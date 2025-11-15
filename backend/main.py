@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 
+# Import routes
+from routes.auth import router as auth_router
+
 # Load environment variables
 load_dotenv()
 
@@ -10,7 +13,10 @@ load_dotenv()
 app = FastAPI(
     title="Voyanero API",
     description="Backend API for Voyanero SaaS Platform",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 # Configure CORS
@@ -21,6 +27,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(auth_router)
 
 
 @app.get("/health")
