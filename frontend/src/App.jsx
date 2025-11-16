@@ -1,28 +1,85 @@
+import { useState, useEffect } from 'react'
 import './App.css'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import { getCurrentUser } from './lib/supabase'
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center">
-      <div className="text-center text-white px-4">
-        <h1 className="text-6xl md:text-8xl font-bold mb-4 animate-pulse">
-          Voyanero
-        </h1>
-        <p className="text-2xl md:text-4xl font-light mb-8">
-          Coming Soon
-        </p>
-        <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
-          We're building something amazing. Stay tuned for the launch of your next SaaS platform.
-        </p>
-        <div className="mt-12">
-          <div className="inline-block bg-white/10 backdrop-blur-sm rounded-full px-6 py-3">
-            <p className="text-sm font-medium">
-              Powered by FastAPI + React + Supabase
-            </p>
-          </div>
+  const [currentPage, setCurrentPage] = useState('loading')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  const checkAuth = async () => {
+    try {
+      const { user } = await getCurrentUser()
+
+      if (user) {
+        setIsAuthenticated(true)
+        // If on login page and authenticated, go to dashboard
+        if (window.location.pathname === '/login' || window.location.pathname === '/') {
+          setCurrentPage('dashboard')
+        } else {
+          setCurrentPage('dashboard')
+        }
+      } else {
+        setIsAuthenticated(false)
+        setCurrentPage('login')
+      }
+    } catch (error) {
+      console.error('Auth check error:', error)
+      setIsAuthenticated(false)
+      setCurrentPage('login')
+    }
+  }
+
+  // Simple client-side routing based on currentPage state
+  useEffect(() => {
+    // Update URL without reload
+    const path = currentPage === 'dashboard' ? '/dashboard' : '/login'
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path)
+    }
+  }, [currentPage])
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname
+      if (path === '/dashboard' && isAuthenticated) {
+        setCurrentPage('dashboard')
+      } else if (path === '/login' || path === '/') {
+        setCurrentPage('login')
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [isAuthenticated])
+
+  if (currentPage === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading Voyanero...</p>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (currentPage === 'login') {
+    return <Login />
+  }
+
+  if (currentPage === 'dashboard' && isAuthenticated) {
+    return <Dashboard />
+  }
+
+  // Fallback
+  return <Login />
 }
 
 export default App
