@@ -5,6 +5,14 @@ function Campaigns({ onNavigate }) {
   const [user, setUser] = useState(null)
   const [campaigns, setCampaigns] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    location: '',
+    radius: 5000,
+    keywords: '',
+  })
 
   useEffect(() => {
     loadData()
@@ -33,6 +41,37 @@ function Campaigns({ onNavigate }) {
     const { signOut } = await import('../lib/supabase')
     await signOut()
     onNavigate('login')
+  }
+
+  const handleOpenModal = () => {
+    setShowModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setFormData({
+      name: '',
+      description: '',
+      location: '',
+      radius: 5000,
+      keywords: '',
+    })
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    // TODO: Submit to API when endpoint is ready
+    console.log('Creating campaign:', formData)
+
+    // For now, just show success message
+    alert('Campaign creation coming soon! API endpoint will be connected shortly.')
+    handleCloseModal()
   }
 
   if (loading) {
@@ -84,7 +123,10 @@ function Campaigns({ onNavigate }) {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">My Campaigns</h2>
             <p className="text-gray-600">Create and manage your lead generation campaigns</p>
           </div>
-          <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+          <button
+            onClick={handleOpenModal}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+          >
             + New Campaign
           </button>
         </div>
@@ -109,7 +151,10 @@ function Campaigns({ onNavigate }) {
             <p className="text-gray-600 mb-6">
               Create your first campaign to start capturing leads
             </p>
-            <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition">
+            <button
+              onClick={handleOpenModal}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
+            >
               Create Your First Campaign
             </button>
           </div>
@@ -130,6 +175,141 @@ function Campaigns({ onNavigate }) {
           </div>
         )}
       </main>
+
+      {/* Create Campaign Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-900">Create New Campaign</h2>
+                <button
+                  onClick={handleCloseModal}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Campaign Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Restaurant Leads Munich"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows="3"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Describe your campaign goals..."
+                />
+              </div>
+
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                  Location *
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Munich, Germany or 48.1351,11.5820"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Enter city name or coordinates (latitude,longitude)
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-2">
+                  Search Radius (meters)
+                </label>
+                <input
+                  type="number"
+                  id="radius"
+                  name="radius"
+                  value={formData.radius}
+                  onChange={handleChange}
+                  min="100"
+                  max="50000"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Search area around location (100m - 50km)
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-2">
+                  Keywords *
+                </label>
+                <input
+                  type="text"
+                  id="keywords"
+                  name="keywords"
+                  value={formData.keywords}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., restaurant, hotel, cafe"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Comma-separated search keywords
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                >
+                  Create Campaign
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -60,7 +60,15 @@ function Credits({ onNavigate }) {
   const handlePurchase = (pkg) => {
     setSelectedPackage(pkg)
     // TODO: Integrate with Stripe when ready
-    alert(`Purchase ${pkg.name} package (${pkg.credits} credits) for $${pkg.price}\n\nStripe integration coming soon!`)
+    alert(
+      `🚀 Credit Purchase - ${pkg.name} Package\n\n` +
+      `Credits: ${pkg.credits}\n` +
+      `Price: $${pkg.price}\n` +
+      `Per Credit: $${(pkg.price / pkg.credits).toFixed(2)}\n\n` +
+      `Payment integration coming soon!\n\n` +
+      `For immediate purchase, please contact:\n` +
+      `support@voyanero.com`
+    )
   }
 
   if (loading) {

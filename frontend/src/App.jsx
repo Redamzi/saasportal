@@ -52,6 +52,9 @@ function App() {
 
   // Update URL when page changes
   useEffect(() => {
+    // Don't update URL while still checking authentication
+    if (currentPage === 'loading') return
+
     let path = '/login'
 
     if (isAuthenticated) {
