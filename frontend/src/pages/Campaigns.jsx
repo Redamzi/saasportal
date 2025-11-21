@@ -38,9 +38,17 @@ function Campaigns({ onNavigate }) {
       }
       setUser(currentUser)
 
-      // TODO: Fetch campaigns from API when endpoint is ready
-      // For now, show empty state
-      setCampaigns([])
+      // Fetch campaigns from API
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/list/${currentUser.id}`)
+
+      if (response.ok) {
+        const data = await response.json()
+        setCampaigns(data.campaigns || [])
+      } else {
+        console.error('Failed to fetch campaigns')
+        setCampaigns([])
+      }
     } catch (error) {
       console.error('Error loading campaigns:', error)
     } finally {
@@ -76,14 +84,41 @@ function Campaigns({ onNavigate }) {
   const handleCreateCampaign = async (e) => {
     e.preventDefault()
 
-    // TODO: POST to /api/campaigns/create
-    console.log('Creating campaign:', campaignFormData)
+    try {
+      // Create campaign via API
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          name: campaignFormData.name,
+          description: campaignFormData.description,
+          type: campaignFormData.type,
+        }),
+      })
 
-    // For now, show success and close
-    alert('Campaign created successfully!\n\nAPI endpoint: POST /api/campaigns/create\nStatus: Draft\n\nNext: Click "Search Leads" to start crawling.')
-    handleCloseCreateModal()
+      if (!response.ok) {
+        throw new Error('Failed to create campaign')
+      }
 
-    // TODO: Add to campaigns list with status="draft"
+      const data = await response.json()
+
+      if (data.success) {
+        // Add new campaign to list
+        setCampaigns((prev) => [data.campaign, ...prev])
+
+        alert('✅ Campaign created successfully!\n\nStatus: Draft\n\nNext: Click "Search Leads" to start crawling.')
+        handleCloseCreateModal()
+      } else {
+        throw new Error('Campaign creation failed')
+      }
+    } catch (error) {
+      console.error('Error creating campaign:', error)
+      alert('❌ Failed to create campaign. Please try again.')
+    }
   }
 
   // Search Leads Modal
