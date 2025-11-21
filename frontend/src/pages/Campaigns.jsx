@@ -247,13 +247,45 @@ function Campaigns({ onNavigate }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {campaigns.map((campaign) => (
               <div key={campaign.id} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+                {/* Status Badge */}
+                <div className="flex justify-between items-start mb-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    campaign.status === 'draft' ? 'bg-gray-100 text-gray-700' :
+                    campaign.status === 'active' ? 'bg-green-100 text-green-700' :
+                    campaign.status === 'completed' ? 'bg-blue-100 text-blue-700' :
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {campaign.status.toUpperCase()}
+                  </span>
+                </div>
+
+                {/* Campaign Info */}
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">{campaign.name}</h3>
-                <p className="text-gray-600 text-sm mb-4">{campaign.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">{campaign.leads_count} leads</span>
-                  <button className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded transition">
-                    View Details
-                  </button>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{campaign.description || 'No description'}</p>
+
+                {/* Stats */}
+                <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                  <span>{campaign.leads_count || 0} leads</span>
+                  <span className="capitalize">{campaign.type?.replace('_', ' ')}</span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                  {campaign.status === 'draft' ? (
+                    <button
+                      onClick={() => handleOpenSearchModal(campaign)}
+                      className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition"
+                    >
+                      Search Leads
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => alert(`Campaign Details\n\nID: ${campaign.id}\nName: ${campaign.name}\nStatus: ${campaign.status}\nLeads: ${campaign.leads_count || 0}\n\nFull detail page coming soon!`)}
+                      className="flex-1 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded transition"
+                    >
+                      View Details
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
