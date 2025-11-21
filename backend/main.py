@@ -5,6 +5,7 @@ import os
 
 # Import routes
 from routes.auth import router as auth_router
+from routes.places import router as places_router
 
 # Load environment variables
 load_dotenv()
@@ -30,6 +31,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(places_router)
 
 
 @app.get("/health")
