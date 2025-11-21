@@ -149,14 +149,44 @@ function Campaigns({ onNavigate }) {
   const handleStartSearch = async (e) => {
     e.preventDefault()
 
-    // TODO: POST to /api/campaigns/crawl/start
-    console.log('Starting lead search:', {
-      campaign_id: selectedCampaign?.id,
-      ...searchFormData
-    })
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-    alert('Lead search started!\n\nAPI endpoint: POST /api/campaigns/crawl/start\nStatus: Crawling\n\nThe campaign will update with results as leads are found.')
-    handleCloseSearchModal()
+      const response = await fetch(`${API_URL}/api/campaigns/crawl/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          campaign_id: selectedCampaign.id,
+          location: searchFormData.location,
+          radius: searchFormData.radius,
+          keywords: searchFormData.keywords,
+          target_lead_count: searchFormData.targetLeadCount,
+          min_rating: searchFormData.minRating,
+          min_reviews: searchFormData.minReviews,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to start crawl')
+      }
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`✅ Lead search completed!\n\n${data.message}\n\nLeads found: ${data.leads_found}\n\nRefreshing campaign list...`)
+
+        // Reload campaigns to show updated status
+        loadData()
+        handleCloseSearchModal()
+      } else {
+        throw new Error('Crawl failed')
+      }
+    } catch (error) {
+      console.error('Error starting search:', error)
+      alert('❌ Failed to start lead search. Please try again.')
+    }
   }
 
   if (loading) {
@@ -280,7 +310,7 @@ function Campaigns({ onNavigate }) {
                     </button>
                   ) : (
                     <button
-                      onClick={() => alert(`Campaign Details\n\nID: ${campaign.id}\nName: ${campaign.name}\nStatus: ${campaign.status}\nLeads: ${campaign.leads_count || 0}\n\nFull detail page coming soon!`)}
+                      onClick={() => onNavigate('campaignDetail', { campaignId: campaign.id })}
                       className="flex-1 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-medium rounded transition"
                     >
                       View Details

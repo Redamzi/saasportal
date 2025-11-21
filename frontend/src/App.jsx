@@ -3,6 +3,7 @@ import './App.css'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Campaigns from './pages/Campaigns'
+import CampaignDetail from './pages/CampaignDetail'
 import Credits from './pages/Credits'
 import Settings from './pages/Settings'
 import { getCurrentUser } from './lib/supabase'
@@ -10,6 +11,7 @@ import { getCurrentUser } from './lib/supabase'
 function App() {
   const [currentPage, setCurrentPage] = useState('loading')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [campaignId, setCampaignId] = useState(null)
 
   useEffect(() => {
     checkAuth()
@@ -27,6 +29,10 @@ function App() {
           setCurrentPage('dashboard')
         } else if (path === '/campaigns') {
           setCurrentPage('campaigns')
+        } else if (path.startsWith('/campaigns/')) {
+          const id = path.split('/campaigns/')[1]
+          setCampaignId(id)
+          setCurrentPage('campaignDetail')
         } else if (path === '/credits') {
           setCurrentPage('credits')
         } else if (path === '/settings') {
@@ -46,7 +52,10 @@ function App() {
   }
 
   // Navigation handler
-  const navigate = (page) => {
+  const navigate = (page, params = {}) => {
+    if (page === 'campaignDetail' && params.campaignId) {
+      setCampaignId(params.campaignId)
+    }
     setCurrentPage(page)
   }
 
@@ -64,6 +73,9 @@ function App() {
           break
         case 'campaigns':
           path = '/campaigns'
+          break
+        case 'campaignDetail':
+          path = `/campaigns/${campaignId}`
           break
         case 'credits':
           path = '/credits'
@@ -91,25 +103,31 @@ function App() {
         return
       }
 
-      switch (path) {
-        case '/dashboard':
-          setCurrentPage('dashboard')
-          break
-        case '/campaigns':
-          setCurrentPage('campaigns')
-          break
-        case '/credits':
-          setCurrentPage('credits')
-          break
-        case '/settings':
-          setCurrentPage('settings')
-          break
-        case '/login':
-        case '/':
-          setCurrentPage('dashboard')
-          break
-        default:
-          setCurrentPage('dashboard')
+      if (path.startsWith('/campaigns/')) {
+        const id = path.split('/campaigns/')[1]
+        setCampaignId(id)
+        setCurrentPage('campaignDetail')
+      } else {
+        switch (path) {
+          case '/dashboard':
+            setCurrentPage('dashboard')
+            break
+          case '/campaigns':
+            setCurrentPage('campaigns')
+            break
+          case '/credits':
+            setCurrentPage('credits')
+            break
+          case '/settings':
+            setCurrentPage('settings')
+            break
+          case '/login':
+          case '/':
+            setCurrentPage('dashboard')
+            break
+          default:
+            setCurrentPage('dashboard')
+        }
       }
     }
 
@@ -138,6 +156,8 @@ function App() {
         return <Dashboard onNavigate={navigate} />
       case 'campaigns':
         return <Campaigns onNavigate={navigate} />
+      case 'campaignDetail':
+        return <CampaignDetail campaignId={campaignId} onNavigate={navigate} />
       case 'credits':
         return <Credits onNavigate={navigate} />
       case 'settings':
