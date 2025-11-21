@@ -12,7 +12,7 @@ function Campaigns({ onNavigate }) {
   const [campaignFormData, setCampaignFormData] = useState({
     name: '',
     description: '',
-    type: 'Lead Generation',
+    type: 'lead_generation',
   })
 
   const [searchFormData, setSearchFormData] = useState({
@@ -72,7 +72,7 @@ function Campaigns({ onNavigate }) {
     setCampaignFormData({
       name: '',
       description: '',
-      type: 'Lead Generation',
+      type: 'lead_generation',
     })
   }
 
@@ -323,9 +323,9 @@ function Campaigns({ onNavigate }) {
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="Lead Generation">Lead Generation</option>
-                  <option value="Email Outreach">Email Outreach</option>
-                  <option value="Cold Calling">Cold Calling</option>
+                  <option value="lead_generation">Lead Generation</option>
+                  <option value="email_outreach">Email Outreach</option>
+                  <option value="cold_calling">Cold Calling</option>
                 </select>
               </div>
 
