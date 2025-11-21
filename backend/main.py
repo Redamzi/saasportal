@@ -6,6 +6,7 @@ import os
 # Import routes
 from routes.auth import router as auth_router
 from routes.places import router as places_router
+from routes.credits import router as credits_router
 
 # Load environment variables
 load_dotenv()
@@ -23,7 +24,12 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://frontend:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://frontend:3000",
+        "https://app.voyanero.com",
+        "https://voyanero.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,6 +38,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth_router)
 app.include_router(places_router)
+app.include_router(credits_router)
 
 
 @app.get("/health")

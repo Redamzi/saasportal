@@ -58,16 +58,26 @@ function Settings({ onNavigate }) {
     setMessage({ type: '', text: '' })
 
     try {
-      // TODO: Implement profile update API call
-      // For now, just show success message
+      // Update profile via Supabase
+      const { updateUserProfile } = await import('../lib/supabase')
+
+      const updates = {}
+      if (formData.fullName) updates.full_name = formData.fullName
+      if (formData.companyName) updates.company_name = formData.companyName
+
+      const { data, error } = await updateUserProfile(user.id, updates)
+
+      if (error) throw error
+
+      // Update local profile state
+      setProfile(data)
+
       setMessage({
         type: 'success',
         text: 'Settings updated successfully!',
       })
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
     } catch (error) {
+      console.error('Settings update error:', error)
       setMessage({
         type: 'error',
         text: 'Failed to update settings. Please try again.',
@@ -215,22 +225,29 @@ function Settings({ onNavigate }) {
 
             <div>
               <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2">
-                Custom Subdomain
+                Email Sending Domain
+                <span className="ml-2 text-xs text-gray-500" title="Auto-generated domain for Amazon SES email reputation isolation">
+                  ⓘ Auto-generated
+                </span>
               </label>
               <div className="flex">
                 <input
                   type="text"
                   id="subdomain"
                   name="subdomain"
-                  value={formData.subdomain}
-                  onChange={handleChange}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="yourcompany"
+                  value={formData.subdomain || 'Not configured'}
+                  readOnly
+                  disabled
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+                  placeholder="Not configured"
                 />
-                <span className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg bg-gray-50 text-gray-500 text-sm">
-                  .voyanero.com
+                <span className="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg bg-gray-100 text-gray-500 text-sm">
+                  .mail.voyanero.com
                 </span>
               </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Your dedicated email sending domain for reputation management
+              </p>
             </div>
 
             <div className="flex justify-end pt-4">

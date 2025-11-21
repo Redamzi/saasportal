@@ -57,18 +57,49 @@ function Credits({ onNavigate }) {
     onNavigate('login')
   }
 
-  const handlePurchase = (pkg) => {
+  const handlePurchase = async (pkg) => {
     setSelectedPackage(pkg)
-    // TODO: Integrate with Stripe when ready
-    alert(
-      `🚀 Credit Purchase - ${pkg.name} Package\n\n` +
-      `Credits: ${pkg.credits}\n` +
-      `Price: $${pkg.price}\n` +
-      `Per Credit: $${(pkg.price / pkg.credits).toFixed(2)}\n\n` +
-      `Payment integration coming soon!\n\n` +
-      `For immediate purchase, please contact:\n` +
-      `support@voyanero.com`
-    )
+
+    try {
+      // Get API URL from environment or use default
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+      // Create Stripe Checkout session
+      const response = await fetch(`${API_URL}/api/credits/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          package: pkg.credits,
+          amount: pkg.price * 100, // Convert to cents
+          package_name: pkg.name,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session')
+      }
+
+      const { url } = await response.json()
+
+      // Redirect to Stripe Checkout
+      window.location.href = url
+    } catch (error) {
+      console.error('Stripe checkout error:', error)
+
+      // Fallback to contact message
+      alert(
+        `🚀 Credit Purchase - ${pkg.name} Package\n\n` +
+        `Credits: ${pkg.credits}\n` +
+        `Price: $${pkg.price}\n` +
+        `Per Credit: $${(pkg.price / pkg.credits).toFixed(2)}\n\n` +
+        `Payment integration temporarily unavailable.\n\n` +
+        `For immediate purchase, please contact:\n` +
+        `support@voyanero.com`
+      )
+    }
   }
 
   if (loading) {

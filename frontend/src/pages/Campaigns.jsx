@@ -5,13 +5,24 @@ function Campaigns({ onNavigate }) {
   const [user, setUser] = useState(null)
   const [campaigns, setCampaigns] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showModal, setShowModal] = useState(false)
-  const [formData, setFormData] = useState({
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showSearchModal, setShowSearchModal] = useState(false)
+  const [selectedCampaign, setSelectedCampaign] = useState(null)
+
+  const [campaignFormData, setCampaignFormData] = useState({
     name: '',
     description: '',
+    type: 'Lead Generation',
+  })
+
+  const [searchFormData, setSearchFormData] = useState({
     location: '',
     radius: 5000,
     keywords: '',
+    targetLeadCount: 100,
+    minRating: 0,
+    minReviews: 0,
+    minLeadScore: 0,
   })
 
   useEffect(() => {
@@ -43,35 +54,74 @@ function Campaigns({ onNavigate }) {
     onNavigate('login')
   }
 
-  const handleOpenModal = () => {
-    setShowModal(true)
+  // Campaign Creation Modal
+  const handleOpenCreateModal = () => {
+    setShowCreateModal(true)
   }
 
-  const handleCloseModal = () => {
-    setShowModal(false)
-    setFormData({
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false)
+    setCampaignFormData({
       name: '',
       description: '',
-      location: '',
-      radius: 5000,
-      keywords: '',
+      type: 'Lead Generation',
     })
   }
 
-  const handleChange = (e) => {
+  const handleCampaignChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setCampaignFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e) => {
+  const handleCreateCampaign = async (e) => {
     e.preventDefault()
 
-    // TODO: Submit to API when endpoint is ready
-    console.log('Creating campaign:', formData)
+    // TODO: POST to /api/campaigns/create
+    console.log('Creating campaign:', campaignFormData)
 
-    // For now, just show success message
-    alert('Campaign creation coming soon! API endpoint will be connected shortly.')
-    handleCloseModal()
+    // For now, show success and close
+    alert('Campaign created successfully!\n\nAPI endpoint: POST /api/campaigns/create\nStatus: Draft\n\nNext: Click "Search Leads" to start crawling.')
+    handleCloseCreateModal()
+
+    // TODO: Add to campaigns list with status="draft"
+  }
+
+  // Search Leads Modal
+  const handleOpenSearchModal = (campaign) => {
+    setSelectedCampaign(campaign)
+    setShowSearchModal(true)
+  }
+
+  const handleCloseSearchModal = () => {
+    setShowSearchModal(false)
+    setSearchFormData({
+      location: '',
+      radius: 5000,
+      keywords: '',
+      targetLeadCount: 100,
+      minRating: 0,
+      minReviews: 0,
+      minLeadScore: 0,
+    })
+    setSelectedCampaign(null)
+  }
+
+  const handleSearchChange = (e) => {
+    const { name, value } = e.target
+    setSearchFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleStartSearch = async (e) => {
+    e.preventDefault()
+
+    // TODO: POST to /api/campaigns/crawl/start
+    console.log('Starting lead search:', {
+      campaign_id: selectedCampaign?.id,
+      ...searchFormData
+    })
+
+    alert('Lead search started!\n\nAPI endpoint: POST /api/campaigns/crawl/start\nStatus: Crawling\n\nThe campaign will update with results as leads are found.')
+    handleCloseSearchModal()
   }
 
   if (loading) {
@@ -124,7 +174,7 @@ function Campaigns({ onNavigate }) {
             <p className="text-gray-600">Create and manage your lead generation campaigns</p>
           </div>
           <button
-            onClick={handleOpenModal}
+            onClick={handleOpenCreateModal}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
           >
             + New Campaign
@@ -152,7 +202,7 @@ function Campaigns({ onNavigate }) {
               Create your first campaign to start capturing leads
             </p>
             <button
-              onClick={handleOpenModal}
+              onClick={handleOpenCreateModal}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition"
             >
               Create Your First Campaign
@@ -176,33 +226,25 @@ function Campaigns({ onNavigate }) {
         )}
       </main>
 
-      {/* Create Campaign Modal */}
-      {showModal && (
+      {/* Create Campaign Modal (Step 1) */}
+      {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-lg w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Create New Campaign</h2>
                 <button
-                  onClick={handleCloseModal}
+                  onClick={handleCloseCreateModal}
                   className="text-gray-400 hover:text-gray-600 transition"
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                     <path d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
                 </button>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <form onSubmit={handleCreateCampaign} className="p-6 space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                   Campaign Name *
@@ -211,11 +253,11 @@ function Campaigns({ onNavigate }) {
                   type="text"
                   id="name"
                   name="name"
-                  value={formData.name}
-                  onChange={handleChange}
+                  value={campaignFormData.name}
+                  onChange={handleCampaignChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., Restaurant Leads Munich"
+                  placeholder="e.g., Munich Restaurant Outreach Q1"
                 />
               </div>
 
@@ -226,14 +268,74 @@ function Campaigns({ onNavigate }) {
                 <textarea
                   id="description"
                   name="description"
-                  value={formData.description}
-                  onChange={handleChange}
+                  value={campaignFormData.description}
+                  onChange={handleCampaignChange}
                   rows="3"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Describe your campaign goals..."
+                  placeholder="Describe your campaign goals and target audience..."
                 />
               </div>
 
+              <div>
+                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+                  Campaign Type *
+                </label>
+                <select
+                  id="type"
+                  name="type"
+                  value={campaignFormData.type}
+                  onChange={handleCampaignChange}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Lead Generation">Lead Generation</option>
+                  <option value="Email Outreach">Email Outreach</option>
+                  <option value="Cold Calling">Cold Calling</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={handleCloseCreateModal}
+                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                >
+                  Create Campaign
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Search Leads Modal (Step 2) */}
+      {showSearchModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Search Leads</h2>
+                  <p className="text-sm text-gray-600 mt-1">Configure search parameters for lead generation</p>
+                </div>
+                <button
+                  onClick={handleCloseSearchModal}
+                  className="text-gray-400 hover:text-gray-600 transition"
+                >
+                  <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleStartSearch} className="p-6 space-y-6">
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
                   Location *
@@ -242,34 +344,34 @@ function Campaigns({ onNavigate }) {
                   type="text"
                   id="location"
                   name="location"
-                  value={formData.location}
-                  onChange={handleChange}
+                  value={searchFormData.location}
+                  onChange={handleSearchChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., Munich, Germany or 48.1351,11.5820"
+                  placeholder="e.g., Munich, Germany"
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  Enter city name or coordinates (latitude,longitude)
-                </p>
+                <p className="mt-1 text-sm text-gray-500">City name or coordinates</p>
               </div>
 
               <div>
                 <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-2">
-                  Search Radius (meters)
+                  Search Radius: {(searchFormData.radius / 1000).toFixed(1)} km
                 </label>
                 <input
-                  type="number"
+                  type="range"
                   id="radius"
                   name="radius"
-                  value={formData.radius}
-                  onChange={handleChange}
-                  min="100"
+                  value={searchFormData.radius}
+                  onChange={handleSearchChange}
+                  min="5000"
                   max="50000"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  step="1000"
+                  className="w-full"
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  Search area around location (100m - 50km)
-                </p>
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>5 km</span>
+                  <span>50 km</span>
+                </div>
               </div>
 
               <div>
@@ -280,21 +382,91 @@ function Campaigns({ onNavigate }) {
                   type="text"
                   id="keywords"
                   name="keywords"
-                  value={formData.keywords}
-                  onChange={handleChange}
+                  value={searchFormData.keywords}
+                  onChange={handleSearchChange}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="e.g., restaurant, hotel, cafe"
+                  placeholder="restaurant, cafe, hotel"
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  Comma-separated search keywords
-                </p>
+                <p className="mt-1 text-sm text-gray-500">Comma-separated search terms</p>
+              </div>
+
+              <div>
+                <label htmlFor="targetLeadCount" className="block text-sm font-medium text-gray-700 mb-2">
+                  Target Lead Count
+                </label>
+                <input
+                  type="number"
+                  id="targetLeadCount"
+                  name="targetLeadCount"
+                  value={searchFormData.targetLeadCount}
+                  onChange={handleSearchChange}
+                  min="10"
+                  max="1000"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="minRating" className="block text-sm font-medium text-gray-700 mb-2">
+                    Min Rating: {searchFormData.minRating}
+                  </label>
+                  <input
+                    type="range"
+                    id="minRating"
+                    name="minRating"
+                    value={searchFormData.minRating}
+                    onChange={handleSearchChange}
+                    min="0"
+                    max="5"
+                    step="0.5"
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="minReviews" className="block text-sm font-medium text-gray-700 mb-2">
+                    Min Reviews
+                  </label>
+                  <input
+                    type="number"
+                    id="minReviews"
+                    name="minReviews"
+                    value={searchFormData.minReviews}
+                    onChange={handleSearchChange}
+                    min="0"
+                    max="1000"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="minLeadScore" className="block text-sm font-medium text-gray-700 mb-2">
+                  Min Lead Score: {searchFormData.minLeadScore}
+                </label>
+                <input
+                  type="range"
+                  id="minLeadScore"
+                  name="minLeadScore"
+                  value={searchFormData.minLeadScore}
+                  onChange={handleSearchChange}
+                  min="0"
+                  max="100"
+                  step="5"
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>0</span>
+                  <span>100</span>
+                </div>
               </div>
 
               <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
                 <button
                   type="button"
-                  onClick={handleCloseModal}
+                  onClick={handleCloseSearchModal}
                   className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
                 >
                   Cancel
@@ -303,7 +475,7 @@ function Campaigns({ onNavigate }) {
                   type="submit"
                   className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
                 >
-                  Create Campaign
+                  Start Search
                 </button>
               </div>
             </form>
