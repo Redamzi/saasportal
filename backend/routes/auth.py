@@ -8,7 +8,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, Dict, Any
 from gotrue.errors import AuthApiError
 
-from ..services.auth_service import get_auth_service, AuthService
+from services.auth_service import get_auth_service, AuthService
 
 
 # Create router
