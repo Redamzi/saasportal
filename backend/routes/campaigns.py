@@ -108,9 +108,9 @@ async def start_crawl(req: CrawlRequest):
         if not campaign_result.data:
             raise HTTPException(404, "Campaign not found")
 
-        # Update campaign status to active
+        # Update campaign status to crawling
         supabase.table('campaigns')\
-            .update({'status': 'active'})\
+            .update({'status': 'crawling'})\
             .eq('id', req.campaign_id)\
             .execute()
 
@@ -158,9 +158,12 @@ async def start_crawl(req: CrawlRequest):
         if leads_to_insert:
             supabase.table('leads').insert(leads_to_insert).execute()
 
-        # Update campaign with lead count
+        # Update campaign with lead count and status to ready
         supabase.table('campaigns')\
-            .update({'leads_count': len(leads_to_insert)})\
+            .update({
+                'leads_count': len(leads_to_insert),
+                'status': 'ready'
+            })\
             .eq('id', req.campaign_id)\
             .execute()
 
@@ -173,11 +176,11 @@ async def start_crawl(req: CrawlRequest):
     except HTTPException:
         raise
     except Exception as e:
-        # Update campaign status to error if crawl fails
+        # Update campaign status to failed if crawl fails
         try:
             supabase = get_supabase_client()
             supabase.table('campaigns')\
-                .update({'status': 'error'})\
+                .update({'status': 'failed'})\
                 .eq('id', req.campaign_id)\
                 .execute()
         except:

@@ -160,9 +160,13 @@ function CampaignDetail({ campaignId, onNavigate }) {
             </div>
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
               campaign.status === 'draft' ? 'bg-gray-100 text-gray-700' :
-              campaign.status === 'active' ? 'bg-green-100 text-green-700' :
-              campaign.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-              'bg-red-100 text-red-700'
+              campaign.status === 'crawling' ? 'bg-yellow-100 text-yellow-700' :
+              campaign.status === 'ready' ? 'bg-green-100 text-green-700' :
+              campaign.status === 'running' ? 'bg-blue-100 text-blue-700' :
+              campaign.status === 'paused' ? 'bg-orange-100 text-orange-700' :
+              campaign.status === 'completed' ? 'bg-indigo-100 text-indigo-700' :
+              campaign.status === 'failed' ? 'bg-red-100 text-red-700' :
+              'bg-gray-100 text-gray-700'
             }`}>
               {campaign.status.toUpperCase()}
             </span>
