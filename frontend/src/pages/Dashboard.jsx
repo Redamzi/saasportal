@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getCurrentUser, signOut, getUserProfile } from '../lib/supabase'
 
-function Dashboard() {
+function Dashboard({ onNavigate }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -15,7 +15,7 @@ function Dashboard() {
       const { user: currentUser, profile: userProfile } = await getCurrentUser()
 
       if (!currentUser) {
-        window.location.href = '/login'
+        onNavigate('login')
         return
       }
 
@@ -23,7 +23,7 @@ function Dashboard() {
       setProfile(userProfile)
     } catch (error) {
       console.error('Error loading user:', error)
-      window.location.href = '/login'
+      onNavigate('login')
     } finally {
       setLoading(false)
     }
@@ -32,7 +32,7 @@ function Dashboard() {
   const handleLogout = async () => {
     try {
       await signOut()
-      window.location.href = '/login'
+      onNavigate('login')
     } catch (error) {
       console.error('Logout error:', error)
     }
@@ -134,7 +134,10 @@ function Dashboard() {
           </div>
 
           {/* Company */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div
+            onClick={() => onNavigate('settings')}
+            className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition"
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium text-gray-500">Company</h3>
               <div className="p-2 bg-purple-100 rounded-lg">
@@ -154,7 +157,9 @@ function Dashboard() {
             <p className="text-xl font-bold text-gray-900 truncate">
               {profile?.company_name || 'Not set'}
             </p>
-            <p className="text-sm text-gray-500 mt-2">Your organization</p>
+            <p className="text-sm text-gray-500 mt-2">
+              {profile?.company_name ? 'Your organization' : 'Click to set up'}
+            </p>
           </div>
         </div>
 
@@ -215,19 +220,28 @@ function Dashboard() {
 
         {/* Quick Actions */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition text-left">
+          <button
+            onClick={() => onNavigate('credits')}
+            className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition text-left"
+          >
             <h4 className="font-semibold text-blue-900 mb-1">Add Credits</h4>
             <p className="text-sm text-blue-700">
               Purchase more credits for lead generation
             </p>
           </button>
-          <button className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition text-left">
+          <button
+            onClick={() => onNavigate('campaigns')}
+            className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition text-left"
+          >
             <h4 className="font-semibold text-green-900 mb-1">Capture Leads</h4>
             <p className="text-sm text-green-700">
               Start capturing and managing leads
             </p>
           </button>
-          <button className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition text-left">
+          <button
+            onClick={() => onNavigate('settings')}
+            className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition text-left"
+          >
             <h4 className="font-semibold text-purple-900 mb-1">
               Settings
             </h4>

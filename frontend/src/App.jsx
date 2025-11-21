@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Campaigns from './pages/Campaigns'
+import Credits from './pages/Credits'
+import Settings from './pages/Settings'
 import { getCurrentUser } from './lib/supabase'
 
 function App() {
@@ -18,9 +21,16 @@ function App() {
 
       if (user) {
         setIsAuthenticated(true)
-        // If on login page and authenticated, go to dashboard
-        if (window.location.pathname === '/login' || window.location.pathname === '/') {
+        // Check current path and set page accordingly
+        const path = window.location.pathname
+        if (path === '/login' || path === '/') {
           setCurrentPage('dashboard')
+        } else if (path === '/campaigns') {
+          setCurrentPage('campaigns')
+        } else if (path === '/credits') {
+          setCurrentPage('credits')
+        } else if (path === '/settings') {
+          setCurrentPage('settings')
         } else {
           setCurrentPage('dashboard')
         }
@@ -35,23 +45,68 @@ function App() {
     }
   }
 
-  // Simple client-side routing based on currentPage state
+  // Navigation handler
+  const navigate = (page) => {
+    setCurrentPage(page)
+  }
+
+  // Update URL when page changes
   useEffect(() => {
-    // Update URL without reload
-    const path = currentPage === 'dashboard' ? '/dashboard' : '/login'
+    let path = '/login'
+
+    if (isAuthenticated) {
+      switch (currentPage) {
+        case 'dashboard':
+          path = '/dashboard'
+          break
+        case 'campaigns':
+          path = '/campaigns'
+          break
+        case 'credits':
+          path = '/credits'
+          break
+        case 'settings':
+          path = '/settings'
+          break
+        default:
+          path = '/dashboard'
+      }
+    }
+
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path)
     }
-  }, [currentPage])
+  }, [currentPage, isAuthenticated])
 
   // Handle browser back/forward buttons
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname
-      if (path === '/dashboard' && isAuthenticated) {
-        setCurrentPage('dashboard')
-      } else if (path === '/login' || path === '/') {
+
+      if (!isAuthenticated) {
         setCurrentPage('login')
+        return
+      }
+
+      switch (path) {
+        case '/dashboard':
+          setCurrentPage('dashboard')
+          break
+        case '/campaigns':
+          setCurrentPage('campaigns')
+          break
+        case '/credits':
+          setCurrentPage('credits')
+          break
+        case '/settings':
+          setCurrentPage('settings')
+          break
+        case '/login':
+        case '/':
+          setCurrentPage('dashboard')
+          break
+        default:
+          setCurrentPage('dashboard')
       }
     }
 
@@ -74,8 +129,19 @@ function App() {
     return <Login />
   }
 
-  if (currentPage === 'dashboard' && isAuthenticated) {
-    return <Dashboard />
+  if (isAuthenticated) {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard onNavigate={navigate} />
+      case 'campaigns':
+        return <Campaigns onNavigate={navigate} />
+      case 'credits':
+        return <Credits onNavigate={navigate} />
+      case 'settings':
+        return <Settings onNavigate={navigate} />
+      default:
+        return <Dashboard onNavigate={navigate} />
+    }
   }
 
   // Fallback
