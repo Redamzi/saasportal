@@ -145,8 +145,8 @@ async def stripe_webhook(request: Request):
             # Add credits to user's account
             # Using RPC function for atomic operation
             supabase.rpc('add_credits', {
-                'p_user_id': user_id,
-                'p_amount': credits
+                'user_id': user_id,
+                'amount': credits
             }).execute()
 
             # Log the transaction

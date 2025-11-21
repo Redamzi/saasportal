@@ -86,8 +86,8 @@ ON failed_transactions(resolved) WHERE resolved = FALSE;
 -- SECURITY DEFINER ensures it runs with elevated privileges
 
 CREATE OR REPLACE FUNCTION add_credits(
-    p_user_id UUID,
-    p_amount INTEGER
+    user_id UUID,
+    amount INTEGER
 )
 RETURNS void
 LANGUAGE plpgsql
@@ -97,14 +97,14 @@ BEGIN
     -- Update credits balance and total purchased
     UPDATE profiles
     SET
-        credits_balance = credits_balance + p_amount,
-        total_credits_purchased = COALESCE(total_credits_purchased, 0) + p_amount,
+        credits_balance = credits_balance + amount,
+        total_credits_purchased = COALESCE(total_credits_purchased, 0) + amount,
         updated_at = NOW()
-    WHERE id = p_user_id;
+    WHERE id = user_id;
 
     -- Raise exception if user not found
     IF NOT FOUND THEN
-        RAISE EXCEPTION 'User % not found', p_user_id;
+        RAISE EXCEPTION 'User % not found', user_id;
     END IF;
 END;
 $$;
@@ -121,9 +121,9 @@ GRANT EXECUTE ON FUNCTION add_credits(UUID, INTEGER) TO service_role;
 
 -- Function to deduct credits when user uses them
 CREATE OR REPLACE FUNCTION deduct_credits(
-    p_user_id UUID,
-    p_amount INTEGER,
-    p_description TEXT DEFAULT 'Credit usage'
+    user_id UUID,
+    amount INTEGER,
+    description TEXT DEFAULT 'Credit usage'
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -135,27 +135,27 @@ BEGIN
     -- Get current balance
     SELECT credits_balance INTO current_balance
     FROM profiles
-    WHERE id = p_user_id;
+    WHERE id = user_id;
 
     -- Check if user exists
     IF NOT FOUND THEN
-        RAISE EXCEPTION 'User % not found', p_user_id;
+        RAISE EXCEPTION 'User % not found', user_id;
     END IF;
 
     -- Check if sufficient credits
-    IF current_balance < p_amount THEN
+    IF current_balance < amount THEN
         RETURN FALSE; -- Insufficient credits
     END IF;
 
     -- Deduct credits
     UPDATE profiles
-    SET credits_balance = credits_balance - p_amount,
+    SET credits_balance = credits_balance - amount,
         updated_at = NOW()
-    WHERE id = p_user_id;
+    WHERE id = user_id;
 
     -- Log the transaction
     INSERT INTO credit_transactions (user_id, amount, type, description)
-    VALUES (p_user_id, -p_amount, 'usage', p_description);
+    VALUES (user_id, -amount, 'usage', description);
 
     RETURN TRUE; -- Success
 END;
