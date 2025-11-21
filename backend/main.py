@@ -7,6 +7,7 @@ import os
 from routes.auth import router as auth_router
 from routes.places import router as places_router
 from routes.credits import router as credits_router
+from routes.campaigns import router as campaigns_router
 
 # Load environment variables
 load_dotenv()
@@ -39,6 +40,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(places_router)
 app.include_router(credits_router)
+app.include_router(campaigns_router)
 
 
 @app.get("/health")
