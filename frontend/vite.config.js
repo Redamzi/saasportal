@@ -7,6 +7,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
+    allowedHosts: [
+      'app.voyanero.com',
+      'localhost',
+      '.voyanero.com'  // Allow all subdomains
+    ],
     watch: {
       usePolling: true,
     },
