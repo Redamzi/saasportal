@@ -8,7 +8,30 @@ function Dashboard({ onNavigate }) {
 
   useEffect(() => {
     loadUser()
+    checkPaymentStatus()
   }, [])
+
+  const checkPaymentStatus = () => {
+    // Check for payment success/cancellation in URL parameters
+    const params = new URLSearchParams(window.location.search)
+    const paymentStatus = params.get('payment')
+    const sessionId = params.get('session_id')
+
+    if (paymentStatus === 'success') {
+      // Show success message
+      setTimeout(() => {
+        alert('✅ Payment successful!\n\nYour credits have been added to your account.\n\nThank you for your purchase!')
+        // Refresh user data to show updated credits
+        loadUser()
+      }, 500)
+
+      // Clean URL by removing query parameters
+      window.history.replaceState({}, '', '/dashboard')
+    } else if (paymentStatus === 'cancelled') {
+      alert('Payment was cancelled.\n\nNo charges were made to your account.')
+      window.history.replaceState({}, '', '/dashboard')
+    }
+  }
 
   const loadUser = async () => {
     try {
