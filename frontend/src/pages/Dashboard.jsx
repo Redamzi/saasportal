@@ -242,23 +242,32 @@ function Dashboard({ onNavigate }) {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onClick={() => onNavigate('campaigns')}
+            className="p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition text-left"
+          >
+            <h4 className="font-semibold text-indigo-900 mb-1">Meine Kampagnen</h4>
+            <p className="text-sm text-indigo-700">
+              Kampagnen erstellen und verwalten
+            </p>
+          </button>
           <button
             onClick={() => onNavigate('credits')}
             className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition text-left"
           >
-            <h4 className="font-semibold text-blue-900 mb-1">Add Credits</h4>
+            <h4 className="font-semibold text-blue-900 mb-1">Credits kaufen</h4>
             <p className="text-sm text-blue-700">
-              Purchase more credits for lead generation
+              Weitere Credits für Lead-Generierung
             </p>
           </button>
           <button
             onClick={() => onNavigate('campaigns')}
             className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition text-left"
           >
-            <h4 className="font-semibold text-green-900 mb-1">Capture Leads</h4>
+            <h4 className="font-semibold text-green-900 mb-1">Leads erfassen</h4>
             <p className="text-sm text-green-700">
-              Start capturing and managing leads
+              Neue Leads suchen und speichern
             </p>
           </button>
           <button
@@ -266,10 +275,10 @@ function Dashboard({ onNavigate }) {
             className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition text-left"
           >
             <h4 className="font-semibold text-purple-900 mb-1">
-              Settings
+              Einstellungen
             </h4>
             <p className="text-sm text-purple-700">
-              Configure your account preferences
+              Konto-Einstellungen bearbeiten
             </p>
           </button>
         </div>
