@@ -189,6 +189,37 @@ function Campaigns({ onNavigate }) {
     }
   }
 
+  // Delete Campaign
+  const handleDeleteCampaign = async (campaignId, campaignName) => {
+    if (!confirm(`Campaign "${campaignName}" wirklich löschen?\n\nAlle zugehörigen Leads werden ebenfalls gelöscht.`)) {
+      return
+    }
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/${campaignId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete campaign')
+      }
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert('✅ Campaign erfolgreich gelöscht!')
+        // Reload campaigns list
+        loadData()
+      } else {
+        throw new Error('Delete failed')
+      }
+    } catch (error) {
+      console.error('Error deleting campaign:', error)
+      alert('❌ Fehler beim Löschen der Campaign. Bitte erneut versuchen.')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -320,6 +351,16 @@ function Campaigns({ onNavigate }) {
                       View Details
                     </button>
                   )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteCampaign(campaign.id, campaign.name)
+                    }}
+                    className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded transition"
+                    title="Campaign löschen"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))}

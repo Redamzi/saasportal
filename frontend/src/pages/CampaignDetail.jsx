@@ -13,6 +13,14 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
   const loadData = async () => {
     try {
+      // Validate campaignId exists
+      if (!campaignId || campaignId === 'null' || campaignId === 'undefined') {
+        console.error('Invalid campaign ID:', campaignId)
+        setCampaign(null)
+        setLoading(false)
+        return
+      }
+
       const { user: currentUser } = await getCurrentUser()
       if (!currentUser) {
         onNavigate('login')
@@ -29,10 +37,12 @@ function CampaignDetail({ campaignId, onNavigate }) {
         setCampaign(data.campaign)
         setLeads(data.leads || [])
       } else {
-        console.error('Failed to fetch campaign details')
+        console.error('Failed to fetch campaign details', response.status)
+        setCampaign(null)
       }
     } catch (error) {
       console.error('Error loading campaign:', error)
+      setCampaign(null)
     } finally {
       setLoading(false)
     }

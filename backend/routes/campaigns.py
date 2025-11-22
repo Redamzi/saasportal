@@ -231,3 +231,38 @@ async def start_crawl(req: CrawlRequest):
         except:
             pass
         raise HTTPException(500, f"Crawl failed: {str(e)}")
+
+@router.delete("/{campaign_id}")
+async def delete_campaign(campaign_id: str):
+    """Delete a campaign and its associated leads"""
+    try:
+        supabase = get_supabase_client()
+
+        # Get campaign to verify it exists
+        campaign_result = supabase.table('campaigns')\
+            .select('*')\
+            .eq('id', campaign_id)\
+            .single()\
+            .execute()
+
+        if not campaign_result.data:
+            raise HTTPException(404, "Campaign not found")
+
+        # Delete associated leads (cascade delete)
+        supabase.table('leads')\
+            .delete()\
+            .eq('campaign_id', campaign_id)\
+            .execute()
+
+        # Delete campaign
+        supabase.table('campaigns')\
+            .delete()\
+            .eq('id', campaign_id)\
+            .execute()
+
+        return {"success": True, "message": "Campaign deleted successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Failed to delete campaign: {str(e)}")
