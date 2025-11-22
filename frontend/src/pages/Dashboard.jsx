@@ -1,31 +1,113 @@
-import { useState, useEffect } from 'react'
-import { getCurrentUser, signOut, getUserProfile } from '../lib/supabase'
+import { useEffect, useState } from 'react'
+import {
+  DollarSign, Users, FolderKanban, CreditCard,
+  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp
+} from "lucide-react"
+import { getCurrentUser, signOut } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
-function Dashboard({ onNavigate }) {
+const StatsCard = ({ title, value, description, icon: Icon, iconBgColor, iconColor }) => (
+  <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-sm font-medium text-slate-500">{title}</p>
+        <h3 className="text-2xl font-bold mt-2 text-slate-900">{value}</h3>
+        <p className="text-xs text-slate-500 mt-1">{description}</p>
+      </div>
+      <div className={`p-3 rounded-lg ${iconBgColor}`}>
+        <Icon className={`w-6 h-6 ${iconColor}`} />
+      </div>
+    </div>
+  </div>
+)
+
+const ActionCard = ({ title, description, icon: Icon, onClick, colorClass }) => (
+  <button
+    onClick={onClick}
+    className="group relative overflow-hidden bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 text-left w-full"
+  >
+    <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br ${colorClass}`} />
+    <div className="relative z-10">
+      <div className="w-12 h-12 rounded-lg bg-slate-50 group-hover:bg-white flex items-center justify-center mb-4 transition-colors">
+        <Icon className="w-6 h-6 text-slate-700 group-hover:text-blue-600" />
+      </div>
+      <h3 className="font-bold text-lg text-slate-900 mb-1">{title}</h3>
+      <p className="text-sm text-slate-500">{description}</p>
+    </div>
+  </button>
+)
+
+const ProfileSection = ({ profile, user, onNavigate }) => (
+  <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 md:p-8">
+    <div className="flex flex-col md:flex-row justify-between gap-6 mb-6 border-b pb-6">
+      <div>
+        <h2 className="text-xl font-bold text-slate-900">Account Übersicht</h2>
+        <p className="text-slate-500">Ihre persönlichen Daten und Einstellungen</p>
+      </div>
+      <button
+        onClick={() => onNavigate('settings')}
+        className="text-sm font-medium text-blue-600 hover:underline flex items-center gap-1"
+      >
+        Bearbeiten <ArrowRight className="w-4 h-4" />
+      </button>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div>
+        <label className="text-xs uppercase text-slate-400 font-semibold">Name</label>
+        <p className="font-medium text-slate-900 mt-1">{profile?.full_name || '-'}</p>
+      </div>
+      <div>
+        <label className="text-xs uppercase text-slate-400 font-semibold">Email</label>
+        <div className="flex items-center gap-2 mt-1">
+          <p className="font-medium text-slate-900">{user?.email}</p>
+          {user?.email_confirmed_at && (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          )}
+        </div>
+      </div>
+      <div>
+        <label className="text-xs uppercase text-slate-400 font-semibold">Unternehmen</label>
+        <p className="font-medium text-slate-900 mt-1">{profile?.company_name || '-'}</p>
+      </div>
+      <div>
+        <label className="text-xs uppercase text-slate-400 font-semibold">Credits</label>
+        <p className="font-medium text-slate-900 mt-1">{profile?.credits_balance || 0} Credits</p>
+      </div>
+      <div>
+        <label className="text-xs uppercase text-slate-400 font-semibold">Mitglied seit</label>
+        <p className="font-medium text-slate-900 mt-1">
+          {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '-'}
+        </p>
+      </div>
+      <div>
+        <label className="text-xs uppercase text-slate-400 font-semibold">Subdomain</label>
+        <p className="font-medium text-slate-900 mt-1">{profile?.subdomain || '-'}</p>
+      </div>
+    </div>
+  </div>
+)
+
+export default function Dashboard({ onNavigate }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  const [stats, setStats] = useState({ credits: 0, totalLeads: 0, totalCampaigns: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadUser()
+    loadData()
     checkPaymentStatus()
   }, [])
 
   const checkPaymentStatus = () => {
-    // Check for payment success/cancellation in URL parameters
     const params = new URLSearchParams(window.location.search)
     const paymentStatus = params.get('payment')
-    const sessionId = params.get('session_id')
 
     if (paymentStatus === 'success') {
-      // Show success message
       setTimeout(() => {
         alert('✅ Payment successful!\n\nYour credits have been added to your account.\n\nThank you for your purchase!')
-        // Refresh user data to show updated credits
-        loadUser()
+        loadData()
       }, 500)
-
-      // Clean URL by removing query parameters
       window.history.replaceState({}, '', '/dashboard')
     } else if (paymentStatus === 'cancelled') {
       alert('Payment was cancelled.\n\nNo charges were made to your account.')
@@ -33,258 +115,140 @@ function Dashboard({ onNavigate }) {
     }
   }
 
-  const loadUser = async () => {
+  const loadData = async () => {
     try {
-      const { user: currentUser, profile: userProfile } = await getCurrentUser()
-
+      const { user: currentUser } = await getCurrentUser()
       if (!currentUser) {
         onNavigate('login')
         return
       }
 
       setUser(currentUser)
-      setProfile(userProfile)
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single()
+
+      setProfile(profileData)
+
+      // Fetch leads count
+      const { count: leadsCount } = await supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', currentUser.id)
+
+      // Fetch campaigns count
+      const { count: campaignsCount } = await supabase
+        .from('campaigns')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', currentUser.id)
+
+      setStats({
+        credits: profileData?.credits_balance || 0,
+        totalLeads: leadsCount || 0,
+        totalCampaigns: campaignsCount || 0
+      })
     } catch (error) {
-      console.error('Error loading user:', error)
-      onNavigate('login')
+      console.error('Error:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleLogout = async () => {
-    try {
-      await signOut()
-      onNavigate('login')
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
-  }
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg text-slate-600">Lädt...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Voyanero</h1>
-              <span className="ml-4 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                Dashboard
-              </span>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
-            >
-              Logout
-            </button>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      {/* Welcome */}
+      <div className="mb-10">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">
+          Willkommen zurück{profile?.full_name ? `, ${profile.full_name}` : ''}
+        </h1>
+        <p className="text-lg text-slate-500">
+          Hier ist eine Übersicht Ihres Voyanero Accounts.
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <StatsCard
+          title="Verfügbare Credits"
+          value={stats.credits.toLocaleString()}
+          description="Aktuelles Guthaben"
+          icon={DollarSign}
+          iconBgColor="bg-indigo-50"
+          iconColor="text-indigo-600"
+        />
+        <StatsCard
+          title="Erfasste Leads"
+          value={stats.totalLeads}
+          description="Gesamtanzahl Leads"
+          icon={Users}
+          iconBgColor="bg-emerald-50"
+          iconColor="text-emerald-600"
+        />
+        <StatsCard
+          title="Kampagnen"
+          value={stats.totalCampaigns}
+          description="Aktive Kampagnen"
+          icon={FolderKanban}
+          iconBgColor="bg-blue-50"
+          iconColor="text-blue-600"
+        />
+      </div>
+
+      {/* Profile */}
+      {profile && (
+        <div className="mb-10">
+          <ProfileSection profile={profile} user={user} onNavigate={onNavigate} />
         </div>
-      </header>
+      )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back{profile?.full_name ? `, ${profile.full_name}` : ''}!
-          </h2>
-          <p className="text-gray-600">
-            Here's an overview of your Voyanero account
-          </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Credits Balance */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-500">
-                Credits Balance
-              </h3>
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {profile?.credits_balance || 0}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Available credits</p>
-          </div>
-
-          {/* Total Leads */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-500">Total Leads</h3>
-              <div className="p-2 bg-green-100 rounded-lg">
-                <svg
-                  className="w-5 h-5 text-green-600"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">0</p>
-            <p className="text-sm text-gray-500 mt-2">Captured leads</p>
-          </div>
-
-          {/* Company */}
-          <div
-            onClick={() => onNavigate('settings')}
-            className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-500">Company</h3>
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <svg
-                  className="w-5 h-5 text-purple-600"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
-              </div>
-            </div>
-            <p className="text-xl font-bold text-gray-900 truncate">
-              {profile?.company_name || 'Not set'}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">
-              {profile?.company_name ? 'Your organization' : 'Click to set up'}
-            </p>
-          </div>
-        </div>
-
-        {/* Profile Info Card */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Profile Information
-          </h3>
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Email</dt>
-              <dd className="mt-1 text-sm text-gray-900">{user?.email}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Full Name</dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                {profile?.full_name || 'Not provided'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Company Name</dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                {profile?.company_name || 'Not set'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">Subdomain</dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                {profile?.subdomain || 'Not configured'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">
-                Account Created
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                {profile?.created_at
-                  ? new Date(profile.created_at).toLocaleDateString()
-                  : 'Unknown'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-gray-500">
-                Email Verified
-              </dt>
-              <dd className="mt-1 text-sm text-gray-900">
-                {user?.email_confirmed_at ? (
-                  <span className="text-green-600 font-medium">✓ Verified</span>
-                ) : (
-                  <span className="text-yellow-600 font-medium">
-                    ⚠ Not verified
-                  </span>
-                )}
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
+      {/* Actions */}
+      <div>
+        <h2 className="text-xl font-bold mb-6">Schnellzugriff</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <ActionCard
+            title="Kampagnen"
+            description="Erstellen & verwalten"
+            icon={FolderKanban}
             onClick={() => onNavigate('campaigns')}
-            className="p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition text-left"
-          >
-            <h4 className="font-semibold text-indigo-900 mb-1">Meine Kampagnen</h4>
-            <p className="text-sm text-indigo-700">
-              Kampagnen erstellen und verwalten
-            </p>
-          </button>
-          <button
+            colorClass="from-indigo-50 to-indigo-100"
+          />
+          <ActionCard
+            title="Credits kaufen"
+            description="Guthaben aufladen"
+            icon={CreditCard}
             onClick={() => onNavigate('credits')}
-            className="p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition text-left"
-          >
-            <h4 className="font-semibold text-blue-900 mb-1">Credits kaufen</h4>
-            <p className="text-sm text-blue-700">
-              Weitere Credits für Lead-Generierung
-            </p>
-          </button>
-          <button
+            colorClass="from-blue-50 to-blue-100"
+          />
+          <ActionCard
+            title="Leads"
+            description="Alle Leads verwalten"
+            icon={UserPlus}
             onClick={() => onNavigate('campaigns')}
-            className="p-4 bg-green-50 hover:bg-green-100 rounded-lg transition text-left"
-          >
-            <h4 className="font-semibold text-green-900 mb-1">Leads erfassen</h4>
-            <p className="text-sm text-green-700">
-              Neue Leads suchen und speichern
-            </p>
-          </button>
-          <button
+            colorClass="from-emerald-50 to-emerald-100"
+          />
+          <ActionCard
+            title="Einstellungen"
+            description="Account bearbeiten"
+            icon={Settings}
             onClick={() => onNavigate('settings')}
-            className="p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition text-left"
-          >
-            <h4 className="font-semibold text-purple-900 mb-1">
-              Einstellungen
-            </h4>
-            <p className="text-sm text-purple-700">
-              Konto-Einstellungen bearbeiten
-            </p>
-          </button>
+            colorClass="from-amber-50 to-amber-100"
+          />
         </div>
-      </main>
+      </div>
     </div>
   )
 }
-
-export default Dashboard

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import Layout from './components/Layout'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Campaigns from './pages/Campaigns'
@@ -37,6 +38,12 @@ function App() {
           setCurrentPage('credits')
         } else if (path === '/settings') {
           setCurrentPage('settings')
+        } else if (path === '/terms') {
+          setCurrentPage('terms')
+        } else if (path === '/privacy') {
+          setCurrentPage('privacy')
+        } else if (path === '/support') {
+          setCurrentPage('support')
         } else {
           setCurrentPage('dashboard')
         }
@@ -83,6 +90,15 @@ function App() {
         case 'settings':
           path = '/settings'
           break
+        case 'terms':
+          path = '/terms'
+          break
+        case 'privacy':
+          path = '/privacy'
+          break
+        case 'support':
+          path = '/support'
+          break
         default:
           path = '/dashboard'
       }
@@ -121,6 +137,15 @@ function App() {
           case '/settings':
             setCurrentPage('settings')
             break
+          case '/terms':
+            setCurrentPage('terms')
+            break
+          case '/privacy':
+            setCurrentPage('privacy')
+            break
+          case '/support':
+            setCurrentPage('support')
+            break
           case '/login':
           case '/':
             setCurrentPage('dashboard')
@@ -151,20 +176,50 @@ function App() {
   }
 
   if (isAuthenticated) {
+    let pageContent
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard onNavigate={navigate} />
+        pageContent = <Dashboard onNavigate={navigate} />
+        break
       case 'campaigns':
-        return <Campaigns onNavigate={navigate} />
+        pageContent = <Campaigns onNavigate={navigate} />
+        break
       case 'campaignDetail':
-        return <CampaignDetail campaignId={campaignId} onNavigate={navigate} />
+        pageContent = <CampaignDetail campaignId={campaignId} onNavigate={navigate} />
+        break
       case 'credits':
-        return <Credits onNavigate={navigate} />
+        pageContent = <Credits onNavigate={navigate} />
+        break
       case 'settings':
-        return <Settings onNavigate={navigate} />
+        pageContent = <Settings onNavigate={navigate} />
+        break
+      case 'terms':
+        pageContent = <div className="container mx-auto px-4 py-8 prose max-w-4xl">
+          <h1>Allgemeine Geschäftsbedingungen (AGB)</h1>
+          <p>Coming soon...</p>
+        </div>
+        break
+      case 'privacy':
+        pageContent = <div className="container mx-auto px-4 py-8 prose max-w-4xl">
+          <h1>Datenschutzerklärung</h1>
+          <p>Coming soon...</p>
+        </div>
+        break
+      case 'support':
+        pageContent = <div className="container mx-auto px-4 py-8 prose max-w-4xl">
+          <h1>Support & Hilfe</h1>
+          <p>Coming soon...</p>
+        </div>
+        break
       default:
-        return <Dashboard onNavigate={navigate} />
+        pageContent = <Dashboard onNavigate={navigate} />
     }
+
+    return (
+      <Layout onNavigate={navigate} currentPage={currentPage}>
+        {pageContent}
+      </Layout>
+    )
   }
 
   // Fallback
