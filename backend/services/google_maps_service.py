@@ -1,6 +1,6 @@
 """
 Google Maps Service
-Handles interactions with Google Maps Places API
+Handles interactions with Google Maps Places API (NEW v1)
 """
 
 import os
@@ -10,15 +10,15 @@ from fastapi import HTTPException
 
 
 class GoogleMapsService:
-    """Service for interacting with Google Maps Places API"""
+    """Service for interacting with Google Maps Places API (NEW v1)"""
 
     def __init__(self):
         self.api_key = os.getenv("GOOGLE_MAPS_API_KEY")
         if not self.api_key:
             raise ValueError("GOOGLE_MAPS_API_KEY environment variable is not set")
 
-        # Use the OLD Places API endpoint that works reliably
-        self.base_url = "https://maps.googleapis.com/maps/api/place"
+        # Use the NEW Places API (v1)
+        self.base_url = "https://places.googleapis.com/v1/places"
 
     async def search_places(
         self,
@@ -29,7 +29,7 @@ class GoogleMapsService:
         language: str = "de"
     ) -> List[Dict[str, Any]]:
         """
-        Search for places using the Google Maps Places API (old version)
+        Search for places using the NEW Google Maps Places API (v1)
 
         Args:
             query: Search keyword
@@ -41,33 +41,69 @@ class GoogleMapsService:
         Returns:
             List of places with details
         """
-        url = f"{self.base_url}/nearbysearch/json"
+        url = f"{self.base_url}:searchNearby"
 
-        params = {
-            'location': f'{latitude},{longitude}',
-            'radius': radius,
-            'keyword': query,
-            'key': self.api_key,
-            'language': language
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': self.api_key,
+            'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.location'
+        }
+
+        body = {
+            "includedTypes": ["restaurant", "cafe", "bar", "bakery", "store", "shopping_mall", "hotel"],
+            "maxResultCount": 20,
+            "locationRestriction": {
+                "circle": {
+                    "center": {
+                        "latitude": latitude,
+                        "longitude": longitude
+                    },
+                    "radius": radius
+                }
+            },
+            "languageCode": language
         }
 
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, params=params, timeout=30.0)
+                response = await client.post(url, json=body, headers=headers, timeout=30.0)
                 response.raise_for_status()
 
                 data = response.json()
 
-                # Check for API errors
-                if data.get('status') not in ['OK', 'ZERO_RESULTS']:
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Google Places API error: {data.get('status')} - {data.get('error_message', 'Unknown error')}"
-                    )
+                # Convert new API format to old format for compatibility
+                places = []
+                for place in data.get('places', []):
+                    places.append({
+                        'place_id': place.get('id'),
+                        'name': place.get('displayName', {}).get('text'),
+                        'vicinity': place.get('formattedAddress'),
+                        'formatted_phone_number': place.get('nationalPhoneNumber'),
+                        'website': place.get('websiteUri'),
+                        'rating': place.get('rating'),
+                        'user_ratings_total': place.get('userRatingCount'),
+                        'geometry': {
+                            'location': {
+                                'lat': place.get('location', {}).get('latitude'),
+                                'lng': place.get('location', {}).get('longitude')
+                            }
+                        }
+                    })
 
-                # Return the results
-                return data.get('results', [])
+                return places
 
+        except httpx.HTTPStatusError as e:
+            # Try to get error details from response
+            try:
+                error_data = e.response.json()
+                detail = error_data.get('error', {}).get('message', str(e))
+            except:
+                detail = str(e)
+
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=f"Google Places API error: {detail}"
+            )
         except httpx.HTTPError as e:
             raise HTTPException(
                 status_code=500,
@@ -80,7 +116,7 @@ class GoogleMapsService:
         language: str = "de"
     ) -> Dict[str, Any]:
         """
-        Get detailed information about a specific place
+        Get detailed information about a specific place (NEW API v1)
 
         Args:
             place_id: Google Place ID
@@ -89,30 +125,54 @@ class GoogleMapsService:
         Returns:
             Place details
         """
-        url = f"{self.base_url}/details/json"
+        url = f"{self.base_url}/{place_id}"
+
+        headers = {
+            'X-Goog-Api-Key': self.api_key,
+            'X-Goog-FieldMask': 'id,displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount,location,types,businessStatus'
+        }
 
         params = {
-            'place_id': place_id,
-            'key': self.api_key,
-            'language': language
+            'languageCode': language
         }
 
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, params=params, timeout=30.0)
+                response = await client.get(url, headers=headers, params=params, timeout=30.0)
                 response.raise_for_status()
 
                 data = response.json()
 
-                # Check for API errors
-                if data.get('status') != 'OK':
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Google Places API error: {data.get('status')} - {data.get('error_message', 'Unknown error')}"
-                    )
+                # Convert to old format for compatibility
+                return {
+                    'place_id': data.get('id'),
+                    'name': data.get('displayName', {}).get('text'),
+                    'formatted_address': data.get('formattedAddress'),
+                    'formatted_phone_number': data.get('nationalPhoneNumber'),
+                    'website': data.get('websiteUri'),
+                    'rating': data.get('rating'),
+                    'user_ratings_total': data.get('userRatingCount'),
+                    'geometry': {
+                        'location': {
+                            'lat': data.get('location', {}).get('latitude'),
+                            'lng': data.get('location', {}).get('longitude')
+                        }
+                    },
+                    'types': data.get('types', []),
+                    'business_status': data.get('businessStatus')
+                }
 
-                return data.get('result', {})
+        except httpx.HTTPStatusError as e:
+            try:
+                error_data = e.response.json()
+                detail = error_data.get('error', {}).get('message', str(e))
+            except:
+                detail = str(e)
 
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=f"Google Places API error: {detail}"
+            )
         except httpx.HTTPError as e:
             raise HTTPException(
                 status_code=500,
