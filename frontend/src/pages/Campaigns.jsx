@@ -233,109 +233,110 @@ function Campaigns({ onNavigate }) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Meine Kampagnen</h1>
-          <p className="text-slate-600">Erstellen und verwalten Sie Ihre Lead-Generierungs-Kampagnen</p>
-        </div>
-        <button
-          onClick={handleOpenCreateModal}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition shadow-sm flex items-center gap-2"
-        >
-          <FolderKanban className="w-4 h-4" />
-          Neue Kampagne
-        </button>
-      </div>
-
-      {/* Campaigns List */}
-      {campaigns.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-12 text-center">
-          <div className="mx-auto w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-            <FolderKanban className="w-12 h-12 text-slate-400" />
+    <>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Meine Kampagnen</h1>
+            <p className="text-slate-600">Erstellen und verwalten Sie Ihre Lead-Generierungs-Kampagnen</p>
           </div>
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">Keine Kampagnen vorhanden</h3>
-          <p className="text-slate-600 mb-6">
-            Erstellen Sie Ihre erste Kampagne, um mit der Lead-Generierung zu beginnen
-          </p>
           <button
             onClick={handleOpenCreateModal}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition shadow-sm"
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition shadow-sm flex items-center gap-2"
           >
-            Erste Kampagne erstellen
+            <FolderKanban className="w-4 h-4" />
+            Neue Kampagne
           </button>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {campaigns.map((campaign) => (
-            <div key={campaign.id} className="bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all overflow-hidden">
-              {/* Header */}
-              <div className="p-6 border-b border-slate-100">
-                <div className="flex justify-between items-start mb-3">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${
-                    campaign.status === 'ready' ? 'bg-emerald-50 text-emerald-700' :
-                    campaign.status === 'crawling' ? 'bg-blue-50 text-blue-700' :
-                    campaign.status === 'failed' ? 'bg-red-50 text-red-700' :
-                    campaign.status === 'running' ? 'bg-indigo-50 text-indigo-700' :
-                    campaign.status === 'paused' ? 'bg-orange-50 text-orange-700' :
-                    campaign.status === 'completed' ? 'bg-purple-50 text-purple-700' :
-                    'bg-slate-100 text-slate-700'
-                  }`}>
-                    {campaign.status}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteCampaign(campaign.id, campaign.name)
-                    }}
-                    className="text-slate-400 hover:text-red-600 transition"
-                    title="Campaign löschen"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">{campaign.name}</h3>
-                <p className="text-sm text-slate-500 line-clamp-2">{campaign.description || 'Keine Beschreibung'}</p>
-              </div>
 
-              {/* Stats */}
-              <div className="p-6 bg-slate-50 grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-slate-500 uppercase font-semibold">Leads</p>
-                  <p className="text-2xl font-bold text-slate-900">{campaign.leads_count || 0}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 uppercase font-semibold">Typ</p>
-                  <p className="text-sm font-medium text-slate-700 capitalize">{campaign.type?.replace('_', ' ')}</p>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="p-4 flex gap-2">
-                {campaign.status === 'draft' ? (
-                  <button
-                    onClick={() => handleOpenSearchModal(campaign)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition text-sm font-medium"
-                  >
-                    <Search className="w-4 h-4" />
-                    Leads suchen
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => onNavigate('campaignDetail', { campaignId: campaign.id })}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Details
-                  </button>
-                )}
-              </div>
+        {/* Campaigns List */}
+        {campaigns.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-12 text-center">
+            <div className="mx-auto w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+              <FolderKanban className="w-12 h-12 text-slate-400" />
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+            <h3 className="text-xl font-semibold text-slate-900 mb-2">Keine Kampagnen vorhanden</h3>
+            <p className="text-slate-600 mb-6">
+              Erstellen Sie Ihre erste Kampagne, um mit der Lead-Generierung zu beginnen
+            </p>
+            <button
+              onClick={handleOpenCreateModal}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition shadow-sm"
+            >
+              Erste Kampagne erstellen
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {campaigns.map((campaign) => (
+              <div key={campaign.id} className="bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-lg transition-all overflow-hidden">
+                {/* Header */}
+                <div className="p-6 border-b border-slate-100">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${
+                      campaign.status === 'ready' ? 'bg-emerald-50 text-emerald-700' :
+                      campaign.status === 'crawling' ? 'bg-blue-50 text-blue-700' :
+                      campaign.status === 'failed' ? 'bg-red-50 text-red-700' :
+                      campaign.status === 'running' ? 'bg-indigo-50 text-indigo-700' :
+                      campaign.status === 'paused' ? 'bg-orange-50 text-orange-700' :
+                      campaign.status === 'completed' ? 'bg-purple-50 text-purple-700' :
+                      'bg-slate-100 text-slate-700'
+                    }`}>
+                      {campaign.status}
+                    </span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteCampaign(campaign.id, campaign.name)
+                      }}
+                      className="text-slate-400 hover:text-red-600 transition"
+                      title="Campaign löschen"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">{campaign.name}</h3>
+                  <p className="text-sm text-slate-500 line-clamp-2">{campaign.description || 'Keine Beschreibung'}</p>
+                </div>
+
+                {/* Stats */}
+                <div className="p-6 bg-slate-50 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-slate-500 uppercase font-semibold">Leads</p>
+                    <p className="text-2xl font-bold text-slate-900">{campaign.leads_count || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 uppercase font-semibold">Typ</p>
+                    <p className="text-sm font-medium text-slate-700 capitalize">{campaign.type?.replace('_', ' ')}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="p-4 flex gap-2">
+                  {campaign.status === 'draft' ? (
+                    <button
+                      onClick={() => handleOpenSearchModal(campaign)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition text-sm font-medium"
+                    >
+                      <Search className="w-4 h-4" />
+                      Leads suchen
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onNavigate('campaignDetail', { campaignId: campaign.id })}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Details
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Create Campaign Modal (Step 1) */}
       {showCreateModal && (
@@ -593,7 +594,7 @@ function Campaigns({ onNavigate }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
