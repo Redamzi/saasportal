@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
   Plus, Coins, Menu, X, LogOut, LayoutDashboard,
-  FolderKanban, CreditCard, User, Settings
+  FolderKanban, CreditCard, User, Settings, GraduationCap
 } from "lucide-react"
 import { getCurrentUser, signOut } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
@@ -38,6 +38,7 @@ export default function Layout({ children, onNavigate, currentPage }) {
   const navLinks = [
     { name: 'Dashboard', page: 'dashboard', icon: LayoutDashboard },
     { name: 'Kampagnen', page: 'campaigns', icon: FolderKanban },
+    { name: 'Academy', page: 'academy', icon: GraduationCap },
     { name: 'Credits', page: 'credits', icon: CreditCard },
   ]
 

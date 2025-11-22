@@ -192,19 +192,34 @@ function Campaigns({ onNavigate }) {
 
   // Delete Campaign
   const handleDeleteCampaign = async (campaignId, campaignName) => {
-    if (!confirm(`Campaign "${campaignName}" wirklich löschen?\n\nAlle zugehörigen Leads werden ebenfalls gelöscht.`)) {
+    const confirmMsg = `Campaign "${campaignName}" wirklich löschen?\n\nAlle zugehörigen Leads werden ebenfalls gelöscht.\n\nDieser Vorgang kann nicht rückgängig gemacht werden.`
+
+    if (!window.confirm(confirmMsg)) {
+      console.log('🚫 Campaign deletion cancelled by user')
       return
     }
 
     try {
+      console.log('🗑️ Attempting to delete campaign:', campaignId)
+      console.log('📝 Campaign name:', campaignName)
+
       const { user: currentUser } = await getCurrentUser()
+
       if (!currentUser) {
-        alert('❌ Nicht eingeloggt')
+        console.error('❌ Auth error: No user found')
+        alert('❌ Nicht eingeloggt. Bitte melden Sie sich erneut an.')
         return
       }
 
+      console.log('👤 User ID:', currentUser.id)
+      console.log('📡 Calling DELETE endpoint...')
+
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${API_URL}/api/campaigns/${campaignId}`, {
+      const deleteUrl = `${API_URL}/api/campaigns/${campaignId}`
+
+      console.log('🌐 DELETE URL:', deleteUrl)
+
+      const response = await fetch(deleteUrl, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -212,18 +227,45 @@ function Campaigns({ onNavigate }) {
         }
       })
 
+      console.log('📊 Response status:', response.status)
+      console.log('📊 Response OK:', response.ok)
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.detail || `HTTP ${response.status}`)
+        const contentType = response.headers.get('content-type')
+        let errorMessage = `HTTP ${response.status}`
+
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json()
+            console.error('❌ Server error (JSON):', errorData)
+            errorMessage = errorData.detail || errorData.message || errorMessage
+          } catch (parseError) {
+            console.error('❌ Failed to parse error JSON:', parseError)
+          }
+        } else {
+          const errorText = await response.text()
+          console.error('❌ Server error (Text):', errorText)
+          errorMessage = errorText || errorMessage
+        }
+
+        throw new Error(errorMessage)
       }
+
+      console.log('✅ Campaign deleted successfully from backend')
 
       // Remove from local state immediately
       setCampaigns(campaigns.filter(c => c.id !== campaignId))
+      console.log('✅ Campaign removed from local state')
+
       alert('✅ Campaign erfolgreich gelöscht!')
 
     } catch (error) {
-      console.error('Error deleting campaign:', error)
-      alert(`❌ Fehler beim Löschen: ${error.message}`)
+      console.error('💥 Delete campaign error:', error)
+      console.error('💥 Error name:', error.name)
+      console.error('💥 Error message:', error.message)
+      console.error('💥 Error stack:', error.stack)
+
+      alert(`❌ Fehler beim Löschen der Campaign:\n\n${error.message}\n\nBitte versuchen Sie es erneut oder kontaktieren Sie den Support.`)
     }
   }
 
@@ -244,8 +286,8 @@ function Campaigns({ onNavigate }) {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Meine Kampagnen</h1>
-            <p className="text-slate-600">Erstellen und verwalten Sie Ihre Lead-Generierungs-Kampagnen</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2 text-left">Meine Kampagnen</h1>
+            <p className="text-slate-600 text-left">Erstellen und verwalten Sie Ihre Lead-Generierungs-Kampagnen</p>
           </div>
           <button
             onClick={handleOpenCreateModal}
@@ -262,8 +304,8 @@ function Campaigns({ onNavigate }) {
             <div className="mx-auto w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-4">
               <FolderKanban className="w-12 h-12 text-slate-400" />
             </div>
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">Keine Kampagnen vorhanden</h3>
-            <p className="text-slate-600 mb-6">
+            <h3 className="text-xl font-semibold text-slate-900 mb-2 text-center">Keine Kampagnen vorhanden</h3>
+            <p className="text-slate-600 mb-6 text-center">
               Erstellen Sie Ihre erste Kampagne, um mit der Lead-Generierung zu beginnen
             </p>
             <button
@@ -302,19 +344,19 @@ function Campaigns({ onNavigate }) {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">{campaign.name}</h3>
-                  <p className="text-sm text-slate-500 line-clamp-2">{campaign.description || 'Keine Beschreibung'}</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1 text-left">{campaign.name}</h3>
+                  <p className="text-sm text-slate-500 line-clamp-2 text-left">{campaign.description || 'Keine Beschreibung'}</p>
                 </div>
 
                 {/* Stats */}
                 <div className="p-6 bg-slate-50 grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-slate-500 uppercase font-semibold">Leads</p>
-                    <p className="text-2xl font-bold text-slate-900">{campaign.leads_count || 0}</p>
+                    <p className="text-xs text-slate-500 uppercase font-semibold text-left">Leads</p>
+                    <p className="text-2xl font-bold text-slate-900 text-left">{campaign.leads_count || 0}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500 uppercase font-semibold">Typ</p>
-                    <p className="text-sm font-medium text-slate-700 capitalize">{campaign.type?.replace('_', ' ')}</p>
+                    <p className="text-xs text-slate-500 uppercase font-semibold text-left">Typ</p>
+                    <p className="text-sm font-medium text-slate-700 capitalize text-left">{campaign.type?.replace('_', ' ')}</p>
                   </div>
                 </div>
 
@@ -350,7 +392,7 @@ function Campaigns({ onNavigate }) {
           <div className="bg-white rounded-lg max-w-lg w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Create New Campaign</h2>
+                <h2 className="text-2xl font-bold text-gray-900 text-left">Create New Campaign</h2>
                 <button
                   onClick={handleCloseCreateModal}
                   className="text-gray-400 hover:text-gray-600 transition"
@@ -439,8 +481,8 @@ function Campaigns({ onNavigate }) {
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Search Leads</h2>
-                  <p className="text-sm text-gray-600 mt-1">Configure search parameters for lead generation</p>
+                  <h2 className="text-2xl font-bold text-gray-900 text-left">Search Leads</h2>
+                  <p className="text-sm text-gray-600 mt-1 text-left">Configure search parameters for lead generation</p>
                 </div>
                 <button
                   onClick={handleCloseSearchModal}

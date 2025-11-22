@@ -102,7 +102,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Campaign not found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Campaign not found</h2>
           <button
             onClick={() => onNavigate('campaigns')}
             className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
@@ -165,8 +165,8 @@ function CampaignDetail({ campaignId, onNavigate }) {
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">{campaign.name}</h2>
-              <p className="text-gray-600">{campaign.description || 'No description'}</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2 text-left">{campaign.name}</h2>
+              <p className="text-gray-600 text-left">{campaign.description || 'No description'}</p>
             </div>
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
               campaign.status === 'draft' ? 'bg-gray-100 text-gray-700' :
@@ -184,16 +184,16 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Type:</span>
-              <p className="font-medium capitalize">{campaign.type?.replace('_', ' ')}</p>
+              <span className="text-gray-500 text-left">Type:</span>
+              <p className="font-medium capitalize text-left">{campaign.type?.replace('_', ' ')}</p>
             </div>
             <div>
-              <span className="text-gray-500">Created:</span>
-              <p className="font-medium">{new Date(campaign.created_at).toLocaleDateString()}</p>
+              <span className="text-gray-500 text-left">Created:</span>
+              <p className="font-medium text-left">{new Date(campaign.created_at).toLocaleDateString()}</p>
             </div>
             <div>
-              <span className="text-gray-500">Total Leads:</span>
-              <p className="font-medium">{stats.total}</p>
+              <span className="text-gray-500 text-left">Total Leads:</span>
+              <p className="font-medium text-left">{stats.total}</p>
             </div>
             <div>
               <button
@@ -210,27 +210,27 @@ function CampaignDetail({ campaignId, onNavigate }) {
         {/* Lead Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Total Leads</h3>
-            <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">Total Leads</h3>
+            <p className="text-3xl font-bold text-gray-900 text-left">{stats.total}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">New</h3>
-            <p className="text-3xl font-bold text-blue-600">{stats.new}</p>
+            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">New</h3>
+            <p className="text-3xl font-bold text-blue-600 text-left">{stats.new}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Contacted</h3>
-            <p className="text-3xl font-bold text-yellow-600">{stats.contacted}</p>
+            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">Contacted</h3>
+            <p className="text-3xl font-bold text-yellow-600 text-left">{stats.contacted}</p>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">Converted</h3>
-            <p className="text-3xl font-bold text-green-600">{stats.converted}</p>
+            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">Converted</h3>
+            <p className="text-3xl font-bold text-green-600 text-left">{stats.converted}</p>
           </div>
         </div>
 
         {/* Leads Table */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900">Leads</h3>
+            <h3 className="text-xl font-bold text-gray-900 text-left">Leads</h3>
           </div>
 
           {leads.length === 0 ? (
@@ -248,8 +248,8 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No leads yet</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2 text-center">No leads yet</h3>
+              <p className="text-gray-600 text-center">
                 Start a lead search to populate this campaign with leads
               </p>
             </div>

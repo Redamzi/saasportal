@@ -131,8 +131,8 @@ function Settings({ onNavigate }) {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Account Settings</h2>
-          <p className="text-gray-600">Manage your account preferences and profile information</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2 text-left">Account Settings</h2>
+          <p className="text-gray-600 text-left">Manage your account preferences and profile information</p>
         </div>
 
         {/* Message */}
@@ -151,25 +151,25 @@ function Settings({ onNavigate }) {
         {/* Account Information */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Account Information</h3>
-            <p className="text-sm text-gray-600 mt-1">View your account details</p>
+            <h3 className="text-lg font-semibold text-gray-900 text-left">Account Information</h3>
+            <p className="text-sm text-gray-600 mt-1 text-left">View your account details</p>
           </div>
           <div className="p-6">
             <dl className="grid grid-cols-1 gap-4">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Email Address</dt>
-                <dd className="mt-1 text-sm text-gray-900">{user?.email}</dd>
+                <dt className="text-sm font-medium text-gray-500 text-left">Email Address</dt>
+                <dd className="mt-1 text-sm text-gray-900 text-left">{user?.email}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Account Created</dt>
-                <dd className="mt-1 text-sm text-gray-900">
+                <dt className="text-sm font-medium text-gray-500 text-left">Account Created</dt>
+                <dd className="mt-1 text-sm text-gray-900 text-left">
                   {profile?.created_at
                     ? new Date(profile.created_at).toLocaleDateString()
                     : 'Unknown'}
                 </dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-500">Email Verification</dt>
+                <dt className="text-sm font-medium text-gray-500 text-left">Email Verification</dt>
                 <dd className="mt-1">
                   {user?.email_confirmed_at ? (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -189,12 +189,12 @@ function Settings({ onNavigate }) {
         {/* Profile Settings Form */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Profile Settings</h3>
-            <p className="text-sm text-gray-600 mt-1">Update your profile information</p>
+            <h3 className="text-lg font-semibold text-gray-900 text-left">Profile Settings</h3>
+            <p className="text-sm text-gray-600 mt-1 text-left">Update your profile information</p>
           </div>
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2 text-left">
                 Full Name
               </label>
               <input
@@ -209,7 +209,7 @@ function Settings({ onNavigate }) {
             </div>
 
             <div>
-              <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-2 text-left">
                 Company Name
               </label>
               <input
@@ -224,7 +224,7 @@ function Settings({ onNavigate }) {
             </div>
 
             <div>
-              <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2 text-left">
                 Email Sending Domain
                 <span className="ml-2 text-xs text-gray-500" title="Auto-generated domain for Amazon SES email reputation isolation">
                   ⓘ Auto-generated
@@ -265,14 +265,14 @@ function Settings({ onNavigate }) {
         {/* Password Section */}
         <div className="mt-6 bg-white rounded-lg shadow">
           <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Password</h3>
-            <p className="text-sm text-gray-600 mt-1">Change your account password</p>
+            <h3 className="text-lg font-semibold text-gray-900 text-left">Password</h3>
+            <p className="text-sm text-gray-600 mt-1 text-left">Change your account password</p>
           </div>
           <div className="p-6">
             <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium rounded-lg transition">
               Change Password
             </button>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 mt-2 text-left">
               You will receive an email with instructions to reset your password
             </p>
           </div>
@@ -281,14 +281,14 @@ function Settings({ onNavigate }) {
         {/* Danger Zone */}
         <div className="mt-6 bg-white rounded-lg shadow border border-red-200">
           <div className="p-6 border-b border-red-200">
-            <h3 className="text-lg font-semibold text-red-900">Danger Zone</h3>
-            <p className="text-sm text-red-600 mt-1">Irreversible actions</p>
+            <h3 className="text-lg font-semibold text-red-900 text-left">Danger Zone</h3>
+            <p className="text-sm text-red-600 mt-1 text-left">Irreversible actions</p>
           </div>
           <div className="p-6">
             <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition">
               Delete Account
             </button>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 mt-2 text-left">
               Once you delete your account, there is no going back. Please be certain.
             </p>
           </div>

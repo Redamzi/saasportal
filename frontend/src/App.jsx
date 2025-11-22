@@ -7,6 +7,7 @@ import Campaigns from './pages/Campaigns'
 import CampaignDetail from './pages/CampaignDetail'
 import Credits from './pages/Credits'
 import Settings from './pages/Settings'
+import Academy from './pages/Academy'
 import { getCurrentUser } from './lib/supabase'
 
 function App() {
@@ -38,6 +39,8 @@ function App() {
           setCurrentPage('credits')
         } else if (path === '/settings') {
           setCurrentPage('settings')
+        } else if (path === '/academy') {
+          setCurrentPage('academy')
         } else if (path === '/terms') {
           setCurrentPage('terms')
         } else if (path === '/privacy') {
@@ -90,6 +93,9 @@ function App() {
         case 'settings':
           path = '/settings'
           break
+        case 'academy':
+          path = '/academy'
+          break
         case 'terms':
           path = '/terms'
           break
@@ -136,6 +142,9 @@ function App() {
             break
           case '/settings':
             setCurrentPage('settings')
+            break
+          case '/academy':
+            setCurrentPage('academy')
             break
           case '/terms':
             setCurrentPage('terms')
@@ -193,22 +202,25 @@ function App() {
       case 'settings':
         pageContent = <Settings onNavigate={navigate} />
         break
+      case 'academy':
+        pageContent = <Academy onNavigate={navigate} />
+        break
       case 'terms':
         pageContent = <div className="container mx-auto px-4 py-8 prose max-w-4xl">
-          <h1>Allgemeine Geschäftsbedingungen (AGB)</h1>
-          <p>Coming soon...</p>
+          <h1 className="text-left">Allgemeine Geschäftsbedingungen (AGB)</h1>
+          <p className="text-left">Coming soon...</p>
         </div>
         break
       case 'privacy':
         pageContent = <div className="container mx-auto px-4 py-8 prose max-w-4xl">
-          <h1>Datenschutzerklärung</h1>
-          <p>Coming soon...</p>
+          <h1 className="text-left">Datenschutzerklärung</h1>
+          <p className="text-left">Coming soon...</p>
         </div>
         break
       case 'support':
         pageContent = <div className="container mx-auto px-4 py-8 prose max-w-4xl">
-          <h1>Support & Hilfe</h1>
-          <p>Coming soon...</p>
+          <h1 className="text-left">Support & Hilfe</h1>
+          <p className="text-left">Coming soon...</p>
         </div>
         break
       default:

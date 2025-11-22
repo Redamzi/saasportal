@@ -10,9 +10,9 @@ const StatsCard = ({ title, value, description, icon: Icon, iconBgColor, iconCol
   <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
     <div className="flex items-start justify-between">
       <div>
-        <p className="text-sm font-medium text-slate-500">{title}</p>
-        <h3 className="text-2xl font-bold mt-2 text-slate-900">{value}</h3>
-        <p className="text-xs text-slate-500 mt-1">{description}</p>
+        <p className="text-sm font-medium text-slate-500 text-left">{title}</p>
+        <h3 className="text-2xl font-bold mt-2 text-slate-900 text-left">{value}</h3>
+        <p className="text-xs text-slate-500 mt-1 text-left">{description}</p>
       </div>
       <div className={`p-3 rounded-lg ${iconBgColor}`}>
         <Icon className={`w-6 h-6 ${iconColor}`} />
@@ -31,8 +31,8 @@ const ActionCard = ({ title, description, icon: Icon, onClick, colorClass }) => 
       <div className="w-12 h-12 rounded-lg bg-slate-50 group-hover:bg-white flex items-center justify-center mb-4 transition-colors">
         <Icon className="w-6 h-6 text-slate-700 group-hover:text-blue-600" />
       </div>
-      <h3 className="font-bold text-lg text-slate-900 mb-1">{title}</h3>
-      <p className="text-sm text-slate-500">{description}</p>
+      <h3 className="font-bold text-lg text-slate-900 mb-1 text-left">{title}</h3>
+      <p className="text-sm text-slate-500 text-left">{description}</p>
     </div>
   </button>
 )
@@ -41,8 +41,8 @@ const ProfileSection = ({ profile, user, onNavigate }) => (
   <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 md:p-8">
     <div className="flex flex-col md:flex-row justify-between gap-6 mb-6 border-b pb-6">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Account Übersicht</h2>
-        <p className="text-slate-500">Ihre persönlichen Daten und Einstellungen</p>
+        <h2 className="text-xl font-bold text-slate-900 text-left">Account Übersicht</h2>
+        <p className="text-slate-500 text-left">Ihre persönlichen Daten und Einstellungen</p>
       </div>
       <button
         onClick={() => onNavigate('settings')}
@@ -54,35 +54,35 @@ const ProfileSection = ({ profile, user, onNavigate }) => (
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div>
-        <label className="text-xs uppercase text-slate-400 font-semibold">Name</label>
-        <p className="font-medium text-slate-900 mt-1">{profile?.full_name || '-'}</p>
+        <label className="text-xs uppercase text-slate-400 font-semibold text-left">Name</label>
+        <p className="font-medium text-slate-900 mt-1 text-left">{profile?.full_name || '-'}</p>
       </div>
       <div>
-        <label className="text-xs uppercase text-slate-400 font-semibold">Email</label>
+        <label className="text-xs uppercase text-slate-400 font-semibold text-left">Email</label>
         <div className="flex items-center gap-2 mt-1">
-          <p className="font-medium text-slate-900">{user?.email}</p>
+          <p className="font-medium text-slate-900 text-left">{user?.email}</p>
           {user?.email_confirmed_at && (
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           )}
         </div>
       </div>
       <div>
-        <label className="text-xs uppercase text-slate-400 font-semibold">Unternehmen</label>
-        <p className="font-medium text-slate-900 mt-1">{profile?.company_name || '-'}</p>
+        <label className="text-xs uppercase text-slate-400 font-semibold text-left">Unternehmen</label>
+        <p className="font-medium text-slate-900 mt-1 text-left">{profile?.company_name || '-'}</p>
       </div>
       <div>
-        <label className="text-xs uppercase text-slate-400 font-semibold">Credits</label>
-        <p className="font-medium text-slate-900 mt-1">{profile?.credits_balance || 0} Credits</p>
+        <label className="text-xs uppercase text-slate-400 font-semibold text-left">Credits</label>
+        <p className="font-medium text-slate-900 mt-1 text-left">{profile?.credits_balance || 0} Credits</p>
       </div>
       <div>
-        <label className="text-xs uppercase text-slate-400 font-semibold">Mitglied seit</label>
-        <p className="font-medium text-slate-900 mt-1">
+        <label className="text-xs uppercase text-slate-400 font-semibold text-left">Mitglied seit</label>
+        <p className="font-medium text-slate-900 mt-1 text-left">
           {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '-'}
         </p>
       </div>
       <div>
-        <label className="text-xs uppercase text-slate-400 font-semibold">Subdomain</label>
-        <p className="font-medium text-slate-900 mt-1">{profile?.subdomain || '-'}</p>
+        <label className="text-xs uppercase text-slate-400 font-semibold text-left">Subdomain</label>
+        <p className="font-medium text-slate-900 mt-1 text-left">{profile?.subdomain || '-'}</p>
       </div>
     </div>
   </div>
@@ -172,10 +172,10 @@ export default function Dashboard({ onNavigate }) {
     <div className="container mx-auto px-4 py-8">
       {/* Welcome */}
       <div className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2 text-left">
           Willkommen zurück{profile?.full_name ? `, ${profile.full_name}` : ''}
         </h1>
-        <p className="text-lg text-slate-500">
+        <p className="text-lg text-slate-500 text-left">
           Hier ist eine Übersicht Ihres Voyanero Accounts.
         </p>
       </div>
@@ -217,7 +217,7 @@ export default function Dashboard({ onNavigate }) {
 
       {/* Actions */}
       <div>
-        <h2 className="text-xl font-bold mb-6">Schnellzugriff</h2>
+        <h2 className="text-xl font-bold mb-6 text-left">Schnellzugriff</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <ActionCard
             title="Kampagnen"
