@@ -170,19 +170,40 @@ async def start_crawl(req: CrawlRequest):
         # STEP 6: Save leads to database
         leads_to_insert = []
         for place in filtered_places:
+            # Extract city from address (simple extraction from last part)
+            address = place.get('vicinity', '')
+            city = None
+            if address:
+                # Try to extract city from address (typically last part before country)
+                parts = address.split(',')
+                if len(parts) >= 2:
+                    city = parts[-2].strip()
+                elif len(parts) == 1:
+                    city = parts[0].strip()
+
+            # Extract coordinates
+            lat = place.get('geometry', {}).get('location', {}).get('lat')
+            lng = place.get('geometry', {}).get('location', {}).get('lng')
+            coordinates = None
+            if lat and lng:
+                coordinates = {'lat': lat, 'lng': lng}
+
             lead_data = {
                 'campaign_id': req.campaign_id,
-                'name': place.get('name'),
-                'address': place.get('vicinity'),
+                'company_name': place.get('name'),  # ✅ FIXED: was 'name'
+                'address': address,
                 'phone': place.get('formatted_phone_number'),
+                'email': None,  # ✅ ADDED: Places API doesn't provide email
                 'website': place.get('website'),
-                'rating': place.get('rating'),
-                'reviews_count': place.get('user_ratings_total'),
+                'city': city,  # ✅ ADDED: Extracted from address
+                'industry': req.keywords,  # ✅ ADDED: Use search keywords as industry
                 'place_id': place.get('place_id'),
-                'latitude': place.get('geometry', {}).get('location', {}).get('lat'),
-                'longitude': place.get('geometry', {}).get('location', {}).get('lng'),
+                'google_rating': place.get('rating'),  # ✅ FIXED: was 'rating'
+                'reviews_count': place.get('user_ratings_total'),  # ✅ Already correct
                 'lead_score': place.get('lead_score', 0),
-                'status': 'new'
+                'status': 'new',
+                'coordinates': coordinates,  # ✅ ADDED: Store as JSONB
+                'raw_data': place  # ✅ ADDED: Store complete API response
             }
             leads_to_insert.append(lead_data)
 
