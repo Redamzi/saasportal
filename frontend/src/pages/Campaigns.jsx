@@ -197,27 +197,33 @@ function Campaigns({ onNavigate }) {
     }
 
     try {
+      const { user: currentUser } = await getCurrentUser()
+      if (!currentUser) {
+        alert('❌ Nicht eingeloggt')
+        return
+      }
+
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
       const response = await fetch(`${API_URL}/api/campaigns/${campaignId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'user-id': currentUser.id
+        }
       })
 
       if (!response.ok) {
-        throw new Error('Failed to delete campaign')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.detail || `HTTP ${response.status}`)
       }
 
-      const data = await response.json()
+      // Remove from local state immediately
+      setCampaigns(campaigns.filter(c => c.id !== campaignId))
+      alert('✅ Campaign erfolgreich gelöscht!')
 
-      if (data.success) {
-        alert('✅ Campaign erfolgreich gelöscht!')
-        // Reload campaigns list
-        loadData()
-      } else {
-        throw new Error('Delete failed')
-      }
     } catch (error) {
       console.error('Error deleting campaign:', error)
-      alert('❌ Fehler beim Löschen der Campaign. Bitte erneut versuchen.')
+      alert(`❌ Fehler beim Löschen: ${error.message}`)
     }
   }
 
