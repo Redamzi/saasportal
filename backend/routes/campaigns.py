@@ -93,7 +93,7 @@ async def get_campaign(campaign_id: str):
 
 @router.post("/crawl/start")
 async def start_crawl(req: CrawlRequest):
-    """Start lead crawling for a campaign"""
+    """Start lead crawling for a campaign using Places API v1 + Geocoding"""
     try:
         supabase = get_supabase_client()
         google_maps = GoogleMapsService()
@@ -114,34 +114,63 @@ async def start_crawl(req: CrawlRequest):
             .eq('id', req.campaign_id)\
             .execute()
 
-        # Parse location (for now, use as-is, later we can geocode)
-        # You should implement geocoding to get lat/lng from city name
-        # For demo, using Munich coordinates
-        latitude = 48.1351
-        longitude = 11.5820
+        # STEP 1: Geocode location to get coordinates
+        try:
+            latitude, longitude = await google_maps.geocode_location(req.location)
+        except HTTPException as e:
+            # Geocoding failed
+            supabase.table('campaigns')\
+                .update({'status': 'failed'})\
+                .eq('id', req.campaign_id)\
+                .execute()
+            raise HTTPException(400, f"Could not find location '{req.location}'. Please check the city name.")
 
-        # Search for places
-        places = await google_maps.search_places(
-            query=req.keywords,
-            latitude=latitude,
-            longitude=longitude,
-            radius=req.radius
-        )
+        # STEP 2: Search for places (try searchNearby first)
+        places = []
+        try:
+            places = await google_maps.search_places(
+                query=req.keywords,
+                latitude=latitude,
+                longitude=longitude,
+                radius=req.radius
+            )
+        except Exception as e:
+            print(f"searchNearby failed, trying text search: {e}")
 
-        # Filter by rating and reviews
+        # STEP 3: Fallback to text search if no results
+        if len(places) < 5:
+            try:
+                text_query = f"{req.keywords} in {req.location}"
+                places = await google_maps.search_places_text(
+                    query=text_query,
+                    latitude=latitude,
+                    longitude=longitude,
+                    radius=req.radius
+                )
+            except Exception as e:
+                print(f"Text search also failed: {e}")
+
+        # STEP 4: Filter by rating and reviews
         filtered_places = [
             place for place in places
             if place.get('rating', 0) >= req.min_rating
             and place.get('user_ratings_total', 0) >= req.min_reviews
         ]
 
+        # STEP 5: Calculate lead scores and sort
+        for place in filtered_places:
+            place['lead_score'] = google_maps.calculate_lead_score(place)
+
+        # Sort by lead score (highest first)
+        filtered_places.sort(key=lambda x: x.get('lead_score', 0), reverse=True)
+
         # Limit to target count
         filtered_places = filtered_places[:req.target_lead_count]
 
-        # Save leads to database
+        # STEP 6: Save leads to database
         leads_to_insert = []
         for place in filtered_places:
-            leads_to_insert.append({
+            lead_data = {
                 'campaign_id': req.campaign_id,
                 'name': place.get('name'),
                 'address': place.get('vicinity'),
@@ -152,16 +181,31 @@ async def start_crawl(req: CrawlRequest):
                 'place_id': place.get('place_id'),
                 'latitude': place.get('geometry', {}).get('location', {}).get('lat'),
                 'longitude': place.get('geometry', {}).get('location', {}).get('lng'),
+                'lead_score': place.get('lead_score', 0),
                 'status': 'new'
-            })
+            }
+            leads_to_insert.append(lead_data)
 
+        saved_count = 0
         if leads_to_insert:
-            supabase.table('leads').insert(leads_to_insert).execute()
+            try:
+                result = supabase.table('leads').insert(leads_to_insert).execute()
+                saved_count = len(result.data) if result.data else len(leads_to_insert)
+            except Exception as e:
+                # Handle duplicate entries
+                print(f"Error inserting leads (may be duplicates): {e}")
+                # Try inserting one by one to skip duplicates
+                for lead in leads_to_insert:
+                    try:
+                        supabase.table('leads').insert(lead).execute()
+                        saved_count += 1
+                    except:
+                        pass  # Skip duplicates
 
-        # Update campaign with lead count and status to ready
+        # STEP 7: Update campaign with lead count and status to ready
         supabase.table('campaigns')\
             .update({
-                'leads_count': len(leads_to_insert),
+                'leads_count': saved_count,
                 'status': 'ready'
             })\
             .eq('id', req.campaign_id)\
@@ -169,8 +213,9 @@ async def start_crawl(req: CrawlRequest):
 
         return {
             "success": True,
-            "leads_found": len(leads_to_insert),
-            "message": f"Found {len(leads_to_insert)} leads matching your criteria"
+            "leads_found": len(filtered_places),
+            "leads_saved": saved_count,
+            "message": f"Found {saved_count} leads for '{req.keywords}' in {req.location}"
         }
 
     except HTTPException:
