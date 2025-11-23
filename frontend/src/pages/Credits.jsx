@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
+import DarkModeToggle from '../components/DarkModeToggle'
 
 export default function Credits({ onNavigate }) {
   const [currentCredits, setCurrentCredits] = useState(0)
@@ -108,28 +109,31 @@ export default function Credits({ onNavigate }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-slate-600">Lädt...</p>
+          <p className="text-lg text-slate-600 dark:text-gray-300">Lädt...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl min-h-screen bg-slate-50 dark:bg-gray-900">
       {/* Header */}
       <div className="mb-8">
-        <button
-          onClick={() => onNavigate('dashboard')}
-          className="text-blue-600 hover:underline flex items-center gap-2 mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Zurück zum Dashboard
-        </button>
-        <h1 className="text-3xl font-bold text-slate-900 text-left">Billing & Credits</h1>
-        <p className="text-slate-500 mt-2 text-left">
+        <div className="flex justify-between items-center mb-4">
+          <button
+            onClick={() => onNavigate('dashboard')}
+            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Zurück zum Dashboard
+          </button>
+          <DarkModeToggle />
+        </div>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-left">Billing & Credits</h1>
+        <p className="text-slate-500 dark:text-gray-400 mt-2 text-left">
           Manage your credits, payment methods, and invoices. No subscription required.
         </p>
       </div>
@@ -140,21 +144,21 @@ export default function Credits({ onNavigate }) {
         <div className="lg:col-span-2 space-y-8">
 
           {/* Current Balance */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-6">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-6">
             <div className="text-left w-full sm:w-auto">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 text-left">Aktuelles Guthaben</h2>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400 text-left">Aktuelles Guthaben</h2>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-4xl font-bold text-blue-600">{currentCredits.toLocaleString()}</span>
-                <span className="text-lg text-slate-600">Credits</span>
+                <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">{currentCredits.toLocaleString()}</span>
+                <span className="text-lg text-slate-600 dark:text-gray-300">Credits</span>
               </div>
-              <p className="text-sm text-slate-500 mt-2 flex items-center gap-2 text-left">
+              <p className="text-sm text-slate-500 dark:text-gray-400 mt-2 flex items-center gap-2 text-left">
                 <Zap className="w-4 h-4 text-yellow-500 fill-current" />
                 Kein monatliches Abo aktiv. Pay-as-you-go.
               </p>
             </div>
             <button
               onClick={() => document.getElementById('credit-packages')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 whitespace-nowrap"
+              className="bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 whitespace-nowrap"
             >
               Credits aufladen
             </button>
@@ -163,35 +167,35 @@ export default function Credits({ onNavigate }) {
           {/* Credit Packages */}
           <section id="credit-packages">
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-left">
-              <Zap className="w-5 h-5 text-blue-600" /> Credit Pakete
+              <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Credit Pakete
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {creditPackages.map((pkg) => (
                 <div
                   key={pkg.id}
-                  className={`relative bg-white p-6 rounded-xl border-2 transition-all hover:shadow-lg flex flex-col items-center text-center cursor-pointer
-                    ${pkg.popular ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-300'}
+                  className={`relative bg-white dark:bg-gray-800 p-6 rounded-xl border-2 transition-all hover:shadow-lg flex flex-col items-center text-center cursor-pointer
+                    ${pkg.popular ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200 dark:border-gray-700 hover:border-blue-300'}
                   `}
                 >
                   {pkg.popular && (
-                    <div className="absolute -top-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                    <div className="absolute -top-3 bg-blue-600 dark:bg-blue-700 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
                       Bestseller
                     </div>
                   )}
                   <div className="mb-4">
-                    <span className="text-3xl font-bold text-slate-900">{pkg.credits}</span>
-                    <span className="block text-sm text-slate-500 font-medium">Credits</span>
+                    <span className="text-3xl font-bold text-slate-900 dark:text-white">{pkg.credits}</span>
+                    <span className="block text-sm text-slate-500 dark:text-gray-400 font-medium">Credits</span>
                   </div>
-                  <div className="text-2xl font-semibold text-blue-600 mb-4">{pkg.priceStr}</div>
+                  <div className="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4">{pkg.priceStr}</div>
                   <button
                     onClick={() => handlePurchase(pkg)}
                     className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors
-                      ${pkg.popular ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}
+                      ${pkg.popular ? 'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700' : 'bg-slate-100 text-slate-700 dark:text-gray-200 hover:bg-slate-200'}
                     `}
                   >
                     Auswählen
                   </button>
-                  <ul className="mt-4 space-y-2 text-xs text-slate-500 text-left w-full">
+                  <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-gray-400 text-left w-full">
                     <li className="flex items-center gap-2">
                       <Check className="w-3 h-3 text-emerald-600" />
                       Kein Verfallsdatum
@@ -207,16 +211,16 @@ export default function Credits({ onNavigate }) {
           </section>
 
           {/* Invoice History */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <section className="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-gray-700 flex justify-between items-center">
               <h3 className="text-lg font-bold flex items-center gap-2 text-left">
-                <History className="w-5 h-5 text-slate-500" /> Rechnungshistorie
+                <History className="w-5 h-5 text-slate-500 dark:text-gray-400" /> Rechnungshistorie
               </h3>
-              <button className="text-sm text-blue-600 hover:underline">Alle anzeigen</button>
+              <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">Alle anzeigen</button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500 uppercase text-xs font-semibold">
+                <thead className="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 uppercase text-xs font-semibold">
                   <tr>
                     <th className="px-6 py-3 text-left">Rechnungs-Nr.</th>
                     <th className="px-6 py-3 text-left">Datum</th>
@@ -225,15 +229,15 @@ export default function Credits({ onNavigate }) {
                     <th className="px-6 py-3 text-right">Download</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
                   {invoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-slate-900 text-left">{inv.id}</td>
-                      <td className="px-6 py-4 text-slate-500 text-left">{inv.date}</td>
-                      <td className="px-6 py-4 text-slate-900 text-left">{inv.description}</td>
-                      <td className="px-6 py-4 font-semibold text-slate-900 text-left">{inv.amount}</td>
+                    <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors">
+                      <td className="px-6 py-4 font-medium text-slate-900 dark:text-white text-left">{inv.id}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-gray-400 text-left">{inv.date}</td>
+                      <td className="px-6 py-4 text-slate-900 dark:text-white text-left">{inv.description}</td>
+                      <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white text-left">{inv.amount}</td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-slate-400 hover:text-blue-600 transition-colors">
+                        <button className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                           <Download className="w-4 h-4 inline-block" />
                         </button>
                       </td>
@@ -250,27 +254,27 @@ export default function Credits({ onNavigate }) {
         <div className="space-y-6">
 
           {/* Payment Methods */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm">
             <h3 className="text-lg font-bold mb-4 text-left">Zahlungsmethode</h3>
 
             <div className="space-y-3">
               <div
                 onClick={() => setSelectedMethod('visa')}
                 className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedMethod === 'visa' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
+                  selectedMethod === 'visa' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-slate-100 p-2 rounded">
-                    <CreditCard className="w-5 h-5 text-slate-700" />
+                    <CreditCard className="w-5 h-5 text-slate-700 dark:text-gray-200" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900 text-left">Visa •••• 4242</p>
-                    <p className="text-xs text-slate-500 text-left">Expires 12/28</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white text-left">Visa •••• 4242</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 text-left">Expires 12/28</p>
                   </div>
                 </div>
                 {selectedMethod === 'visa' && (
-                  <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-blue-600 dark:bg-blue-700 flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                 )}
@@ -279,26 +283,26 @@ export default function Credits({ onNavigate }) {
               <div
                 onClick={() => setSelectedMethod('mastercard')}
                 className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedMethod === 'mastercard' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
+                  selectedMethod === 'mastercard' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-slate-100 p-2 rounded">
-                    <CreditCard className="w-5 h-5 text-slate-700" />
+                    <CreditCard className="w-5 h-5 text-slate-700 dark:text-gray-200" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900 text-left">Mastercard •••• 8899</p>
-                    <p className="text-xs text-slate-500 text-left">Expires 09/26</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white text-left">Mastercard •••• 8899</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400 text-left">Expires 09/26</p>
                   </div>
                 </div>
                 {selectedMethod === 'mastercard' && (
-                  <div className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                  <div className="w-4 h-4 rounded-full bg-blue-600 dark:bg-blue-700 flex items-center justify-center">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                 )}
               </div>
 
-              <button className="w-full py-3 border-2 border-dashed border-slate-200 rounded-lg text-sm font-medium text-slate-500 hover:border-blue-600 hover:text-blue-600 transition-colors flex items-center justify-center gap-2">
+              <button className="w-full py-3 border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-lg text-sm font-medium text-slate-500 dark:text-gray-400 hover:border-blue-600 hover:text-blue-600 dark:text-blue-400 transition-colors flex items-center justify-center gap-2">
                 + Neue Methode hinzufügen
               </button>
             </div>

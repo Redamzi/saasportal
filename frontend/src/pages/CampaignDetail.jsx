@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
+import DarkModeToggle from '../components/DarkModeToggle'
 
 function CampaignDetail({ campaignId, onNavigate }) {
   const [user, setUser] = useState(null)
@@ -214,10 +215,10 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading campaign...</p>
+          <p className="text-gray-600 dark:text-gray-300">Loading campaign...</p>
         </div>
       </div>
     )
@@ -225,12 +226,12 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
   if (!campaign) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Campaign not found</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">Campaign not found</h2>
           <button
             onClick={() => onNavigate('campaigns')}
-            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+            className="mt-4 px-6 py-2 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-lg transition"
           >
             Back to Campaigns
           </button>
@@ -247,35 +248,36 @@ function CampaignDetail({ campaignId, onNavigate }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow">
+      <header className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <button
                 onClick={() => onNavigate('campaigns')}
-                className="mr-4 text-gray-500 hover:text-gray-700"
+                className="mr-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
                 <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M15 19l-7-7 7-7"></path>
                 </svg>
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">Voyanero</h1>
-              <span className="ml-4 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Voyanero</h1>
+              <span className="ml-4 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
                 Campaign Details
               </span>
             </div>
             <div className="flex items-center gap-4">
+              <DarkModeToggle />
               <button
                 onClick={() => onNavigate('dashboard')}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
               >
                 Dashboard
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
               >
                 Logout
               </button>
@@ -287,21 +289,21 @@ function CampaignDetail({ campaignId, onNavigate }) {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Campaign Info */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2 text-left">{campaign.name}</h2>
-              <p className="text-gray-600 text-left">{campaign.description || 'No description'}</p>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-left">{campaign.name}</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-left">{campaign.description || 'No description'}</p>
             </div>
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              campaign.status === 'draft' ? 'bg-gray-100 text-gray-700' :
-              campaign.status === 'crawling' ? 'bg-yellow-100 text-yellow-700' :
-              campaign.status === 'ready' ? 'bg-green-100 text-green-700' :
-              campaign.status === 'running' ? 'bg-blue-100 text-blue-700' :
-              campaign.status === 'paused' ? 'bg-orange-100 text-orange-700' :
-              campaign.status === 'completed' ? 'bg-indigo-100 text-indigo-700' :
-              campaign.status === 'failed' ? 'bg-red-100 text-red-700' :
-              'bg-gray-100 text-gray-700'
+              campaign.status === 'draft' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
+              campaign.status === 'crawling' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+              campaign.status === 'ready' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+              campaign.status === 'running' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+              campaign.status === 'paused' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+              campaign.status === 'completed' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
+              campaign.status === 'failed' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+              'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
             }`}>
               {campaign.status.toUpperCase()}
             </span>
@@ -309,23 +311,23 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
             <div>
-              <span className="text-gray-500 text-left">Type:</span>
-              <p className="font-medium capitalize text-left">{campaign.type?.replace('_', ' ')}</p>
+              <span className="text-gray-500 dark:text-gray-400 text-left">Type:</span>
+              <p className="font-medium text-gray-900 dark:text-white capitalize text-left">{campaign.type?.replace('_', ' ')}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-left">Created:</span>
-              <p className="font-medium text-left">{new Date(campaign.created_at).toLocaleDateString()}</p>
+              <span className="text-gray-500 dark:text-gray-400 text-left">Created:</span>
+              <p className="font-medium text-gray-900 dark:text-white text-left">{new Date(campaign.created_at).toLocaleDateString()}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-left">Total Leads:</span>
-              <p className="font-medium text-left">{stats.total}</p>
+              <span className="text-gray-500 dark:text-gray-400 text-left">Total Leads:</span>
+              <p className="font-medium text-gray-900 dark:text-white text-left">{stats.total}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-left">Total Cost:</span>
-              <p className="font-semibold text-blue-600 text-left">
+              <span className="text-gray-500 dark:text-gray-400 text-left">Total Cost:</span>
+              <p className="font-semibold text-blue-600 dark:text-blue-400 text-left">
                 {campaign.credits_used || campaign.leads_count || 0} Credits
               </p>
-              <p className="text-xs text-gray-500 text-left">
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-left">
                 Crawler: {campaign.leads_count || 0} Credits
               </p>
             </div>
@@ -334,7 +336,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
           <div className="flex gap-3">
             <button
               onClick={handleOpenSearchModal}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition"
             >
               + Add More Leads
             </button>
@@ -342,7 +344,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
             <button
               onClick={handleExportCSV}
               disabled={leads.length === 0}
-              className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg transition disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
             >
               Export CSV
             </button>
@@ -351,35 +353,35 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
         {/* Lead Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">Total Leads</h3>
-            <p className="text-3xl font-bold text-gray-900 text-left">{stats.total}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Total Leads</h3>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white text-left">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">New</h3>
-            <p className="text-3xl font-bold text-blue-600 text-left">{stats.new}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">New</h3>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-left">{stats.new}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">Contacted</h3>
-            <p className="text-3xl font-bold text-yellow-600 text-left">{stats.contacted}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Contacted</h3>
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 text-left">{stats.contacted}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 mb-2 text-left">Converted</h3>
-            <p className="text-3xl font-bold text-green-600 text-left">{stats.converted}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Converted</h3>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 text-left">{stats.converted}</p>
           </div>
         </div>
 
         {/* Leads Table */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 text-left">Leads</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white text-left">Leads</h3>
           </div>
 
           {leads.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                 <svg
-                  className="w-12 h-12 text-gray-400"
+                  className="w-12 h-12 text-gray-400 dark:text-gray-500"
                   fill="none"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -390,8 +392,8 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2 text-center">No leads yet</h3>
-              <p className="text-gray-600 text-center">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">No leads yet</h3>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
                 Start a lead search to populate this campaign with leads
               </p>
             </div>
@@ -575,16 +577,16 @@ function CampaignDetail({ campaignId, onNavigate }) {
       {/* Search Leads Modal (Add More Leads) */}
       {showSearchModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 text-left">Add More Leads</h2>
-                  <p className="text-sm text-gray-600 mt-1 text-left">Configure search parameters to find additional leads</p>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-left">Add More Leads</h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 text-left">Configure search parameters to find additional leads</p>
                 </div>
                 <button
                   onClick={handleCloseSearchModal}
-                  className="text-gray-400 hover:text-gray-600 transition"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition"
                 >
                   <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                     <path d="M6 18L18 6M6 6l12 12"></path>
@@ -595,7 +597,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
             <form onSubmit={handleStartSearch} className="p-6 space-y-6">
               <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Location *
                 </label>
                 <input
@@ -605,14 +607,14 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   value={searchFormData.location}
                   onChange={handleSearchChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="e.g., Munich, Germany"
                 />
-                <p className="mt-1 text-sm text-gray-500">City name or coordinates</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">City name or coordinates</p>
               </div>
 
               <div>
-                <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="radius" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Search Radius: {(searchFormData.radius / 1000).toFixed(1)} km
                 </label>
                 <input
@@ -626,14 +628,14 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   step="1000"
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>5 km</span>
                   <span>50 km</span>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Keywords *
                 </label>
                 <input
@@ -643,14 +645,14 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   value={searchFormData.keywords}
                   onChange={handleSearchChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="restaurant, cafe, hotel"
                 />
-                <p className="mt-1 text-sm text-gray-500">Comma-separated search terms</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Comma-separated search terms</p>
               </div>
 
               <div>
-                <label htmlFor="targetLeadCount" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="targetLeadCount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Target Lead Count
                 </label>
                 <input
@@ -661,13 +663,13 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   onChange={handleSearchChange}
                   min="10"
                   max="1000"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="minRating" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="minRating" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Min Rating: {searchFormData.minRating}
                   </label>
                   <input
@@ -684,7 +686,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                 </div>
 
                 <div>
-                  <label htmlFor="minReviews" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="minReviews" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Min Reviews
                   </label>
                   <input
@@ -695,32 +697,32 @@ function CampaignDetail({ campaignId, onNavigate }) {
                     onChange={handleSearchChange}
                     min="0"
                     max="1000"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Credit Cost Display */}
-              <div className="bg-blue-50 p-4 rounded mb-4">
-                <p className="text-sm text-gray-600 text-left">
-                  Estimated Cost: <span className="font-bold text-lg text-blue-600">{calculateCost()} Credits</span>
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-300 text-left">
+                  Estimated Cost: <span className="font-bold text-lg text-blue-600 dark:text-blue-400">{calculateCost()} Credits</span>
                 </p>
-                <p className="text-xs text-gray-500 mt-1 text-left">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left">
                   1 Credit per Lead
                 </p>
               </div>
 
-              <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
+              <div className="flex justify-end gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   type="button"
                   onClick={handleCloseSearchModal}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
+                  className="px-6 py-2 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-lg transition"
                 >
                   Start Search
                 </button>
@@ -733,11 +735,11 @@ function CampaignDetail({ campaignId, onNavigate }) {
       {/* Crawling Loading Overlay */}
       {isCrawling && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl max-w-sm">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-xl max-w-sm">
             <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-lg font-semibold text-center text-gray-900">Crawling leads...</p>
-            <p className="text-sm text-gray-600 text-center mt-2">This may take a minute</p>
-            <p className="text-xs text-gray-500 text-center mt-4">Please wait while we search for leads</p>
+            <p className="text-lg font-semibold text-center text-gray-900 dark:text-white">Crawling leads...</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 text-center mt-2">This may take a minute</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">Please wait while we search for leads</p>
           </div>
         </div>
       )}
