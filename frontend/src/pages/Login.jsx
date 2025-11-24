@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { signIn, signUp } from '../lib/supabase'
+import DarkModeToggle from '../components/DarkModeToggle'
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true)
@@ -81,7 +82,10 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900 flex items-center justify-center px-4">
+      <div className="absolute top-4 right-4">
+        <DarkModeToggle />
+      </div>
       <div className="max-w-md w-full">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
@@ -92,22 +96,22 @@ function Login() {
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm">{error}</p>
+            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-700 text-sm">{success}</p>
+            <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
+              <p className="text-green-700 dark:text-green-300 text-sm">{success}</p>
             </div>
           )}
 
@@ -117,7 +121,7 @@ function Login() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Email Address
               </label>
@@ -127,7 +131,7 @@ function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="your@email.com"
               />
             </div>
@@ -136,7 +140,7 @@ function Login() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Password
               </label>
@@ -147,11 +151,11 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="••••••••"
               />
               {!isLogin && (
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Minimum 6 characters
                 </p>
               )}
@@ -164,7 +168,7 @@ function Login() {
                 <div>
                   <label
                     htmlFor="company"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
                     Company Name *
                   </label>
@@ -174,7 +178,7 @@ function Login() {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     required={!isLogin}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="Acme Corp"
                   />
                 </div>
@@ -183,7 +187,7 @@ function Login() {
                 <div>
                   <label
                     htmlFor="fullName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
                   >
                     Full Name (Optional)
                   </label>
@@ -192,7 +196,7 @@ function Login() {
                     id="fullName"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="John Doe"
                   />
                 </div>
@@ -220,17 +224,17 @@ function Login() {
             <button
               type="button"
               onClick={toggleMode}
-              className="text-sm text-gray-600 hover:text-gray-800 transition"
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition"
             >
               {isLogin ? (
                 <>
                   Don't have an account?{' '}
-                  <span className="text-blue-600 font-semibold">Sign Up</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold">Sign Up</span>
                 </>
               ) : (
                 <>
                   Already have an account?{' '}
-                  <span className="text-blue-600 font-semibold">Log In</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-semibold">Log In</span>
                 </>
               )}
             </button>
@@ -241,7 +245,7 @@ function Login() {
             <div className="mt-4 text-center">
               <button
                 type="button"
-                className="text-sm text-gray-500 hover:text-gray-700 transition"
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition"
               >
                 Forgot password?
               </button>
