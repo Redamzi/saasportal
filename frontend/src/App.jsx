@@ -59,6 +59,11 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [isAuthenticated])
 
+  // Navigation handler
+  const handleNavigate = (page) => {
+    setCurrentPage(page)
+  }
+
   if (currentPage === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -75,7 +80,7 @@ function App() {
   }
 
   if (currentPage === 'dashboard' && isAuthenticated) {
-    return <Dashboard />
+    return <Dashboard onNavigate={handleNavigate} />
   }
 
   // Fallback
