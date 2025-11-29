@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Campaigns from './pages/Campaigns'
+import Credits from './pages/Credits'
+import Settings from './pages/Settings'
 import { getCurrentUser } from './lib/supabase'
 import { Toaster } from 'react-hot-toast'
 
@@ -19,12 +22,12 @@ function App() {
 
       if (user) {
         setIsAuthenticated(true)
-        // If on login page and authenticated, go to dashboard
-        if (window.location.pathname === '/login' || window.location.pathname === '/') {
-          setCurrentPage('dashboard')
-        } else {
-          setCurrentPage('dashboard')
-        }
+        // Handle deep links
+        const path = window.location.pathname
+        if (path === '/campaigns') setCurrentPage('campaigns')
+        else if (path === '/credits') setCurrentPage('credits')
+        else if (path === '/settings') setCurrentPage('settings')
+        else setCurrentPage('dashboard')
       } else {
         setIsAuthenticated(false)
         setCurrentPage('login')
@@ -39,7 +42,12 @@ function App() {
   // Simple client-side routing based on currentPage state
   useEffect(() => {
     // Update URL without reload
-    const path = currentPage === 'dashboard' ? '/dashboard' : '/login'
+    let path = '/login'
+    if (currentPage === 'dashboard') path = '/dashboard'
+    else if (currentPage === 'campaigns') path = '/campaigns'
+    else if (currentPage === 'credits') path = '/credits'
+    else if (currentPage === 'settings') path = '/settings'
+
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path)
     }
@@ -49,8 +57,12 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname
-      if (path === '/dashboard' && isAuthenticated) {
-        setCurrentPage('dashboard')
+      if (isAuthenticated) {
+        if (path === '/dashboard') setCurrentPage('dashboard')
+        else if (path === '/campaigns') setCurrentPage('campaigns')
+        else if (path === '/credits') setCurrentPage('credits')
+        else if (path === '/settings') setCurrentPage('settings')
+        else setCurrentPage('dashboard')
       } else if (path === '/login' || path === '/') {
         setCurrentPage('login')
       }
@@ -90,6 +102,33 @@ function App() {
       <>
         <Toaster position="top-right" />
         <Dashboard onNavigate={handleNavigate} />
+      </>
+    )
+  }
+
+  if (currentPage === 'campaigns' && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <Campaigns onNavigate={handleNavigate} />
+      </>
+    )
+  }
+
+  if (currentPage === 'credits' && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <Credits onNavigate={handleNavigate} />
+      </>
+    )
+  }
+
+  if (currentPage === 'settings' && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <Settings onNavigate={handleNavigate} />
       </>
     )
   }
