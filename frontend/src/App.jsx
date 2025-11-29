@@ -3,6 +3,7 @@ import './App.css'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Campaigns from './pages/Campaigns'
+import CampaignDetail from './pages/CampaignDetail'
 import Credits from './pages/Credits'
 import Settings from './pages/Settings'
 import { getCurrentUser } from './lib/supabase'
@@ -11,6 +12,7 @@ import { Toaster } from 'react-hot-toast'
 function App() {
   const [currentPage, setCurrentPage] = useState('loading')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [pageData, setPageData] = useState(null) // For passing data like campaignId
 
   useEffect(() => {
     checkAuth()
@@ -73,8 +75,9 @@ function App() {
   }, [isAuthenticated])
 
   // Navigation handler
-  const handleNavigate = (page) => {
+  const handleNavigate = (page, data = null) => {
     setCurrentPage(page)
+    setPageData(data)
   }
 
   if (currentPage === 'loading') {
@@ -129,6 +132,15 @@ function App() {
       <>
         <Toaster position="top-right" />
         <Settings onNavigate={handleNavigate} />
+      </>
+    )
+  }
+
+  if (currentPage === 'campaignDetail' && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <CampaignDetail onNavigate={handleNavigate} campaignId={pageData?.campaignId} />
       </>
     )
   }
