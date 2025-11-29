@@ -84,7 +84,7 @@ export default function Credits({ onNavigate }) {
       }
 
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${API_URL}/api/credits/checkout`, {
+      const response = await fetch(`${API_URL}/api/payments/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -260,9 +260,8 @@ export default function Credits({ onNavigate }) {
             <div className="space-y-3">
               <div
                 onClick={() => setSelectedMethod('visa')}
-                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedMethod === 'visa' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
-                }`}
+                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${selectedMethod === 'visa' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-slate-100 p-2 rounded">
@@ -282,9 +281,8 @@ export default function Credits({ onNavigate }) {
 
               <div
                 onClick={() => setSelectedMethod('mastercard')}
-                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-                  selectedMethod === 'mastercard' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
-                }`}
+                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${selectedMethod === 'mastercard' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="bg-slate-100 p-2 rounded">
