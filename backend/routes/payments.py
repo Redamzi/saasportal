@@ -9,6 +9,8 @@ import stripe
 import os
 from typing import Optional
 
+from services.supabase_client import get_supabase_client
+
 router = APIRouter(prefix="/api/payments", tags=["Payments"])
 
 # Initialize Stripe
