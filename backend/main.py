@@ -5,6 +5,7 @@ import os
 
 # Import routes
 from routes.auth import router as auth_router
+from routes.payments import router as payments_router
 
 # Load environment variables
 load_dotenv()
@@ -20,9 +21,14 @@ app = FastAPI(
 )
 
 # Configure CORS
+ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,http://frontend:3000"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://frontend:3000"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,6 +36,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(payments_router)
 
 
 @app.get("/health")
