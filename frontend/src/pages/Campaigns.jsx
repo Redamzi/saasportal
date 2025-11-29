@@ -157,10 +157,10 @@ function Campaigns({ onNavigate }) {
   const handleStartSearch = async (e) => {
     e.preventDefault()
 
-    // ✅ STEP 1: Close modal immediately (better UX!)
+    // Close modal
     handleCloseSearchModal()
 
-    // ✅ STEP 2: Show loading state on page
+    // Show loading state
     setIsCrawling(true)
 
     try {
@@ -190,12 +190,40 @@ function Campaigns({ onNavigate }) {
       const data = await response.json()
 
       if (data.success) {
-        // ✅ STEP 3: Wait a bit for backend to process, then refresh
+        // Poll campaign status until completed
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await fetch(`${API_URL}/api/campaigns/${selectedCampaign.id}`)
+            if (statusRes.ok) {
+              const statusData = await statusRes.json()
+              const campaign = statusData.campaign
+
+              // Check if crawl is done
+              if (campaign.status === 'completed' || campaign.status === 'failed') {
+                clearInterval(pollInterval)
+                setIsCrawling(false)
+                loadData()
+
+                const leadsCount = statusData.leads?.length || 0
+                if (campaign.status === 'completed') {
+                  alert(`✅ Lead search completed!\n\nLeads found: ${leadsCount}`)
+                } else {
+                  alert(`❌ Lead search failed.\n\nError: ${campaign.metadata?.error || 'Unknown error'}`)
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Error polling status:', err)
+          }
+        }, 2000) // Check every 2 seconds
+
+        // Timeout after 60 seconds
         setTimeout(() => {
+          clearInterval(pollInterval)
           setIsCrawling(false)
           loadData()
-          alert(`✅ Lead search completed!\n\n${data.message}\n\nLeads found: ${data.leads_found}`)
-        }, 2000)
+          alert('⏱️ Crawl is taking longer than expected. Please check the campaign details.')
+        }, 60000)
       } else {
         setIsCrawling(false)
         throw new Error('Crawl failed')
@@ -350,15 +378,14 @@ function Campaigns({ onNavigate }) {
                 {/* Header */}
                 <div className="p-6 border-b border-slate-100 dark:border-gray-700">
                   <div className="flex justify-between items-start mb-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${
-                      campaign.status === 'ready' ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' :
-                      campaign.status === 'crawling' ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                      campaign.status === 'failed' ? 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                      campaign.status === 'running' ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
-                      campaign.status === 'paused' ? 'bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                      campaign.status === 'completed' ? 'bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
-                      'bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${campaign.status === 'ready' ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' :
+                        campaign.status === 'crawling' ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+                          campaign.status === 'failed' ? 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                            campaign.status === 'running' ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
+                              campaign.status === 'paused' ? 'bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                                campaign.status === 'completed' ? 'bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
+                                  'bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300'
+                      }`}>
                       {campaign.status}
                     </span>
                     <button
