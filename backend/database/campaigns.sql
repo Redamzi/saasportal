@@ -21,23 +21,28 @@ CREATE INDEX IF NOT EXISTS campaigns_status_idx ON public.campaigns(status);
 -- RLS Policies
 ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own campaigns" ON public.campaigns;
 CREATE POLICY "Users can view own campaigns"
     ON public.campaigns FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own campaigns" ON public.campaigns;
 CREATE POLICY "Users can insert own campaigns"
     ON public.campaigns FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own campaigns" ON public.campaigns;
 CREATE POLICY "Users can update own campaigns"
     ON public.campaigns FOR UPDATE
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own campaigns" ON public.campaigns;
 CREATE POLICY "Users can delete own campaigns"
     ON public.campaigns FOR DELETE
     USING (auth.uid() = user_id);
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS campaigns_updated_at ON public.campaigns;
 CREATE TRIGGER campaigns_updated_at
     BEFORE UPDATE ON public.campaigns
     FOR EACH ROW

@@ -133,7 +133,7 @@ async def list_campaigns(user_id: str):
     
     # Get campaigns
     response = supabase.table('campaigns').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
-    campaigns = response.data
+    campaigns = response.data or []
     
     # Enrich with lead counts
     for campaign in campaigns:
