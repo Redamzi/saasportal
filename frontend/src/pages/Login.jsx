@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { signIn, signUp } from '../lib/supabase'
+import toast from 'react-hot-toast'
 import DarkModeToggle from '../components/DarkModeToggle'
 
 function Login() {
@@ -26,12 +27,16 @@ function Login() {
         const { user, session, error: loginError } = await signIn(email, password)
 
         if (loginError) {
-          setError(loginError.message || 'Login failed. Please check your credentials.')
+          const msg = loginError.message || 'Login failed. Please check your credentials.'
+          setError(msg)
+          toast.error(msg)
           return
         }
 
         if (user && session) {
-          setSuccess('Login successful! Redirecting...')
+          const msg = 'Login successful! Redirecting...'
+          setSuccess(msg)
+          toast.success(msg)
           // Redirect to dashboard
           setTimeout(() => {
             window.location.href = '/dashboard'
@@ -40,7 +45,9 @@ function Login() {
       } else {
         // Signup
         if (!companyName) {
-          setError('Company name is required')
+          const msg = 'Company name is required'
+          setError(msg)
+          toast.error(msg)
           return
         }
 
@@ -52,14 +59,16 @@ function Login() {
         )
 
         if (signupError) {
-          setError(signupError.message || 'Signup failed. Please try again.')
+          const msg = signupError.message || 'Signup failed. Please try again.'
+          setError(msg)
+          toast.error(msg)
           return
         }
 
         if (user) {
-          setSuccess(
-            'Account created successfully! Please check your email to verify your account.'
-          )
+          const msg = 'Account created successfully! Please check your email to verify your account.'
+          setSuccess(msg)
+          toast.success(msg, { duration: 6000 })
           // Clear form
           setEmail('')
           setPassword('')
@@ -68,7 +77,9 @@ function Login() {
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      const msg = 'An unexpected error occurred. Please try again.'
+      setError(msg)
+      toast.error(msg)
       console.error('Auth error:', err)
     } finally {
       setLoading(false)
@@ -214,8 +225,8 @@ function Login() {
                   ? 'Logging in...'
                   : 'Creating account...'
                 : isLogin
-                ? 'Log In'
-                : 'Create Account'}
+                  ? 'Log In'
+                  : 'Create Account'}
             </button>
           </form>
 

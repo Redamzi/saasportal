@@ -3,6 +3,7 @@ import './App.css'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import { getCurrentUser } from './lib/supabase'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('loading')
@@ -76,15 +77,30 @@ function App() {
   }
 
   if (currentPage === 'login') {
-    return <Login />
+    return (
+      <>
+        <Toaster position="top-right" />
+        <Login />
+      </>
+    )
   }
 
   if (currentPage === 'dashboard' && isAuthenticated) {
-    return <Dashboard onNavigate={handleNavigate} />
+    return (
+      <>
+        <Toaster position="top-right" />
+        <Dashboard onNavigate={handleNavigate} />
+      </>
+    )
   }
 
   // Fallback
-  return <Login />
+  return (
+    <>
+      <Toaster position="top-right" />
+      <Login />
+    </>
+  )
 }
 
 export default App
