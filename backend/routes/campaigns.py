@@ -129,18 +129,28 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
 
 @router.get("/list/{user_id}")
 async def list_campaigns(user_id: str):
-    supabase = get_supabase_client()
-    
-    # Get campaigns
-    response = supabase.table('campaigns').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
-    campaigns = response.data or []
-    
-    # Enrich with lead counts
-    for campaign in campaigns:
-        count_res = supabase.table('leads').select('*', count='exact', head=True).eq('campaign_id', campaign['id']).execute()
-        campaign['leads_count'] = count_res.count
+    try:
+        supabase = get_supabase_client()
         
-    return {"campaigns": campaigns}
+        # Get campaigns
+        response = supabase.table('campaigns').select('*').eq('user_id', user_id).order('created_at', desc=True).execute()
+        campaigns = response.data or []
+        
+        # Enrich with lead counts
+        for campaign in campaigns:
+            try:
+                count_res = supabase.table('leads').select('*', count='exact', head=True).eq('campaign_id', campaign['id']).execute()
+                campaign['leads_count'] = count_res.count if count_res.count is not None else 0
+            except Exception as e:
+                print(f"Error counting leads for campaign {campaign.get('id')}: {str(e)}")
+                campaign['leads_count'] = 0
+            
+        return {"campaigns": campaigns}
+    except Exception as e:
+        print(f"Error in list_campaigns: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch campaigns: {str(e)}")
 
 @router.post("/create")
 async def create_campaign(campaign: CampaignCreate):
