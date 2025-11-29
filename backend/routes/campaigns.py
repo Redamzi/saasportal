@@ -152,6 +152,35 @@ async def list_campaigns(user_id: str):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to fetch campaigns: {str(e)}")
 
+@router.get("/{campaign_id}")
+async def get_campaign_detail(campaign_id: str):
+    try:
+        supabase = get_supabase_client()
+        
+        # Get campaign
+        campaign_res = supabase.table('campaigns').select('*').eq('id', campaign_id).single().execute()
+        
+        if not campaign_res.data:
+            raise HTTPException(status_code=404, detail="Campaign not found")
+        
+        campaign = campaign_res.data
+        
+        # Get leads for this campaign
+        leads_res = supabase.table('leads').select('*').eq('campaign_id', campaign_id).execute()
+        leads = leads_res.data or []
+        
+        return {
+            "campaign": campaign,
+            "leads": leads
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_campaign_detail: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to fetch campaign details: {str(e)}")
+
 @router.post("/create")
 async def create_campaign(campaign: CampaignCreate):
     supabase = get_supabase_client()
