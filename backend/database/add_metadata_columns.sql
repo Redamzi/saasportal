@@ -6,5 +6,9 @@ ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE public.leads 
 ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 
+-- Add metadata column to credit_transactions table if it doesn't exist
+ALTER TABLE public.credit_transactions 
+ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
+
 -- Refresh the schema cache in Supabase
 NOTIFY pgrst, 'reload schema';
