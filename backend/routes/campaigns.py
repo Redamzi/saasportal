@@ -165,7 +165,7 @@ async def list_campaigns(user_id: str):
         # Enrich with lead counts
         for campaign in campaigns:
             try:
-                count_res = supabase.table('leads').select('*', count='exact', head=True).eq('campaign_id', campaign['id']).execute()
+                count_res = supabase.table('leads').select('id', count='exact').eq('campaign_id', campaign['id']).execute()
                 campaign['leads_count'] = count_res.count if count_res.count is not None else 0
             except Exception as e:
                 print(f"Error counting leads for campaign {campaign.get('id')}: {str(e)}")
@@ -242,11 +242,33 @@ async def delete_campaign(campaign_id: str):
 async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
     supabase = get_supabase_client()
     
-    # Check credits first
-    # This is a simplified check. Real check happens in DB function or here.
-    user_res = supabase.table('profiles').select('credits_balance').eq('id', request.user_id).single().execute()
-    if not user_res.data or user_res.data['credits_balance'] < 1: # Min 1 credit to start
-         raise HTTPException(status_code=402, detail="Insufficient credits")
+    # Validate target lead count
+    if request.target_lead_count < 10:
+        raise HTTPException(status_code=400, detail="Minimum 10 leads required")
+    
+    if request.target_lead_count > 5000:
+        raise HTTPException(status_code=400, detail="Maximum 5000 leads allowed")
+    
+    # Check credits balance
+    try:
+        user_res = supabase.table('profiles').select('credits_balance').eq('id', request.user_id).single().execute()
+        
+        if not user_res.data:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        current_credits = user_res.data.get('credits_balance', 0)
+        
+        # Check if user has enough credits (1 credit per lead)
+        if current_credits < request.target_lead_count:
+            raise HTTPException(
+                status_code=402, 
+                detail=f"Insufficient credits. You have {current_credits} credits but need {request.target_lead_count} credits. Please purchase more credits."
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error checking credits: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to check credit balance")
 
     # Start background task
     background_tasks.add_task(crawl_google_places, request.campaign_id, request.user_id, request)
