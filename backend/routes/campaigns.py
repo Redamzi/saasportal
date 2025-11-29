@@ -38,6 +38,9 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
         if not api_key:
             raise Exception("Google Maps API Key not found")
 
+        print(f"🔍 Starting crawl for campaign {campaign_id}")
+        print(f"📍 Location: {request.location}, Keywords: {request.keywords}")
+
         # 1. Text Search to get places
         search_url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
         params = {
@@ -46,25 +49,42 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
             "key": api_key
         }
         
+        print(f"🌐 Calling Google Places API: {search_url}")
         response = requests.get(search_url, params=params)
         data = response.json()
         
+        # Check for API errors
+        status = data.get('status')
+        print(f"📊 API Response Status: {status}")
+        
+        if status != 'OK' and status != 'ZERO_RESULTS':
+            error_msg = data.get('error_message', 'Unknown error')
+            print(f"❌ Google Maps API Error: {status} - {error_msg}")
+            raise Exception(f"Google Maps API Error: {status} - {error_msg}")
+        
         results = data.get('results', [])
+        print(f"✅ Found {len(results)} places from Google Maps")
+        
         leads_added = 0
         
         # Process results
         for place in results:
             if leads_added >= request.target_lead_count:
+                print(f"🎯 Reached target lead count: {request.target_lead_count}")
                 break
                 
             # Filter by rating/reviews
             if place.get('rating', 0) < (request.min_rating or 0):
+                print(f"⏭️  Skipping {place.get('name')} - rating too low")
                 continue
             if place.get('user_ratings_total', 0) < (request.min_reviews or 0):
+                print(f"⏭️  Skipping {place.get('name')} - not enough reviews")
                 continue
 
             # Get Place Details (for phone, website)
             place_id = place.get('place_id')
+            print(f"🔎 Fetching details for: {place.get('name')}")
+            
             details_url = "https://maps.googleapis.com/maps/api/place/details/json"
             details_params = {
                 "place_id": place_id,
@@ -73,7 +93,13 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
             }
             
             details_res = requests.get(details_url, params=details_params)
-            details = details_res.json().get('result', {})
+            details_data = details_res.json()
+            
+            if details_data.get('status') != 'OK':
+                print(f"⚠️  Failed to get details for {place.get('name')}: {details_data.get('status')}")
+                continue
+                
+            details = details_data.get('result', {})
             
             # Insert Lead
             lead_data = {
@@ -94,14 +120,11 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
                 }
             }
             
-            # Check if lead exists (by website or phone to avoid dupes)
-            # For now, just insert
+            print(f"💾 Inserting lead: {details.get('name')}")
             supabase.table('leads').insert(lead_data).execute()
             leads_added += 1
             
-            # Deduct Credit (1 credit per lead)
-            # We should call the deduct_credits function here, but for simplicity we assume credits are checked before
-            # In a real app, we would deduct credits transactionally
+        print(f"✅ Crawling completed! Added {leads_added} leads")
             
         # Update Campaign Status
         supabase.table('campaigns').update({
@@ -111,6 +134,7 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
         
         # Deduct credits for found leads
         if leads_added > 0:
+            print(f"💳 Deducting {leads_added} credits")
             supabase.rpc('deduct_credits', {
                 'p_user_id': user_id,
                 'p_amount': leads_added,
@@ -119,7 +143,9 @@ async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequ
             }).execute()
 
     except Exception as e:
-        print(f"Crawling failed: {str(e)}")
+        print(f"💥 Crawling failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
         supabase.table('campaigns').update({
             'status': 'failed',
             'metadata': {'error': str(e)}
