@@ -141,115 +141,164 @@ class ImpressumScraper:
     
     def extract_emails_from_html(self, html: str) -> List[str]:
         """
-        Extract all email addresses from HTML
-        Handles obfuscated emails, mailto links, Cloudflare protection, and various formats
+        Extract all email addresses from HTML with improved accuracy
+        Handles obfuscated emails, mailto links, and various formats
         
         Args:
             html: HTML content
         
         Returns:
-            List of email addresses
+            List of clean email addresses
         """
         soup = BeautifulSoup(html, 'lxml')
-        emails = []
+        emails = set()  # Use set to avoid duplicates
         
-        # Method 1: Extract from mailto: links
+        # Method 1: Extract from mailto: links (most reliable)
         mailto_links = soup.find_all('a', href=True)
         for link in mailto_links:
             href = link['href']
             if href.startswith('mailto:'):
                 email = href.replace('mailto:', '').split('?')[0].strip()
-                emails.append(email)
+                if '@' in email:
+                    emails.add(email.lower())
         
-        # Method 2: Search in raw HTML source (MOST IMPORTANT for JS-rendered content)
-        # This catches emails that might be in data attributes or comments
-        raw_emails = re.findall(self.EMAIL_REGEX, html)
-        emails.extend(raw_emails)
-        
-        # Method 3: Remove script and style tags, then use regex
-        for script in soup(['script', 'style', 'noscript']):
+        # Remove script, style, and noscript tags
+        for script in soup(['script', 'style', 'noscript', 'svg', 'path']):
             script.decompose()
         
-        # Get text and normalize whitespace (replace newlines with spaces)
-        text = soup.get_text()
-        # Normalize whitespace: replace multiple spaces/newlines with single space
+        # Get text and clean it thoroughly
+        text = soup.get_text(separator=' ', strip=True)
+        
+        # Replace common separators with spaces to create word boundaries
+        text = re.sub(r'[|•·\t\n\r]+', ' ', text)
+        
+        # Normalize whitespace
         text = ' '.join(text.split())
         
-        # Method 4: Find emails with standard regex in normalized text
-        regex_emails = re.findall(self.EMAIL_REGEX, text)
-        emails.extend(regex_emails)
+        # Method 2: Extract emails with word boundaries
+        # This regex requires whitespace or punctuation around the email
+        email_pattern = r'(?:^|[\s,;:()[\]{}"\'])([\w.+-]+@[\w.-]+\.[\w]{2,})(?=[\s,;:()[\]{}"\']|$)'
+        matches = re.findall(email_pattern, text, re.IGNORECASE)
+        for email in matches:
+            emails.add(email.lower())
         
-        # Method 5: Handle obfuscated emails (e.g., "info [at] example [dot] com")
-        obfuscated_pattern = r'\b[\w.+-]+\s*\[at\]\s*[\w.-]+\s*\[dot\]\s*\w+\b'
+        # Method 3: Handle obfuscated emails (e.g., "info [at] example [dot] com")
+        obfuscated_pattern = r'\b([\w.+-]+)\s*\[at\]\s*([\w.-]+)\s*\[dot\]\s*(\w+)\b'
         obfuscated = re.findall(obfuscated_pattern, text, re.IGNORECASE)
-        for email in obfuscated:
-            # Convert to normal email format
-            email = email.replace('[at]', '@').replace('[dot]', '.').replace(' ', '')
-            emails.append(email.lower())
+        for local, domain, tld in obfuscated:
+            email = f"{local}@{domain}.{tld}".lower()
+            emails.add(email)
         
-        # Method 6: Handle emails with spaces (e.g., "info @ example . com")
-        spaced_pattern = r'\b[\w.+-]+\s*@\s*[\w.-]+\s*\.\s*\w+\b'
+        # Method 4: Handle emails with spaces (e.g., "info @ example . com")
+        spaced_pattern = r'\b([\w.+-]+)\s+@\s+([\w.-]+)\s+\.\s+(\w+)\b'
         spaced = re.findall(spaced_pattern, text)
-        for email in spaced:
-            # Remove spaces
-            email = email.replace(' ', '')
-            emails.append(email.lower())
+        for local, domain, tld in spaced:
+            email = f"{local}@{domain}.{tld}".lower()
+            emails.add(email)
         
-        # Method 7: Handle "Reservierungen: email@example.com" pattern
-        # Look for email after common keywords
-        keywords = ['email:', 'e-mail:', 'mail:', 'kontakt:', 'reservierungen:', 'reservations:']
+        # Method 5: Look for emails after keywords (with strict boundaries)
+        keywords = ['email:', 'e-mail:', 'mail:', 'kontakt:', 'contact:']
         for keyword in keywords:
-            pattern = keyword + r'\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})'
+            pattern = keyword + r'\s*([\w.+-]+@[\w.-]+\.[\w]{2,})'
             matches = re.findall(pattern, text, re.IGNORECASE)
-            emails.extend(matches)
+            for email in matches:
+                emails.add(email.lower())
         
-        # Deduplicate and lowercase
-        emails = list(set([email.lower().strip() for email in emails if email]))
+        # Convert set to list and filter
+        emails_list = list(emails)
         
-        # Filter out obviously invalid emails
+        # Advanced filtering
         valid_emails = []
-        for email in emails:
-            # Must contain @ and .
-            if '@' not in email or '.' not in email.split('@')[1]:
+        for email in emails_list:
+            if not self._is_valid_email(email):
                 continue
-            
-            # Must not be too long
-            if len(email) >= 100:
-                continue
-            
-            # Must not be placeholder
-            if email.startswith('[email') or email.endswith('protected]'):
-                continue
-            
-            # Must not be tracking email
-            if self.is_tracking_email(email):
-                continue
-            
-            # NEW: Filter out emails with phone numbers or excessive digits
-            # Check if local part (before @) contains long sequences of digits (likely phone numbers)
-            local_part = email.split('@')[0]
-            
-            # Skip if local part starts with digits (likely phone number prefix)
-            if local_part and local_part[0].isdigit():
-                continue
-            
-            # Skip if local part contains more than 4 consecutive digits (likely phone number)
-            if re.search(r'\d{5,}', local_part):
-                continue
-            
-            # Skip if email contains suspicious patterns (domain embedded in local part)
-            if local_part.count('.') > 3:  # Too many dots in local part
-                continue
-            
-            # Skip if local part is too long (likely concatenated junk)
-            if len(local_part) > 50:
-                continue
-            
             valid_emails.append(email)
         
         print(f"📧 Found {len(valid_emails)} valid email(s) after filtering: {valid_emails}")
         
         return valid_emails
+    
+    def _is_valid_email(self, email: str) -> bool:
+        """
+        Comprehensive email validation
+        
+        Args:
+            email: Email address to validate
+        
+        Returns:
+            True if valid, False otherwise
+        """
+        # Must contain @ and .
+        if '@' not in email or '.' not in email.split('@')[1]:
+            return False
+        
+        # Split into local and domain parts
+        try:
+            local_part, domain_part = email.split('@')
+        except ValueError:
+            return False
+        
+        # Local part checks
+        if not local_part or len(local_part) > 64:
+            return False
+        
+        # Domain part checks
+        if not domain_part or len(domain_part) > 255:
+            return False
+        
+        # Must not be too long overall
+        if len(email) >= 100:
+            return False
+        
+        # Must not be placeholder
+        if email.startswith('[email') or email.endswith('protected]'):
+            return False
+        
+        # Must not be tracking email
+        if self.is_tracking_email(email):
+            return False
+        
+        # Filter out emails with phone numbers or excessive digits
+        # Skip if local part starts with digits (likely phone number prefix)
+        if local_part and local_part[0].isdigit():
+            return False
+        
+        # Skip if local part contains more than 4 consecutive digits (likely phone number)
+        if re.search(r'\d{5,}', local_part):
+            return False
+        
+        # Skip if email contains suspicious patterns (domain embedded in local part)
+        if local_part.count('.') > 3:  # Too many dots in local part
+            return False
+        
+        # NEW: Check for concatenated text patterns
+        # Skip if local part ends with common German/English words (indicates concatenation)
+        suspicious_endings = [
+            'aufsichtsbeh', 'behörde', 'ministerium', 'zust', 'zuständige',
+            'www', 'http', 'https', 'de', 'com', 'org', 'net',
+            'strasse', 'str', 'platz', 'weg', 'allee'
+        ]
+        local_lower = local_part.lower()
+        for ending in suspicious_endings:
+            if local_lower.endswith(ending):
+                return False
+        
+        # NEW: Check domain part for concatenated text
+        # Domain should not contain common words concatenated
+        domain_lower = domain_part.lower()
+        if any(word in domain_lower for word in ['dewww', 'dehttp', 'comwww', 'orgwww']):
+            return False
+        
+        # Domain must have valid TLD
+        if '.' not in domain_part:
+            return False
+        
+        tld = domain_part.split('.')[-1]
+        if len(tld) < 2 or not tld.isalpha():
+            return False
+        
+        return True
+
     
     def scrape_with_selenium(self, url: str) -> Optional[str]:
         """
