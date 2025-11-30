@@ -168,6 +168,53 @@ async def crawl_batch(request: BatchCrawlRequest, background_tasks: BackgroundTa
     }
 
 
+@router.post("/debug")
+async def debug_crawl(request: CrawlRequest):
+    """
+    Debug endpoint to see what the scraper extracts
+    """
+    scraper = get_impressum_scraper()
+    
+    try:
+        # Fetch the page
+        url = request.website
+        if not url.startswith(('http://', 'https://')):
+            url = 'https://' + url
+        
+        response = scraper.session.get(url, timeout=10)
+        homepage_html = response.text
+        
+        # Find Impressum
+        impressum_url = scraper.find_impressum_url(url, homepage_html)
+        
+        if impressum_url:
+            impressum_response = scraper.session.get(impressum_url, timeout=10)
+            html = impressum_response.text
+        else:
+            html = homepage_html
+        
+        # Extract emails
+        emails = scraper.extract_emails_from_html(html)
+        
+        # Get text preview
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html, 'lxml')
+        for script in soup(['script', 'style', 'noscript']):
+            script.decompose()
+        text = soup.get_text()
+        text_preview = ' '.join(text.split())[:500]  # First 500 chars
+        
+        return {
+            "impressum_url": impressum_url or url,
+            "emails_found": emails,
+            "text_preview": text_preview,
+            "html_length": len(html)
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @router.get("/cache/{domain}")
 async def get_cache(domain: str):
     """Get cached result for a domain"""
@@ -199,3 +246,4 @@ async def get_cache(domain: str):
     except Exception as e:
         print(f"💥 Error in get_cache: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
