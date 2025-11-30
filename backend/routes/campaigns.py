@@ -127,6 +127,7 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                 "user_id": user_id,
                 "campaign_id": campaign_id,
                 "company_name": normalized.get('name'),
+                "address": normalized.get('address'),  # Add address field
                 "city": normalized.get('city'),
                 "phone": normalized.get('phone'),
                 "website": normalized.get('website'),
