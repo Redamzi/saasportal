@@ -250,8 +250,22 @@ class ImpressumScraper:
             chrome_options.add_argument('--window-size=1920,1080')
             chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
             
+            # Set binary location if using Chromium in Docker
+            if os.environ.get('CHROME_BIN'):
+                chrome_options.binary_location = os.environ.get('CHROME_BIN')
+            
             # Initialize driver
-            service = Service(ChromeDriverManager().install())
+            # In Docker we use system installed chromedriver
+            if os.environ.get('CHROMEDRIVER_PATH'):
+                service = Service(executable_path=os.environ.get('CHROMEDRIVER_PATH'))
+            else:
+                # Fallback for local development
+                try:
+                    service = Service(ChromeDriverManager().install())
+                except:
+                    # Try default path
+                    service = Service()
+
             driver = webdriver.Chrome(service=service, options=chrome_options)
             
             # Load page
