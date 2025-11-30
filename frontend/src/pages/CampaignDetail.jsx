@@ -15,7 +15,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
     location: '',
     radius: 5000,
     keywords: '',
-    targetLeadCount: 100,
+    targetLeadCount: 10,  // Changed from 100 to 10
     minRating: 0,
     minReviews: 0,
   })
@@ -144,7 +144,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
       location: '',
       radius: 5000,
       keywords: '',
-      targetLeadCount: 100,
+      targetLeadCount: 10,  // Changed from 100 to 10
       minRating: 0,
       minReviews: 0,
     })
@@ -210,6 +210,69 @@ function CampaignDetail({ campaignId, onNavigate }) {
       console.error('Error starting search:', error)
       setIsCrawling(false)
       alert('❌ Failed to start lead search. Please try again.')
+    }
+  }
+
+  const handleEnrichEmails = async () => {
+    // Filter leads that have website but no email
+    const leadsToEnrich = leads.filter(l => l.website && !l.email)
+
+    if (leadsToEnrich.length === 0) {
+      alert('No leads found to enrich (must have website but no email)')
+      return
+    }
+
+    if (!confirm(`Found ${leadsToEnrich.length} leads to enrich. Start Impressum Crawler?`)) {
+      return
+    }
+
+    setIsCrawling(true)
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+      // Extract websites
+      const websites = leadsToEnrich.map(l => l.website)
+
+      const response = await fetch(`${API_URL}/api/impressum/batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          websites: websites,
+          campaign_id: campaignId
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to start batch crawl')
+      }
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`✅ Started enriching ${data.count} leads! This runs in the background.`)
+
+        // Poll for updates every 5 seconds for 1 minute
+        let checks = 0
+        const interval = setInterval(() => {
+          loadData() // Refresh leads
+          checks++
+          if (checks >= 12) { // Stop after 1 minute
+            clearInterval(interval)
+            setIsCrawling(false)
+          }
+        }, 5000)
+
+      } else {
+        throw new Error(data.message || 'Batch crawl failed')
+        setIsCrawling(false)
+      }
+    } catch (error) {
+      console.error('Error enriching emails:', error)
+      setIsCrawling(false)
+      alert(`❌ Failed to start enrichment: ${error.message}`)
     }
   }
 
@@ -295,16 +358,15 @@ function CampaignDetail({ campaignId, onNavigate }) {
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-left">{campaign.name}</h2>
               <p className="text-gray-600 dark:text-gray-400 text-left">{campaign.description || 'No description'}</p>
             </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              campaign.status === 'draft' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${campaign.status === 'draft' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
               campaign.status === 'crawling' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
-              campaign.status === 'ready' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-              campaign.status === 'running' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-              campaign.status === 'paused' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-              campaign.status === 'completed' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
-              campaign.status === 'failed' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-              'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-            }`}>
+                campaign.status === 'ready' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                  campaign.status === 'running' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+                    campaign.status === 'paused' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                      campaign.status === 'completed' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
+                        campaign.status === 'failed' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                          'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}>
               {campaign.status.toUpperCase()}
             </span>
           </div>
@@ -339,6 +401,23 @@ function CampaignDetail({ campaignId, onNavigate }) {
               className="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition"
             >
               + Add More Leads
+            </button>
+
+            <button
+              onClick={handleEnrichEmails}
+              disabled={leads.filter(l => l.website && !l.email).length === 0 || isCrawling}
+              className="px-6 py-2 bg-purple-600 dark:bg-purple-700 hover:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-lg transition disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isCrawling ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Crawling...
+                </>
+              ) : (
+                <>
+                  🔍 Enrich Emails ({leads.filter(l => l.website && !l.email).length})
+                </>
+              )}
             </button>
 
             <button
@@ -403,14 +482,23 @@ function CampaignDetail({ campaignId, onNavigate }) {
                 const isManualEmail = lead.email_source === 'manual_user'
                 const isExpanded = expandedLead === lead.id
 
+                // Badge Logic
+                let badge = null
+                if (lead.email_source === 'outscraper') {
+                  badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" title="Source: Outscraper">OUT</span>
+                } else if (lead.email_source === 'impressum_crawler') {
+                  badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" title="Source: Impressum Scraper">IMP</span>
+                } else if (lead.email_source === 'manual_user') {
+                  badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" title="Source: Manual">MAN</span>
+                }
+
                 return (
                   <div
                     key={lead.id}
-                    className={`rounded-lg shadow transition-all ${
-                      isManualEmail
-                        ? 'bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700'
-                        : 'bg-white dark:bg-gray-800'
-                    }`}
+                    className={`rounded-lg shadow transition-all ${isManualEmail
+                      ? 'bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700'
+                      : 'bg-white dark:bg-gray-800'
+                      }`}
                   >
                     {/* COLLAPSED VIEW - Always Visible */}
                     <div
@@ -420,14 +508,10 @@ function CampaignDetail({ campaignId, onNavigate }) {
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Company Name */}
                         <div>
-                          <p className="font-semibold text-gray-900 dark:text-white">
+                          <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                             {lead.company_name || lead.name || 'Kein Name'}
+                            {badge}
                           </p>
-                          {isManualEmail && (
-                            <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-yellow-200 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 rounded">
-                              ⚠️ Manuell hinzugefügt
-                            </span>
-                          )}
                         </div>
 
                         {/* Phone */}
@@ -448,13 +532,20 @@ function CampaignDetail({ campaignId, onNavigate }) {
                         {/* Email */}
                         <div>
                           {lead.email ? (
-                            <a
-                              href={`mailto:${lead.email}`}
-                              className="text-blue-600 dark:text-blue-400 hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              ✉️ {lead.email}
-                            </a>
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`mailto:${lead.email}`}
+                                className="text-blue-600 dark:text-blue-400 hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                ✉️ {lead.email}
+                              </a>
+                              {lead.email_verified ? (
+                                <span title="Verified Email">✅</span>
+                              ) : (
+                                <span title="Unverified Email">⚠️</span>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-gray-400 dark:text-gray-500">Keine Email</span>
                           )}
@@ -510,12 +601,11 @@ function CampaignDetail({ campaignId, onNavigate }) {
                         {/* Status */}
                         <div>
                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status:</p>
-                          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                            lead.status === 'new' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${lead.status === 'new' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
                             lead.status === 'contacted' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-                            lead.status === 'converted' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-                            'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                          }`}>
+                              lead.status === 'converted' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                                'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                            }`}>
                             {lead.status || 'new'}
                           </span>
                         </div>
@@ -524,11 +614,10 @@ function CampaignDetail({ campaignId, onNavigate }) {
                         {lead.email && (
                           <div>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Email-Quelle:</p>
-                            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                              isManualEmail
-                                ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                                : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                            }`}>
+                            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${isManualEmail
+                              ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                              : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                              }`}>
                               {isManualEmail ? '👤 Manuell eingegeben' : '🤖 Automatisch gefunden'}
                             </span>
                           </div>

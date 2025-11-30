@@ -22,7 +22,7 @@ function Campaigns({ onNavigate }) {
     location: '',
     radius: 5000,
     keywords: '',
-    targetLeadCount: 100,
+    targetLeadCount: 10,  // Changed from 100 to 10
     minRating: 0,
     minReviews: 0,
     minLeadScore: 0,
@@ -136,7 +136,7 @@ function Campaigns({ onNavigate }) {
       location: '',
       radius: 5000,
       keywords: '',
-      targetLeadCount: 100,
+      targetLeadCount: 10,  // Changed from 100 to 10
       minRating: 0,
       minReviews: 0,
       minLeadScore: 0,
@@ -379,12 +379,12 @@ function Campaigns({ onNavigate }) {
                 <div className="p-6 border-b border-slate-100 dark:border-gray-700">
                   <div className="flex justify-between items-start mb-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${campaign.status === 'ready' ? 'bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' :
-                        campaign.status === 'crawling' ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                          campaign.status === 'failed' ? 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                            campaign.status === 'running' ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
-                              campaign.status === 'paused' ? 'bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                                campaign.status === 'completed' ? 'bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
-                                  'bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300'
+                      campaign.status === 'crawling' ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+                        campaign.status === 'failed' ? 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                          campaign.status === 'running' ? 'bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
+                            campaign.status === 'paused' ? 'bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                              campaign.status === 'completed' ? 'bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-300' :
+                                'bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-gray-300'
                       }`}>
                       {campaign.status}
                     </span>
