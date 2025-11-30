@@ -109,7 +109,8 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                 }
             }
             
-            print(f"💾 Inserting lead: {normalized.get('name')} {f'(Email: {normalized.get('email')})' if normalized.get('email') else '(No email)'}")
+            email_info = f"(Email: {normalized.get('email')})" if normalized.get('email') else "(No email)"
+            print(f"💾 Inserting lead: {normalized.get('name')} {email_info}")
             
             try:
                 supabase.table('leads').insert(lead_data).execute()
