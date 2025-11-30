@@ -203,8 +203,8 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                     supabase.table('leads').update({
                         'email': result['email'],
                         'email_source': 'impressum_crawler',
-                        'email_verified': result.get('verified', False),
-                        'is_personal': result.get('is_personal', False)
+                        'email_verified': result.get('verified', False)
+                        # is_personal field will be added after database migration
                     }).eq('campaign_id', campaign_id).eq('website', result['url']).execute()
                     
                     # Also try matching by original URL if scraper modified it? 
