@@ -2,10 +2,10 @@ from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional
 import os
-import requests
 from datetime import datetime
 
 from services.supabase_client import get_supabase_client
+from services.outscraper_service import get_outscraper_service
 
 router = APIRouter(prefix="/api/campaigns", tags=["Campaigns"])
 
@@ -20,111 +20,135 @@ class CrawlRequest(BaseModel):
     campaign_id: str
     user_id: str
     location: str
-    radius: int
+    radius: int  # Not used by Outscraper, kept for compatibility
     keywords: str
     target_lead_count: int = 10
     min_rating: Optional[float] = 0
     min_reviews: Optional[int] = 0
 
-# Background Task for Crawling
-async def crawl_google_places(campaign_id: str, user_id: str, request: CrawlRequest):
+# Background Task for Crawling with Outscraper
+async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRequest):
     supabase = get_supabase_client()
     
     # Update status to crawling
     supabase.table('campaigns').update({'status': 'crawling'}).eq('id', campaign_id).execute()
     
     try:
-        api_key = os.getenv("GOOGLE_MAPS_API_KEY")
-        if not api_key:
-            raise Exception("Google Maps API Key not found")
-
-        print(f"🔍 Starting crawl for campaign {campaign_id}")
+        print(f"🔍 Starting Outscraper crawl for campaign {campaign_id}")
         print(f"📍 Location: {request.location}, Keywords: {request.keywords}")
+        print(f"🎯 Target: {request.target_lead_count} leads")
 
-        # 1. Text Search to get places
-        search_url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
-        params = {
-            "query": f"{request.keywords} in {request.location}",
-            "radius": request.radius,
-            "key": api_key
-        }
+        # Get Outscraper service
+        outscraper = get_outscraper_service()
         
-        print(f"🌐 Calling Google Places API: {search_url}")
-        response = requests.get(search_url, params=params)
-        data = response.json()
+        # Build search query
+        query = f"{request.keywords} in {request.location}"
         
-        # Check for API errors
-        status = data.get('status')
-        print(f"📊 API Response Status: {status}")
+        # Search places with Outscraper
+        places = outscraper.search_places(
+            query=query,
+            limit=request.target_lead_count
+        )
         
-        if status != 'OK' and status != 'ZERO_RESULTS':
-            error_msg = data.get('error_message', 'Unknown error')
-            print(f"❌ Google Maps API Error: {status} - {error_msg}")
-            raise Exception(f"Google Maps API Error: {status} - {error_msg}")
-        
-        results = data.get('results', [])
-        print(f"✅ Found {len(results)} places from Google Maps")
+        print(f"✅ Outscraper returned {len(places)} places")
         
         leads_added = 0
         
         # Process results
-        for place in results:
+        for place in places:
             if leads_added >= request.target_lead_count:
                 print(f"🎯 Reached target lead count: {request.target_lead_count}")
                 break
-                
+            
+            # Normalize place data
+            normalized = outscraper.normalize_place_data(place)
+            
             # Filter by rating/reviews
-            if place.get('rating', 0) < (request.min_rating or 0):
-                print(f"⏭️  Skipping {place.get('name')} - rating too low")
-                continue
-            if place.get('user_ratings_total', 0) < (request.min_reviews or 0):
-                print(f"⏭️  Skipping {place.get('name')} - not enough reviews")
-                continue
-
-            # Get Place Details (for phone, website)
-            place_id = place.get('place_id')
-            print(f"🔎 Fetching details for: {place.get('name')}")
+            rating = normalized.get('rating') or 0
+            reviews = normalized.get('reviews_count') or 0
             
-            details_url = "https://maps.googleapis.com/maps/api/place/details/json"
-            details_params = {
-                "place_id": place_id,
-                "fields": "name,formatted_address,international_phone_number,website,url,rating,user_ratings_total",
-                "key": api_key
-            }
-            
-            details_res = requests.get(details_url, params=details_params)
-            details_data = details_res.json()
-            
-            if details_data.get('status') != 'OK':
-                print(f"⚠️  Failed to get details for {place.get('name')}: {details_data.get('status')}")
+            if rating < (request.min_rating or 0):
+                print(f"⏭️  Skipping {normalized.get('name')} - rating too low ({rating})")
                 continue
-                
-            details = details_data.get('result', {})
+            
+            if reviews < (request.min_reviews or 0):
+                print(f"⏭️  Skipping {normalized.get('name')} - not enough reviews ({reviews})")
+                continue
+            
+            # Check for duplicate place_id
+            place_id = normalized.get('place_id')
+            if place_id:
+                existing = supabase.table('leads').select('id').eq('campaign_id', campaign_id).filter('metadata->>place_id', 'eq', place_id).execute()
+                if existing.data:
+                    print(f"⏭️  Skipping {normalized.get('name')} - already exists in campaign")
+                    continue
             
             # Insert Lead
             lead_data = {
                 "user_id": user_id,
                 "campaign_id": campaign_id,
-                "company_name": details.get('name'),
-                "city": request.location.split(',')[0], # Simple city extraction
-                "phone": details.get('international_phone_number'),
-                "website": details.get('website'),
-                "lead_score": int(details.get('rating', 0) * 20), # 5 stars = 100 score
+                "company_name": normalized.get('name'),
+                "city": normalized.get('city'),
+                "phone": normalized.get('phone'),
+                "website": normalized.get('website'),
+                "email": normalized.get('email'),  # Email from Outscraper!
+                "email_source": "outscraper" if normalized.get('email') else None,
+                "email_verified": False,
+                "lead_score": int((rating or 0) * 20),  # 5 stars = 100 score
                 "status": "new",
                 "metadata": {
-                    "google_place_id": place_id,
-                    "rating": details.get('rating'),
-                    "reviews": details.get('user_ratings_total'),
-                    "maps_url": details.get('url'),
-                    "address": details.get('formatted_address')
+                    "place_id": place_id,
+                    "rating": rating,
+                    "reviews": reviews,
+                    "address": normalized.get('address'),
+                    "latitude": normalized.get('latitude'),
+                    "longitude": normalized.get('longitude'),
+                    "category": normalized.get('category'),
+                    "verified": normalized.get('verified'),
+                    "source": "outscraper"
                 }
             }
             
-            print(f"💾 Inserting lead: {details.get('name')}")
-            supabase.table('leads').insert(lead_data).execute()
-            leads_added += 1
+            print(f"💾 Inserting lead: {normalized.get('name')} {f'(Email: {normalized.get('email')})' if normalized.get('email') else '(No email)'}")
+            
+            try:
+                supabase.table('leads').insert(lead_data).execute()
+                leads_added += 1
+            except Exception as e:
+                print(f"⚠️  Failed to insert lead {normalized.get('name')}: {str(e)}")
+                continue
             
         print(f"✅ Crawling completed! Added {leads_added} leads")
+            
+        # Update Campaign Status
+        supabase.table('campaigns').update({
+            'status': 'completed',
+            'metadata': {
+                'last_crawl_count': leads_added,
+                'source': 'outscraper'
+            }
+        }).eq('id', campaign_id).execute()
+        
+        # Deduct credits for found leads
+        if leads_added > 0:
+            print(f"💳 Deducting {leads_added} credits")
+            supabase.rpc('deduct_credits', {
+                'p_user_id': user_id,
+                'p_amount': leads_added,
+                'p_description': f'Lead crawl for campaign {campaign_id}',
+                'p_metadata': {'campaign_id': campaign_id, 'leads_count': leads_added, 'source': 'outscraper'}
+            }).execute()
+
+    except Exception as e:
+        print(f"💥 Crawling failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        supabase.table('campaigns').update({
+            'status': 'failed',
+            'metadata': {'error': str(e)}
+        }).eq('id', campaign_id).execute()
+
+# Routes
             
         # Update Campaign Status
         supabase.table('campaigns').update({
@@ -270,8 +294,8 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
         print(f"Error checking credits: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to check credit balance")
 
-    # Start background task
-    background_tasks.add_task(crawl_google_places, request.campaign_id, request.user_id, request)
+    # Start background task with Outscraper
+    background_tasks.add_task(crawl_with_outscraper, request.campaign_id, request.user_id, request)
     
     return {
         "success": True, 
