@@ -210,14 +210,42 @@ class ImpressumScraper:
         valid_emails = []
         for email in emails:
             # Must contain @ and .
-            if '@' in email and '.' in email.split('@')[1]:
-                # Must not be too long
-                if len(email) < 100:
-                    # Must not be placeholder
-                    if not email.startswith('[email') and not email.endswith('protected]'):
-                        # Must not be tracking email
-                        if not self.is_tracking_email(email):
-                            valid_emails.append(email)
+            if '@' not in email or '.' not in email.split('@')[1]:
+                continue
+            
+            # Must not be too long
+            if len(email) >= 100:
+                continue
+            
+            # Must not be placeholder
+            if email.startswith('[email') or email.endswith('protected]'):
+                continue
+            
+            # Must not be tracking email
+            if self.is_tracking_email(email):
+                continue
+            
+            # NEW: Filter out emails with phone numbers or excessive digits
+            # Check if local part (before @) contains long sequences of digits (likely phone numbers)
+            local_part = email.split('@')[0]
+            
+            # Skip if local part starts with digits (likely phone number prefix)
+            if local_part and local_part[0].isdigit():
+                continue
+            
+            # Skip if local part contains more than 4 consecutive digits (likely phone number)
+            if re.search(r'\d{5,}', local_part):
+                continue
+            
+            # Skip if email contains suspicious patterns (domain embedded in local part)
+            if local_part.count('.') > 3:  # Too many dots in local part
+                continue
+            
+            # Skip if local part is too long (likely concatenated junk)
+            if len(local_part) > 50:
+                continue
+            
+            valid_emails.append(email)
         
         print(f"📧 Found {len(valid_emails)} valid email(s) after filtering: {valid_emails}")
         

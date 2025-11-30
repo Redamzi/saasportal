@@ -193,12 +193,9 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
             
             # Update leads with results
             for result in scrape_results:
-                if result['success'] and result.get('email'):
-                    # Find which lead this belongs to (by website)
-                    # Note: scraping might normalize URL, so we match loosely or by index if we kept order
-                    # But scrape_batch returns list in same order? No, it uses futures.
-                    # So we match by URL.
-                    
+                # Save email if found, even if verification failed
+                # We want to show the email to the user even if MX check failed
+                if result.get('email'):
                     # Update all leads with this website in this campaign
                     supabase.table('leads').update({
                         'email': result['email'],
@@ -207,11 +204,9 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                         # is_personal field will be added after database migration
                     }).eq('campaign_id', campaign_id).eq('website', result['url']).execute()
                     
-                    # Also try matching by original URL if scraper modified it? 
-                    # The scraper returns 'url' as the input URL usually.
-                    
                     found_count += 1
-                    print(f"📧 Deep Scraper found email for {result['url']}: {result['email']}")
+                    verified_status = "✅" if result.get('verified') else "⚠️"
+                    print(f"📧 Deep Scraper found email for {result['url']}: {result['email']} {verified_status}")
             
             print(f"✅ Deep Scraper finished. Found {found_count} additional emails.")
         else:
