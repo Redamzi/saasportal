@@ -9,7 +9,8 @@ pydantic==2.5.0
 pydantic-settings==2.1.0
 redis==5.0.1
 email-validator==2.1.0
-outscraper==3.0.5
+outscraper==5.10.0
 beautifulsoup4==4.12.2
 requests==2.31.0
 lxml==4.9.3
+
