@@ -417,27 +417,41 @@ class ImpressumScraper:
                 'error': str(e)
             }
     
-    def scrape_batch(self, urls: List[str], delay: float = 0.5) -> List[Dict]:
+    def scrape_batch(self, urls: List[str], max_workers: int = 5) -> List[Dict]:
         """
-        Scrape multiple websites with rate limiting
+        Scrape multiple websites in parallel
         
         Args:
             urls: List of URLs to scrape
-            delay: Delay between requests in seconds
+            max_workers: Number of concurrent threads (default 5)
         
         Returns:
             List of scraping results
         """
-        results = []
+        import concurrent.futures
         
-        for i, url in enumerate(urls):
-            print(f"\n[{i+1}/{len(urls)}] Scraping {url}")
-            result = self.scrape_website(url)
-            results.append(result)
+        results = []
+        print(f"🚀 Starting parallel scrape for {len(urls)} websites with {max_workers} workers")
+        
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Create a future for each URL
+            future_to_url = {executor.submit(self.scrape_website, url): url for url in urls}
             
-            # Rate limiting
-            if i < len(urls) - 1:
-                time.sleep(delay)
+            for i, future in enumerate(concurrent.futures.as_completed(future_to_url)):
+                url = future_to_url[future]
+                try:
+                    data = future.result()
+                    results.append(data)
+                    print(f"[{i+1}/{len(urls)}] ✅ Completed {url}")
+                except Exception as exc:
+                    print(f"[{i+1}/{len(urls)}] 💥 Generated an exception for {url}: {exc}")
+                    results.append({
+                        'success': False,
+                        'url': url,
+                        'domain': self.extract_domain(url),
+                        'email': None,
+                        'error': str(exc)
+                    })
         
         return results
 
