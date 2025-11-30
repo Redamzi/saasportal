@@ -1,6 +1,7 @@
 """
 Impressum Scraper Service
 Crawls websites to extract email addresses from Impressum/Contact pages
+Supports both static HTML and JavaScript-rendered content via Selenium
 """
 
 import requests
@@ -10,6 +11,22 @@ import re
 from typing import Optional, List, Dict
 from services.email_verifier import get_email_verifier
 import time
+import os
+
+# Selenium imports
+try:
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from webdriver_manager.chrome import ChromeDriverManager
+    SELENIUM_AVAILABLE = True
+except ImportError:
+    SELENIUM_AVAILABLE = False
+    print("⚠️  Selenium not available - JavaScript-rendered sites won't work")
+
 
 class ImpressumScraper:
     """Service for scraping emails from Impressum pages"""
@@ -206,6 +223,57 @@ class ImpressumScraper:
         
         return valid_emails
     
+    def scrape_with_selenium(self, url: str) -> Optional[str]:
+        """
+        Scrape website using Selenium (for JavaScript-rendered content)
+        
+        Args:
+            url: Website URL to scrape
+        
+        Returns:
+            HTML content or None
+        """
+        if not SELENIUM_AVAILABLE:
+            print("⚠️  Selenium not available")
+            return None
+        
+        driver = None
+        try:
+            print(f"🌐 Using Selenium for {url}")
+            
+            # Setup Chrome options
+            chrome_options = Options()
+            chrome_options.add_argument('--headless')  # Run in background
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--window-size=1920,1080')
+            chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            
+            # Initialize driver
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=chrome_options)
+            
+            # Load page
+            driver.get(url)
+            
+            # Wait for page to load (max 10 seconds)
+            time.sleep(3)  # Give JavaScript time to render
+            
+            # Get page source
+            html = driver.page_source
+            
+            print(f"✅ Selenium loaded {len(html)} bytes")
+            return html
+            
+        except Exception as e:
+            print(f"❌ Selenium error: {str(e)}")
+            return None
+        finally:
+            if driver:
+                driver.quit()
+
+    
     def scrape_website(self, url: str) -> Dict:
         """
         Scrape website for email addresses
@@ -252,8 +320,17 @@ class ImpressumScraper:
                 html_to_scrape = homepage_html
                 scraped_url = url
             
-            # Extract emails
+            # Extract emails from HTML
             emails = self.extract_emails_from_html(html_to_scrape)
+            
+            # HYBRID APPROACH: If no emails found, try Selenium
+            if not emails and SELENIUM_AVAILABLE:
+                print(f"⚡ No emails found with normal scraping, trying Selenium...")
+                selenium_html = self.scrape_with_selenium(scraped_url)
+                if selenium_html:
+                    emails = self.extract_emails_from_html(selenium_html)
+                    if emails:
+                        print(f"✅ Selenium found {len(emails)} email(s)!")
             
             if not emails:
                 print(f"❌ No emails found on {scraped_url}")
