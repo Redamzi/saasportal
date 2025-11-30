@@ -6,6 +6,7 @@ from datetime import datetime
 
 from services.supabase_client import get_supabase_client
 from services.outscraper_service import get_outscraper_service
+from services.impressum_scraper import get_impressum_scraper
 
 router = APIRouter(prefix="/api/campaigns", tags=["Campaigns"])
 
@@ -91,11 +92,35 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
             
             # Check for duplicate place_id
             place_id = normalized.get('place_id')
-            if place_id:
-                existing = supabase.table('leads').select('id').eq('campaign_id', campaign_id).filter('metadata->>place_id', 'eq', place_id).execute()
-                if existing.data:
-                    print(f"⏭️  Skipping {normalized.get('name')} - already exists in campaign")
+            
+            # Extract domain for deduplication
+            website = normalized.get('website')
+            domain = None
+            if website:
+                from urllib.parse import urlparse
+                try:
+                    domain = urlparse(website).netloc.replace('www.', '')
+                except:
+                    domain = None
+
+            # 3-Tier Deduplication Check
+            # Check if lead already exists for this user (Place ID, Domain, or Email)
+            try:
+                dup_check = supabase.rpc('check_duplicate_lead', {
+                    'p_user_id': user_id,
+                    'p_place_id': place_id,
+                    'p_domain': domain,
+                    'p_email': normalized.get('email')
+                }).execute()
+                
+                if dup_check.data and dup_check.data[0]['is_duplicate']:
+                    reason = dup_check.data[0]['duplicate_reason']
+                    print(f"♻️  Skipping {normalized.get('name')} - Duplicate found by {reason}")
                     continue
+            except Exception as e:
+                print(f"⚠️  Deduplication check failed: {str(e)}")
+                # Continue cautiously or skip? Let's skip to be safe
+                continue
             
             # Insert Lead
             lead_data = {
@@ -134,6 +159,65 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                 continue
             
         print(f"✅ Crawling completed! Added {leads_added} leads")
+        
+        # ---------------------------------------------------------
+        # DEEP SCRAPER INTEGRATION
+        # ---------------------------------------------------------
+        # Find leads from this campaign that have website but NO email
+        # This includes leads we just added + potentially others in this campaign
+        
+        print("🔍 Checking for leads that need Deep Scraping...")
+        
+        leads_to_scrape_res = supabase.table('leads') \
+            .select('id, website') \
+            .eq('campaign_id', campaign_id) \
+            .neq('website', None) \
+            .is_('email', 'null') \
+            .execute()
+            
+        leads_to_scrape = leads_to_scrape_res.data or []
+        
+        if leads_to_scrape:
+            print(f"⚡ Found {len(leads_to_scrape)} leads with website but no email. Starting Deep Scraper...")
+            
+            # Extract URLs
+            urls = [lead['website'] for lead in leads_to_scrape]
+            
+            # Get Scraper
+            scraper = get_impressum_scraper()
+            
+            # Run batch scrape
+            scrape_results = scraper.scrape_batch(urls, max_workers=5)
+            
+            found_count = 0
+            
+            # Update leads with results
+            for result in scrape_results:
+                if result['success'] and result.get('email'):
+                    # Find which lead this belongs to (by website)
+                    # Note: scraping might normalize URL, so we match loosely or by index if we kept order
+                    # But scrape_batch returns list in same order? No, it uses futures.
+                    # So we match by URL.
+                    
+                    # Update all leads with this website in this campaign
+                    supabase.table('leads').update({
+                        'email': result['email'],
+                        'email_source': 'impressum_crawler',
+                        'email_verified': result.get('verified', False),
+                        'is_personal': result.get('is_personal', False)
+                    }).eq('campaign_id', campaign_id).eq('website', result['url']).execute()
+                    
+                    # Also try matching by original URL if scraper modified it? 
+                    # The scraper returns 'url' as the input URL usually.
+                    
+                    found_count += 1
+                    print(f"📧 Deep Scraper found email for {result['url']}: {result['email']}")
+            
+            print(f"✅ Deep Scraper finished. Found {found_count} additional emails.")
+        else:
+            print("✨ All leads already have emails (or no websites). Skipping Deep Scraper.")
+            
+        # ---------------------------------------------------------
             
         # Update Campaign Status
         supabase.table('campaigns').update({
@@ -163,32 +247,7 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
             'metadata': {'error': str(e)}
         }).eq('id', campaign_id).execute()
 
-# Routes
-            
-        # Update Campaign Status
-        supabase.table('campaigns').update({
-            'status': 'completed',
-            'metadata': {'last_crawl_count': leads_added}
-        }).eq('id', campaign_id).execute()
-        
-        # Deduct credits for found leads
-        if leads_added > 0:
-            print(f"💳 Deducting {leads_added} credits")
-            supabase.rpc('deduct_credits', {
-                'p_user_id': user_id,
-                'p_amount': leads_added,
-                'p_description': f'Lead crawl for campaign {campaign_id}',
-                'p_metadata': {'campaign_id': campaign_id, 'leads_count': leads_added}
-            }).execute()
 
-    except Exception as e:
-        print(f"💥 Crawling failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        supabase.table('campaigns').update({
-            'status': 'failed',
-            'metadata': {'error': str(e)}
-        }).eq('id', campaign_id).execute()
 
 # Routes
 
