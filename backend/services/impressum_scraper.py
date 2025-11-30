@@ -41,8 +41,15 @@ class ImpressumScraper:
         'about us'
     ]
     
-    # Email regex pattern
-    EMAIL_REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    # Email regex pattern (more permissive)
+    EMAIL_REGEX = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    
+    # Tracking/spam domains to exclude
+    EXCLUDED_DOMAINS = [
+        'facebook.com', 'fb.com', 'google.com', 'cloudflare.com',
+        'fontawesome.com', 'twitter.com', 'instagram.com', 'linkedin.com',
+        'youtube.com', 'example.com', 'test.com', 'domain.com'
+    ]
     
     def __init__(self):
         self.email_verifier = get_email_verifier()
@@ -100,6 +107,21 @@ class ImpressumScraper:
         print(f"⚠️  No Impressum page found for {base_url}")
         return None
     
+    def is_tracking_email(self, email: str) -> bool:
+        """Check if email is from a tracking/spam domain"""
+        try:
+            domain = email.split('@')[1].lower()
+            # Check exact match
+            if domain in self.EXCLUDED_DOMAINS:
+                return True
+            # Check if it's a subdomain of excluded domains
+            for excluded in self.EXCLUDED_DOMAINS:
+                if domain.endswith('.' + excluded) or domain == excluded:
+                    return True
+            return False
+        except:
+            return True
+    
     def extract_emails_from_html(self, html: str) -> List[str]:
         """
         Extract all email addresses from HTML
@@ -122,8 +144,8 @@ class ImpressumScraper:
                 email = href.replace('mailto:', '').split('?')[0].strip()
                 emails.append(email)
         
-        # Method 2: Search in raw HTML source (before parsing)
-        # This catches emails that might be in comments or data attributes
+        # Method 2: Search in raw HTML source (MOST IMPORTANT for JS-rendered content)
+        # This catches emails that might be in data attributes or comments
         raw_emails = re.findall(self.EMAIL_REGEX, html)
         emails.extend(raw_emails)
         
@@ -176,7 +198,11 @@ class ImpressumScraper:
                 if len(email) < 100:
                     # Must not be placeholder
                     if not email.startswith('[email') and not email.endswith('protected]'):
-                        valid_emails.append(email)
+                        # Must not be tracking email
+                        if not self.is_tracking_email(email):
+                            valid_emails.append(email)
+        
+        print(f"📧 Found {len(valid_emails)} valid email(s) after filtering: {valid_emails}")
         
         return valid_emails
     
