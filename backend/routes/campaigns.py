@@ -63,6 +63,20 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
             # Normalize place data
             normalized = outscraper.normalize_place_data(place)
             
+            # Quality filter: Skip leads without essential data
+            if not normalized.get('name'):
+                print(f"⏭️  Skipping - no name")
+                continue
+            
+            if not normalized.get('address') and not normalized.get('city'):
+                print(f"⏭️  Skipping {normalized.get('name')} - no address")
+                continue
+            
+            # Must have at least phone OR website OR email
+            if not normalized.get('phone') and not normalized.get('website') and not normalized.get('email'):
+                print(f"⏭️  Skipping {normalized.get('name')} - no contact info")
+                continue
+            
             # Filter by rating/reviews
             rating = normalized.get('rating') or 0
             reviews = normalized.get('reviews_count') or 0
