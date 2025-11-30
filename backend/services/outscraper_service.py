@@ -37,12 +37,13 @@ class OutscraperService:
         try:
             print(f"🔍 Outscraper: Searching for '{query}' (limit: {limit})")
             
-            # Call Outscraper API
+            # Call Outscraper API with enrichment enabled
             results = self.client.google_maps_search(
                 query=[query],
                 limit=limit,
                 language=language,
                 region=region,
+                enrichment=['emails_and_contacts'],  # Enable email enrichment
                 fields=[
                     'name',
                     'full_address', 
@@ -52,46 +53,25 @@ class OutscraperService:
                     'postal_code',
                     'country_code',
                     'country',
-                    'us_state',
                     'state',
-                    'plus_code',
                     'latitude',
                     'longitude',
-                    'time_zone',
-                    'popular_times',
                     'site',
                     'phone',
                     'type',
-                    'subtypes',
                     'category',
                     'rating',
                     'reviews',
-                    'reviews_data',
-                    'photos_count',
                     'google_id',
                     'place_id',
-                    'reviews_link',
-                    'reviews_id',
-                    'photo',
-                    'street_view',
-                    'working_hours',
-                    'other_hours',
                     'business_status',
-                    'about',
-                    'range',
-                    'posts',
-                    'logo',
-                    'description',
                     'verified',
-                    'owner_id',
-                    'owner_title',
-                    'owner_link',
-                    'reservation_links',
-                    'booking_appointment_link',
-                    'menu_link',
-                    'order_links',
-                    'location_link',
-                    'emails'  # IMPORTANT: Email field
+                    'working_hours',
+                    # Email fields (from enrichment)
+                    'email_1',
+                    'email_2',
+                    'email_3',
+                    'domain'
                 ]
             )
             
@@ -120,18 +100,13 @@ class OutscraperService:
         Returns:
             Email address or None
         """
-        # Outscraper can return emails as string or list
-        emails = place.get('emails')
+        # Outscraper enrichment returns email_1, email_2, email_3
+        email = place.get('email_1') or place.get('email_2') or place.get('email_3')
         
-        if not emails:
-            return None
+        if email and isinstance(email, str) and '@' in email:
+            return email
         
-        # If it's a list, take the first email
-        if isinstance(emails, list):
-            return emails[0] if emails else None
-        
-        # If it's a string, return it
-        return emails if isinstance(emails, str) else None
+        return None
     
     def normalize_place_data(self, place: Dict) -> Dict:
         """
