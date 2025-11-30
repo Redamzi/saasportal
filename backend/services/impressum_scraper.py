@@ -103,6 +103,7 @@ class ImpressumScraper:
     def extract_emails_from_html(self, html: str) -> List[str]:
         """
         Extract all email addresses from HTML
+        Handles obfuscated emails, mailto links, and various formats
         
         Args:
             html: HTML content
@@ -110,20 +111,56 @@ class ImpressumScraper:
         Returns:
             List of email addresses
         """
-        # Remove script and style tags
         soup = BeautifulSoup(html, 'lxml')
-        for script in soup(['script', 'style']):
+        emails = []
+        
+        # Method 1: Extract from mailto: links
+        mailto_links = soup.find_all('a', href=True)
+        for link in mailto_links:
+            href = link['href']
+            if href.startswith('mailto:'):
+                email = href.replace('mailto:', '').split('?')[0].strip()
+                emails.append(email)
+        
+        # Method 2: Remove script and style tags, then use regex
+        for script in soup(['script', 'style', 'noscript']):
             script.decompose()
         
         text = soup.get_text()
         
-        # Find all emails using regex
-        emails = re.findall(self.EMAIL_REGEX, text)
+        # Method 3: Find emails with standard regex
+        regex_emails = re.findall(self.EMAIL_REGEX, text)
+        emails.extend(regex_emails)
+        
+        # Method 4: Handle obfuscated emails (e.g., "info [at] example [dot] com")
+        obfuscated_pattern = r'\b[\w.+-]+\s*\[at\]\s*[\w.-]+\s*\[dot\]\s*\w+\b'
+        obfuscated = re.findall(obfuscated_pattern, text, re.IGNORECASE)
+        for email in obfuscated:
+            # Convert to normal email format
+            email = email.replace('[at]', '@').replace('[dot]', '.').replace(' ', '')
+            emails.append(email.lower())
+        
+        # Method 5: Handle emails with spaces (e.g., "info @ example . com")
+        spaced_pattern = r'\b[\w.+-]+\s*@\s*[\w.-]+\s*\.\s*\w+\b'
+        spaced = re.findall(spaced_pattern, text)
+        for email in spaced:
+            # Remove spaces
+            email = email.replace(' ', '')
+            emails.append(email.lower())
         
         # Deduplicate and lowercase
-        emails = list(set([email.lower() for email in emails]))
+        emails = list(set([email.lower().strip() for email in emails if email]))
         
-        return emails
+        # Filter out obviously invalid emails
+        valid_emails = []
+        for email in emails:
+            # Must contain @ and .
+            if '@' in email and '.' in email.split('@')[1]:
+                # Must not be too long
+                if len(email) < 100:
+                    valid_emails.append(email)
+        
+        return valid_emails
     
     def scrape_website(self, url: str) -> Dict:
         """
