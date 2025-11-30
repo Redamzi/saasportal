@@ -103,7 +103,7 @@ class ImpressumScraper:
     def extract_emails_from_html(self, html: str) -> List[str]:
         """
         Extract all email addresses from HTML
-        Handles obfuscated emails, mailto links, and various formats
+        Handles obfuscated emails, mailto links, Cloudflare protection, and various formats
         
         Args:
             html: HTML content
@@ -122,17 +122,25 @@ class ImpressumScraper:
                 email = href.replace('mailto:', '').split('?')[0].strip()
                 emails.append(email)
         
-        # Method 2: Remove script and style tags, then use regex
+        # Method 2: Search in raw HTML source (before parsing)
+        # This catches emails that might be in comments or data attributes
+        raw_emails = re.findall(self.EMAIL_REGEX, html)
+        emails.extend(raw_emails)
+        
+        # Method 3: Remove script and style tags, then use regex
         for script in soup(['script', 'style', 'noscript']):
             script.decompose()
         
+        # Get text and normalize whitespace (replace newlines with spaces)
         text = soup.get_text()
+        # Normalize whitespace: replace multiple spaces/newlines with single space
+        text = ' '.join(text.split())
         
-        # Method 3: Find emails with standard regex
+        # Method 4: Find emails with standard regex in normalized text
         regex_emails = re.findall(self.EMAIL_REGEX, text)
         emails.extend(regex_emails)
         
-        # Method 4: Handle obfuscated emails (e.g., "info [at] example [dot] com")
+        # Method 5: Handle obfuscated emails (e.g., "info [at] example [dot] com")
         obfuscated_pattern = r'\b[\w.+-]+\s*\[at\]\s*[\w.-]+\s*\[dot\]\s*\w+\b'
         obfuscated = re.findall(obfuscated_pattern, text, re.IGNORECASE)
         for email in obfuscated:
@@ -140,13 +148,21 @@ class ImpressumScraper:
             email = email.replace('[at]', '@').replace('[dot]', '.').replace(' ', '')
             emails.append(email.lower())
         
-        # Method 5: Handle emails with spaces (e.g., "info @ example . com")
+        # Method 6: Handle emails with spaces (e.g., "info @ example . com")
         spaced_pattern = r'\b[\w.+-]+\s*@\s*[\w.-]+\s*\.\s*\w+\b'
         spaced = re.findall(spaced_pattern, text)
         for email in spaced:
             # Remove spaces
             email = email.replace(' ', '')
             emails.append(email.lower())
+        
+        # Method 7: Handle "Reservierungen: email@example.com" pattern
+        # Look for email after common keywords
+        keywords = ['email:', 'e-mail:', 'mail:', 'kontakt:', 'reservierungen:', 'reservations:']
+        for keyword in keywords:
+            pattern = keyword + r'\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})'
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            emails.extend(matches)
         
         # Deduplicate and lowercase
         emails = list(set([email.lower().strip() for email in emails if email]))
@@ -158,7 +174,9 @@ class ImpressumScraper:
             if '@' in email and '.' in email.split('@')[1]:
                 # Must not be too long
                 if len(email) < 100:
-                    valid_emails.append(email)
+                    # Must not be placeholder
+                    if not email.startswith('[email') and not email.endswith('protected]'):
+                        valid_emails.append(email)
         
         return valid_emails
     

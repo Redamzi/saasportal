@@ -51,6 +51,14 @@ async def crawl_single(request: CrawlRequest):
         # Scrape website
         result = scraper.scrape_website(request.website)
         
+        # Debug: Add raw data if requested
+        debug_data = {}
+        if hasattr(request, 'debug') and request.debug:
+            debug_data = {
+                'all_emails_found': result.get('all_emails', []),
+                'scraped_from': result.get('scraped_from')
+            }
+        
         # Save to cache
         cache_data = {
             "domain": domain,
