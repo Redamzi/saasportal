@@ -8,6 +8,7 @@ from routes.auth import router as auth_router
 from routes.payments import router as payments_router
 from routes.campaigns import router as campaigns_router
 from routes.impressum import router as impressum_router
+from routes.legal import router as legal_router
 
 # Load environment variables
 load_dotenv()
@@ -38,9 +39,10 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
-app.include_router(campaigns.router)
-app.include_router(impressum.router)
-app.include_router(legal.router)
+app.include_router(payments_router)
+app.include_router(campaigns_router)
+app.include_router(impressum_router)
+app.include_router(legal_router)
 
 
 @app.get("/health")
