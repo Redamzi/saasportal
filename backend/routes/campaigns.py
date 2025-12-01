@@ -409,6 +409,8 @@ async def update_lead_status(lead_id: str, request: dict):
 @router.patch("/leads/{lead_id}/email")
 async def update_lead_email(lead_id: str, request: dict):
     """Add manual email to lead"""
+    supabase = get_supabase_client()
+    
     try:
         email = request.get('email')
         if not email:
