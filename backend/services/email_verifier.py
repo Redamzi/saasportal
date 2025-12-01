@@ -13,20 +13,13 @@ class EmailVerifier:
     
     # Fake email patterns to filter out
     FAKE_EMAIL_PATTERNS = [
-        'info@',
-        'kontakt@',
-        'contact@',
         'noreply@',
         'no-reply@',
-        'admin@',
-        'webmaster@',
-        'office@',
-        'mail@',
-        'hello@',
-        'support@',
-        'service@',
-        'sales@',
-        'marketing@'
+        'test@',
+        'example@',
+        'demo@',
+        'backup@',
+        'dev@'
     ]
     
     # Disposable email domains
