@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { getCurrentUser } from '../lib/supabase'
-import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
 
