@@ -68,24 +68,78 @@ class ImpressumScraper:
         'youtube.com', 'example.com', 'test.com', 'domain.com'
     ]
     
+    # Rotating User-Agents to avoid detection
+    USER_AGENTS = [
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'
+    ]
+    
     def __init__(self):
         self.email_verifier = get_email_verifier()
         self.session = requests.Session()
+        self.current_ua_index = 0
+        self._update_headers()
+    
+    def _update_headers(self):
+        """Update session headers with rotating User-Agent"""
+        user_agent = self.USER_AGENTS[self.current_ua_index % len(self.USER_AGENTS)]
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': user_agent,
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
             'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
             'Accept-Encoding': 'gzip, deflate, br',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
-            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"macOS"',
             'Sec-Fetch-Dest': 'document',
             'Sec-Fetch-Mode': 'navigate',
             'Sec-Fetch-Site': 'none',
             'Sec-Fetch-User': '?1'
         })
+        self.current_ua_index += 1
+    
+    def _make_request_with_retry(self, url: str, max_retries: int = 3) -> Optional[requests.Response]:
+        """
+        Make HTTP request with retry logic for 403 errors
+        
+        Args:
+            url: URL to fetch
+            max_retries: Maximum number of retry attempts
+        
+        Returns:
+            Response object or None if all retries failed
+        """
+        for attempt in range(max_retries):
+            try:
+                response = self.session.get(url, timeout=10, allow_redirects=True)
+                response.raise_for_status()
+                return response
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 403 and attempt < max_retries - 1:
+                    # Rotate User-Agent and retry with exponential backoff
+                    wait_time = 2 ** attempt  # 1s, 2s, 4s
+                    print(f"⚠️  403 Forbidden on {url}, retrying in {wait_time}s with new User-Agent...")
+                    time.sleep(wait_time)
+                    self._update_headers()  # Rotate to next User-Agent
+                    continue
+                else:
+                    raise
+            except requests.exceptions.SSLError:
+                # Try HTTP if HTTPS fails
+                if url.startswith('https://'):
+                    url = url.replace('https://', 'http://')
+                    try:
+                        response = self.session.get(url, timeout=10, allow_redirects=True)
+                        response.raise_for_status()
+                        return response
+                    except:
+                        raise
+                else:
+                    raise
+        
+        return None
     
     def extract_domain(self, url: str) -> str:
         """Extract domain from URL"""
@@ -394,15 +448,10 @@ class ImpressumScraper:
             if not url.startswith(('http://', 'https://')):
                 url = 'https://' + url
             
-            # Fetch homepage
-            try:
-                response = self.session.get(url, timeout=10, allow_redirects=True)
-                response.raise_for_status()
-            except requests.exceptions.SSLError:
-                # Try HTTP if HTTPS fails
-                url = url.replace('https://', 'http://')
-                response = self.session.get(url, timeout=10, allow_redirects=True)
-                response.raise_for_status()
+            # Fetch homepage with retry logic
+            response = self._make_request_with_retry(url)
+            if not response:
+                raise Exception("Failed to fetch homepage after retries")
             
             homepage_html = response.text
             
@@ -411,12 +460,11 @@ class ImpressumScraper:
             
             # Scrape Impressum page if found, otherwise use homepage
             if impressum_url:
-                try:
-                    impressum_response = self.session.get(impressum_url, timeout=10)
-                    impressum_response.raise_for_status()
+                impressum_response = self._make_request_with_retry(impressum_url)
+                if impressum_response:
                     html_to_scrape = impressum_response.text
                     scraped_url = impressum_url
-                except:
+                else:
                     html_to_scrape = homepage_html
                     scraped_url = url
             else:
