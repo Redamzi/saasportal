@@ -1,5 +1,5 @@
-import { ArrowLeft, BookOpen, Video, FileText, Zap, Users, Award } from 'lucide-react'
-import DarkModeToggle from '../components/DarkModeToggle'
+import { BookOpen, Video, FileText, Zap, Users, Award } from 'lucide-react'
+import Layout from '../components/Layout'
 
 export default function Academy({ onNavigate }) {
   const resources = [
@@ -42,27 +42,12 @@ export default function Academy({ onNavigate }) {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl dark:bg-gray-900 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Zurück zum Dashboard
-          </button>
-          <DarkModeToggle />
-        </div>
-        <div className="flex items-center gap-3 mb-4">
-          <BookOpen className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-          <div className="text-left">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-left">Voyanero Academy</h1>
-            <p className="text-slate-500 dark:text-gray-400 text-left">Lernen Sie alles über erfolgreiche Lead-Generierung</p>
-          </div>
-        </div>
-      </div>
+    <Layout
+      onNavigate={onNavigate}
+      currentPage="academy"
+      title="Voyanero Academy"
+      subtitle="Lernen Sie alles über erfolgreiche Lead-Generierung"
+    >
 
       {/* Coming Soon Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 rounded-xl p-8 mb-8 text-white">
@@ -131,6 +116,6 @@ export default function Academy({ onNavigate }) {
           Zum Support
         </button>
       </div>
-    </div>
+    </Layout>
   )
 }

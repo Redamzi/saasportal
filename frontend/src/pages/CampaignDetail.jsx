@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { getCurrentUser } from '../lib/supabase'
+import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
-import DarkModeToggle from '../components/DarkModeToggle'
+import Layout from '../components/Layout'
 
 function CampaignDetail({ campaignId, onNavigate }) {
   const [user, setUser] = useState(null)
@@ -393,360 +394,323 @@ function CampaignDetail({ campaignId, onNavigate }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <button
-                onClick={() => onNavigate('campaigns')}
-                className="mr-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-              >
-                <svg className="w-6 h-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path d="M15 19l-7-7 7-7"></path>
-                </svg>
-              </button>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Voyanero</h1>
-              <span className="ml-4 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
-                Campaign Details
-              </span>
-            </div>
-            <div className="flex items-center gap-4">
-              <DarkModeToggle />
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-              >
-                Logout
-              </button>
-            </div>
+    <Layout
+      onNavigate={onNavigate}
+      currentPage="campaigns"
+      user={user}
+    >
+      {/* Campaign Info */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-left">{campaign.name}</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-left">{campaign.description || 'No description'}</p>
           </div>
+          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${campaign.status === 'draft' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
+            campaign.status === 'crawling' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
+              campaign.status === 'ready' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                campaign.status === 'running' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
+                  campaign.status === 'paused' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
+                    campaign.status === 'completed' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
+                      campaign.status === 'failed' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
+                        'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}>
+            {campaign.status.toUpperCase()}
+          </span>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Campaign Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-left">{campaign.name}</h2>
-              <p className="text-gray-600 dark:text-gray-400 text-left">{campaign.description || 'No description'}</p>
-            </div>
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${campaign.status === 'draft' ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' :
-              campaign.status === 'crawling' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' :
-                campaign.status === 'ready' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
-                  campaign.status === 'running' ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' :
-                    campaign.status === 'paused' ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' :
-                      campaign.status === 'completed' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300' :
-                        campaign.status === 'failed' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
-                          'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}>
-              {campaign.status.toUpperCase()}
-            </span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+          <div>
+            <span className="text-gray-500 dark:text-gray-400 text-left">Type:</span>
+            <p className="font-medium text-gray-900 dark:text-white capitalize text-left">{campaign.type?.replace('_', ' ')}</p>
           </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-            <div>
-              <span className="text-gray-500 dark:text-gray-400 text-left">Type:</span>
-              <p className="font-medium text-gray-900 dark:text-white capitalize text-left">{campaign.type?.replace('_', ' ')}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 dark:text-gray-400 text-left">Created:</span>
-              <p className="font-medium text-gray-900 dark:text-white text-left">{new Date(campaign.created_at).toLocaleDateString()}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 dark:text-gray-400 text-left">Total Leads:</span>
-              <p className="font-medium text-gray-900 dark:text-white text-left">{stats.total}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 dark:text-gray-400 text-left">Total Cost:</span>
-              <p className="font-semibold text-blue-600 dark:text-blue-400 text-left">
-                {campaign.credits_used || campaign.leads_count || 0} Credits
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-left">
-                Crawler: {campaign.leads_count || 0} Credits
-              </p>
-            </div>
+          <div>
+            <span className="text-gray-500 dark:text-gray-400 text-left">Created:</span>
+            <p className="font-medium text-gray-900 dark:text-white text-left">{new Date(campaign.created_at).toLocaleDateString()}</p>
           </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleOpenSearchModal}
-              className="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition"
-            >
-              + Add More Leads
-            </button>
-
-            <button
-              onClick={handleEnrichEmails}
-              disabled={leads.filter(l => l.website && !l.email).length === 0 || isCrawling}
-              className="px-6 py-2 bg-purple-600 dark:bg-purple-700 hover:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-lg transition disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {isCrawling ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Crawling...
-                </>
-              ) : (
-                <>
-                  🔍 Enrich Emails ({leads.filter(l => l.website && !l.email).length})
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={handleExportCSV}
-              disabled={leads.length === 0}
-              className="px-6 py-2 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg transition disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
-            >
-              Export CSV
-            </button>
+          <div>
+            <span className="text-gray-500 dark:text-gray-400 text-left">Total Leads:</span>
+            <p className="font-medium text-gray-900 dark:text-white text-left">{stats.total}</p>
+          </div>
+          <div>
+            <span className="text-gray-500 dark:text-gray-400 text-left">Total Cost:</span>
+            <p className="font-semibold text-blue-600 dark:text-blue-400 text-left">
+              {campaign.credits_used || campaign.leads_count || 0} Credits
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-left">
+              Crawler: {campaign.leads_count || 0} Credits
+            </p>
           </div>
         </div>
 
-        {/* Lead Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Total Leads</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white text-left">{stats.total}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">New</h3>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-left">{stats.new}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Contacted</h3>
-            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 text-left">{stats.contacted}</p>
-          </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Converted</h3>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400 text-left">{stats.converted}</p>
-          </div>
+        <div className="flex gap-3">
+          <button
+            onClick={handleOpenSearchModal}
+            className="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition"
+          >
+            + Add More Leads
+          </button>
+
+          <button
+            onClick={handleEnrichEmails}
+            disabled={leads.filter(l => l.website && !l.email).length === 0 || isCrawling}
+            className="px-6 py-2 bg-purple-600 dark:bg-purple-700 hover:bg-purple-700 dark:hover:bg-purple-800 text-white rounded-lg transition disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isCrawling ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Crawling...
+              </>
+            ) : (
+              <>
+                🔍 Enrich Emails ({leads.filter(l => l.website && !l.email).length})
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleExportCSV}
+            disabled={leads.length === 0}
+            className="px-6 py-2 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800 text-white rounded-lg transition disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+          >
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      {/* Lead Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Total Leads</h3>
+          <p className="text-3xl font-bold text-gray-900 dark:text-white text-left">{stats.total}</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">New</h3>
+          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-left">{stats.new}</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Contacted</h3>
+          <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 text-left">{stats.contacted}</p>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-left">Converted</h3>
+          <p className="text-3xl font-bold text-green-600 dark:text-green-400 text-left">{stats.converted}</p>
+        </div>
+      </div>
+
+      {/* Leads Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white text-left">Leads</h3>
         </div>
 
-        {/* Leads Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white text-left">Leads</h3>
+        {leads.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+              <svg
+                className="w-12 h-12 text-gray-400 dark:text-gray-500"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">No leads yet</h3>
+            <p className="text-gray-600 dark:text-gray-400 text-center">
+              Start a lead search to populate this campaign with leads
+            </p>
           </div>
+        ) : (
+          <div className="space-y-2 p-4">
+            {leads.map((lead) => {
+              const isManualEmail = lead.email_source === 'manual_user'
+              const isExpanded = expandedLead === lead.id
 
-          {leads.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  className="w-12 h-12 text-gray-400 dark:text-gray-500"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              // Badge Logic
+              let badge = null
+              if (lead.email_source === 'outscraper') {
+                badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" title="Source: Outscraper">OUT</span>
+              } else if (lead.email_source === 'impressum_crawler') {
+                badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" title="Source: Impressum Scraper">IMP</span>
+              } else if (lead.email_source === 'manual_user') {
+                badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" title="Source: Manual">MAN</span>
+              }
+
+              return (
+                <div
+                  key={lead.id}
+                  className={`rounded-lg shadow transition-all ${isManualEmail
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700'
+                    : 'bg-white dark:bg-gray-800'
+                    }`}
                 >
-                  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 text-center">No leads yet</h3>
-              <p className="text-gray-600 dark:text-gray-400 text-center">
-                Start a lead search to populate this campaign with leads
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2 p-4">
-              {leads.map((lead) => {
-                const isManualEmail = lead.email_source === 'manual_user'
-                const isExpanded = expandedLead === lead.id
-
-                // Badge Logic
-                let badge = null
-                if (lead.email_source === 'outscraper') {
-                  badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" title="Source: Outscraper">OUT</span>
-                } else if (lead.email_source === 'impressum_crawler') {
-                  badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" title="Source: Impressum Scraper">IMP</span>
-                } else if (lead.email_source === 'manual_user') {
-                  badge = <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" title="Source: Manual">MAN</span>
-                }
-
-                return (
+                  {/* COLLAPSED VIEW - Always Visible */}
                   <div
-                    key={lead.id}
-                    className={`rounded-lg shadow transition-all ${isManualEmail
-                      ? 'bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-700'
-                      : 'bg-white dark:bg-gray-800'
-                      }`}
+                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition rounded-lg"
+                    onClick={() => setExpandedLead(isExpanded ? null : lead.id)}
                   >
-                    {/* COLLAPSED VIEW - Always Visible */}
-                    <div
-                      className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition rounded-lg"
-                      onClick={() => setExpandedLead(isExpanded ? null : lead.id)}
-                    >
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {/* Company Name */}
-                        <div>
-                          <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                            {lead.company_name || lead.name || 'Kein Name'}
-                            {badge}
-                          </p>
-                        </div>
-
-                        {/* Phone */}
-                        <div>
-                          {lead.phone ? (
-                            <a
-                              href={`tel:${lead.phone}`}
-                              className="text-blue-600 dark:text-blue-400 hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              📞 {lead.phone}
-                            </a>
-                          ) : (
-                            <span className="text-gray-400 dark:text-gray-500">Kein Telefon</span>
-                          )}
-                        </div>
-
-                        {/* Email */}
-                        <div>
-                          {lead.email ? (
-                            <div className="flex items-center gap-2">
-                              <a
-                                href={`mailto:${lead.email}`}
-                                className="text-blue-600 dark:text-blue-400 hover:underline"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                ✉️ {lead.email}
-                              </a>
-                              {lead.email_verified ? (
-                                <span title="Verified Email">✅</span>
-                              ) : (
-                                <span title="Unverified Email">⚠️</span>
-                              )}
-                            </div>
-                          ) : (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleOpenEmailModal(lead)
-                              }}
-                              className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                            >
-                              ➕ Email hinzufügen
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Website */}
-                        <div>
-                          {lead.website ? (
-                            <a
-                              href={lead.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 dark:text-blue-400 hover:underline"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              🌐 Website
-                            </a>
-                          ) : (
-                            <span className="text-gray-400 dark:text-gray-500">Keine Website</span>
-                          )}
-                        </div>
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {/* Company Name */}
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                          {lead.company_name || lead.name || 'Kein Name'}
+                          {badge}
+                        </p>
                       </div>
 
-                      {/* Expand Icon */}
-                      <div className="ml-4 text-gray-400 dark:text-gray-500">
-                        {isExpanded ? (
-                          <span className="text-xl">▼</span>
+                      {/* Phone */}
+                      <div>
+                        {lead.phone ? (
+                          <a
+                            href={`tel:${lead.phone}`}
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            📞 {lead.phone}
+                          </a>
                         ) : (
-                          <span className="text-xl">▶</span>
+                          <span className="text-gray-400 dark:text-gray-500">Kein Telefon</span>
+                        )}
+                      </div>
+
+                      {/* Email */}
+                      <div>
+                        {lead.email ? (
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`mailto:${lead.email}`}
+                              className="text-blue-600 dark:text-blue-400 hover:underline"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              ✉️ {lead.email}
+                            </a>
+                            {lead.email_verified ? (
+                              <span title="Verified Email">✅</span>
+                            ) : (
+                              <span title="Unverified Email">⚠️</span>
+                            )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleOpenEmailModal(lead)
+                            }}
+                            className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                          >
+                            ➕ Email hinzufügen
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Website */}
+                      <div>
+                        {lead.website ? (
+                          <a
+                            href={lead.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            🌐 Website
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">Keine Website</span>
                         )}
                       </div>
                     </div>
 
-                    {/* EXPANDED VIEW - Shows on Click */}
-                    {isExpanded && (
-                      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-3">
-                        {/* Address */}
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Adresse:</p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {lead.address || 'Keine Adresse'}
-                          </p>
-                        </div>
+                    {/* Expand Icon */}
+                    <div className="ml-4 text-gray-400 dark:text-gray-500">
+                      {isExpanded ? (
+                        <span className="text-xl">▼</span>
+                      ) : (
+                        <span className="text-xl">▶</span>
+                      )}
+                    </div>
+                  </div>
 
-                        {/* Rating Removed */}
+                  {/* EXPANDED VIEW - Shows on Click */}
+                  {isExpanded && (
+                    <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-3">
+                      {/* Address */}
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Adresse:</p>
+                        <p className="font-medium text-gray-900 dark:text-white">
+                          {lead.address || 'Keine Adresse'}
+                        </p>
+                      </div>
 
-                        {/* Status */}
+                      {/* Rating Removed */}
+
+                      {/* Status */}
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status:</p>
+                        <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${lead.status === 'new' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                          lead.status === 'contacted' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+                            lead.status === 'converted' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                              'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                          }`}>
+                          {lead.status || 'new'}
+                        </span>
+                      </div>
+
+                      {/* Email Source Info */}
+                      {lead.email && (
                         <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status:</p>
-                          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${lead.status === 'new' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
-                            lead.status === 'contacted' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-                              lead.status === 'converted' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-                                'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Email-Quelle:</p>
+                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${isManualEmail
+                            ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                            : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
                             }`}>
-                            {lead.status || 'new'}
+                            {isManualEmail ? '👤 Manuell eingegeben' : '🤖 Automatisch gefunden'}
                           </span>
                         </div>
+                      )}
 
-                        {/* Email Source Info */}
-                        {lead.email && (
-                          <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Email-Quelle:</p>
-                            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${isManualEmail
-                              ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                              : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                              }`}>
-                              {isManualEmail ? '👤 Manuell eingegeben' : '🤖 Automatisch gefunden'}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDeleteLead(lead.id, lead.company_name || lead.name)
-                            }}
-                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-sm font-medium"
-                          >
-                            🗑️ Löschen
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleMarkAsInvalid(lead.id)
-                            }}
-                            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition text-sm font-medium"
-                          >
-                            ⚠️ Als ungültig markieren
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleMarkAsContacted(lead.id)
-                            }}
-                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm font-medium"
-                          >
-                            ✅ Als kontaktiert markieren
-                          </button>
-                        </div>
+                      {/* Actions */}
+                      <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDeleteLead(lead.id, lead.company_name || lead.name)
+                          }}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-sm font-medium"
+                        >
+                          🗑️ Löschen
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleMarkAsInvalid(lead.id)
+                          }}
+                          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition text-sm font-medium"
+                        >
+                          ⚠️ Als ungültig markieren
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleMarkAsContacted(lead.id)
+                          }}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm font-medium"
+                        >
+                          ✅ Als kontaktiert markieren
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </main>
-
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
       {/* Search Leads Modal (Add More Leads) */}
       {showSearchModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -965,7 +929,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
           </div>
         </div>
       )}
-    </div>
+    </Layout>
   )
 }
 

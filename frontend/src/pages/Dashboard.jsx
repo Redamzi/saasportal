@@ -3,9 +3,9 @@ import {
   DollarSign, Users, FolderKanban, CreditCard,
   UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen
 } from "lucide-react"
-import { getCurrentUser, signOut } from '../lib/supabase'
+import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
-import DarkModeToggle from '../components/DarkModeToggle'
+import Layout from '../components/Layout'
 
 const StatsCard = ({ title, value, description, icon: Icon, iconBgColor, iconColor }) => (
   <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
@@ -170,20 +170,13 @@ export default function Dashboard({ onNavigate }) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen bg-slate-50 dark:bg-gray-900">
-      {/* Welcome */}
-      <div className="mb-10 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-left dark:text-white">
-            Willkommen zurück{profile?.full_name ? `, ${profile.full_name}` : ''}
-          </h1>
-          <p className="text-lg text-slate-500 dark:text-gray-400 text-left">
-            Hier ist eine Übersicht Ihres Voyanero Accounts.
-          </p>
-        </div>
-        <DarkModeToggle />
-      </div>
-
+    <Layout
+      onNavigate={onNavigate}
+      currentPage="dashboard"
+      user={user}
+      title={`Willkommen zurück${profile?.full_name ? `, ${profile.full_name}` : ''}`}
+      subtitle="Hier ist eine Übersicht Ihres Voyanero Accounts."
+    >
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <StatsCard
@@ -255,11 +248,11 @@ export default function Dashboard({ onNavigate }) {
             title="Academy"
             description="Tutorials & Hilfe"
             icon={BookOpen}
-            onClick={() => onNavigate('academy')} // Assuming 'academy' route exists in App.jsx? Wait, I need to check App.jsx
+            onClick={() => onNavigate('academy')}
             colorClass="from-purple-50 to-purple-100"
           />
         </div>
       </div>
-    </div>
+    </Layout>
   )
 }
