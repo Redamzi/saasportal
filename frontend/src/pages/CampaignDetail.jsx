@@ -693,11 +693,8 @@ function CampaignDetail({ campaignId, onNavigate }) {
                           ⚠️ Als ungültig markieren
                         </button>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleMarkAsContacted(lead.id)
-                          }}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm font-medium"
+                          onClick={() => handleMarkAsContacted(lead.id)}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm font-medium"
                         >
                           ✅ Als kontaktiert markieren
                         </button>

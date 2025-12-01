@@ -28,7 +28,9 @@ export default function Contacts({ onNavigate }) {
 
             const { data, error } = await getUserLeads(currentUser.id)
             if (error) throw error
-            setLeads(data || [])
+            // Filter only contacted or converted leads
+            const contactsOnly = (data || []).filter(l => l.status === 'contacted' || l.status === 'converted')
+            setLeads(contactsOnly)
         } catch (error) {
             console.error('Error loading contacts:', error)
         } finally {
