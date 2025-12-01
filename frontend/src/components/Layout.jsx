@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BookOpen, LogOut, LayoutDashboard, FolderKanban, CreditCard, Settings as SettingsIcon, Users, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { BookOpen, LogOut, LayoutDashboard, FolderKanban, CreditCard, Settings as SettingsIcon, Users, Menu, X, ChevronLeft, ChevronRight, Search, Bell, Coins } from 'lucide-react'
 import DarkModeToggle from './DarkModeToggle'
 import { signOut } from '../lib/supabase'
 
@@ -49,8 +49,8 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                                 key={item.id}
                                 onClick={() => { onNavigate(item.id); setIsMobileMenuOpen(false) }}
                                 className={`p-4 rounded-xl flex items-center gap-3 text-lg font-medium transition-all ${currentPage === item.id
-                                        ? 'bg-voyanero-500 text-white shadow-lg shadow-voyanero-500/20'
-                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    ? 'bg-voyanero-500 text-white shadow-lg shadow-voyanero-500/20'
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
                                     }`}
                             >
                                 <item.icon className="w-6 h-6" />
@@ -148,31 +148,60 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                     </div>
                 </aside>
 
-                {/* Main Content Wrapper */}
-                <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'md:ml-80' : 'md:ml-28'}`}>
+                {/* Main Content Wrapper - FULL WIDTH */}
+                <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'md:ml-80' : 'md:ml-28'} md:mr-4`}>
 
-                    {/* Top Header (Glass) */}
-                    <header className="h-20 sticky top-0 z-40 px-8 flex items-center justify-between bg-voyanero-900/80 backdrop-blur-md border-b border-white/5">
-                        <div>
-                            {/* Breadcrumbs or Title could go here */}
-                            <h2 className="text-gray-400 text-sm font-medium">
-                                {currentPage === 'dashboard' ? 'Overview' :
-                                    currentPage === 'campaigns' ? 'Campaigns' :
-                                        currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
-                            </h2>
+                    {/* Top Header (Glass) - WITH SEARCH AND CREDITS */}
+                    <header className="h-20 sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between bg-voyanero-900/80 backdrop-blur-md border-b border-white/5">
+                        {/* Left: Search Bar */}
+                        <div className="flex-1 max-w-md hidden md:block">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                <input
+                                    type="text"
+                                    placeholder="Suchen..."
+                                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition"
+                                />
+                            </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            {/* Actions passed from props */}
-                            {actions}
-                            <div className="h-8 w-px bg-white/10 mx-2 hidden md:block"></div>
+
+                        {/* Right: Credits, Notifications, User */}
+                        <div className="flex items-center gap-3 md:gap-4">
+                            {/* Credits Display */}
+                            <button
+                                onClick={() => onNavigate('credits')}
+                                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-voyanero-500 to-blue-600 rounded-xl hover:shadow-lg hover:shadow-voyanero-500/30 transition-all group"
+                            >
+                                <Coins className="w-4 h-4 text-white" />
+                                <span className="font-bold text-white hidden md:block">{user?.credits || 0}</span>
+                                <span className="text-xs text-white/80 hidden lg:block">+ Kaufen</span>
+                            </button>
+
+                            {/* Notifications */}
+                            <button className="relative p-2 text-gray-400 hover:text-white transition rounded-xl hover:bg-white/5">
+                                <Bell className="w-5 h-5" />
+                                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+
+                            {/* Dark Mode Toggle */}
                             <div className="hidden md:block">
                                 <DarkModeToggle />
                             </div>
+
+                            {/* User Menu */}
+                            <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/5 transition">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white">
+                                    {user?.email?.[0].toUpperCase() || 'A'}
+                                </div>
+                                <span className="text-sm font-medium text-white hidden lg:block">
+                                    {user?.user_metadata?.full_name?.split(' ')[0] || 'Amzi'}
+                                </span>
+                            </button>
                         </div>
                     </header>
 
                     {/* Scrollable Content */}
-                    <main className="flex-1 p-8 overflow-y-auto">
+                    <main className="flex-1 p-4 md:p-8 overflow-y-auto">
                         {(title || subtitle) && (
                             <div className="mb-8">
                                 {title && <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">{title}</h1>}
