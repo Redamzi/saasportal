@@ -81,6 +81,56 @@ CREATE TRIGGER trigger_update_impressum_cache_updated_at
 NOTIFY pgrst, 'reload schema';
 ```
 
+### 4. Kontakt-Regeln & Deduplication
+**Datei:** `backend/database/contact_rules.sql`
+
+```sql
+-- 1. Add last_contacted_at column if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'leads' AND column_name = 'last_contacted_at') THEN
+        ALTER TABLE leads ADD COLUMN last_contacted_at TIMESTAMP WITH TIME ZONE;
+    END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS leads_last_contacted_at_idx ON leads(last_contacted_at);
+
+-- 2. Function to check if we can contact a lead (90 days rule)
+CREATE OR REPLACE FUNCTION can_contact_lead(p_lead_id UUID, p_days_threshold INTEGER DEFAULT 90)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_website TEXT;
+    v_last_contacted TIMESTAMP WITH TIME ZONE;
+    v_domain TEXT;
+BEGIN
+    -- Get lead info
+    SELECT last_contacted_at, get_domain(website), email
+    INTO v_last_contacted, v_domain, v_website
+    FROM leads
+    WHERE id = p_lead_id;
+
+    -- Check specific lead
+    IF v_last_contacted IS NOT NULL AND v_last_contacted > NOW() - (p_days_threshold || ' days')::INTERVAL THEN
+        RETURN FALSE;
+    END IF;
+
+    -- Check domain-wide (if we have a domain)
+    IF v_domain IS NOT NULL THEN
+        PERFORM 1 FROM leads
+        WHERE get_domain(website) = v_domain
+        AND last_contacted_at > NOW() - (p_days_threshold || ' days')::INTERVAL
+        AND id != p_lead_id; -- Exclude self
+        
+        IF FOUND THEN
+            RETURN FALSE;
+        END IF;
+    END IF;
+
+    RETURN TRUE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
 ## Verifizierung
 
 Nach dem Ausführen aller SQL-Dateien, prüfe ob alles funktioniert:
