@@ -26,7 +26,7 @@ app = FastAPI(
 # Configure CORS
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:5173,http://frontend:3000"
+    "http://localhost:3000,http://localhost:5173,http://frontend:3000,https://app.voyanero.com"
 ).split(",")
 
 app.add_middleware(

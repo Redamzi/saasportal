@@ -32,7 +32,8 @@ export default function AVVertrag({ onNavigate }) {
         const signatureData = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png')
 
         try {
-            const response = await fetch('http://localhost:8000/api/legal/avv/sign', {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+            const response = await fetch(`${API_URL}/api/legal/avv/sign`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
