@@ -448,18 +448,32 @@ class ImpressumScraper:
             if not url.startswith(('http://', 'https://')):
                 url = 'https://' + url
             
-            # Fetch homepage with retry logic
-            response = self._make_request_with_retry(url)
-            if not response:
-                raise Exception("Failed to fetch homepage after retries")
             
-            homepage_html = response.text
+            # Fetch homepage with retry logic
+            try:
+                response = self._make_request_with_retry(url)
+                if not response:
+                    raise Exception("Failed to fetch homepage after retries")
+                
+                homepage_html = response.text
+                use_selenium = False
+            except Exception as e:
+                # If we get 403 or other errors, try Selenium immediately
+                if '403' in str(e) and SELENIUM_AVAILABLE:
+                    print(f"⚡ Got 403 error, switching to Selenium for {url}")
+                    homepage_html = self.scrape_with_selenium(url)
+                    if not homepage_html:
+                        raise Exception(f"Failed with both requests and Selenium: {str(e)}")
+                    use_selenium = True
+                else:
+                    raise
             
             # Try to find Impressum page
             impressum_url = self.find_impressum_url(url, homepage_html)
             
             # Scrape Impressum page if found, otherwise use homepage
-            if impressum_url:
+            # Skip if we're already using Selenium (it loaded the full page with JS)
+            if impressum_url and not use_selenium:
                 impressum_response = self._make_request_with_retry(impressum_url)
                 if impressum_response:
                     html_to_scrape = impressum_response.text
@@ -474,8 +488,8 @@ class ImpressumScraper:
             # Extract emails from HTML
             emails = self.extract_emails_from_html(html_to_scrape)
             
-            # HYBRID APPROACH: If no emails found, try Selenium
-            if not emails and SELENIUM_AVAILABLE:
+            # HYBRID APPROACH: If no emails found and not already using Selenium, try it
+            if not emails and not use_selenium and SELENIUM_AVAILABLE:
                 print(f"⚡ No emails found with normal scraping, trying Selenium...")
                 selenium_html = self.scrape_with_selenium(scraped_url)
                 if selenium_html:
