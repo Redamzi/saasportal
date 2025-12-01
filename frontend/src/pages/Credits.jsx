@@ -1,40 +1,20 @@
 import { useState, useEffect } from 'react'
-import {
-  Zap, Check, CreditCard, History, ShieldCheck,
-  ArrowLeft, Download, AlertCircle
-} from 'lucide-react'
+import { Zap, Check, CreditCard, History, ShieldCheck, Download, AlertCircle } from 'lucide-react'
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
-import DarkModeToggle from '../components/DarkModeToggle'
+import Layout from '../components/Layout'
+import Footer from '../components/Footer'
 
 export default function Credits({ onNavigate }) {
+  const [user, setUser] = useState(null)
   const [currentCredits, setCurrentCredits] = useState(0)
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedMethod, setSelectedMethod] = useState('visa')
 
   const creditPackages = [
-    {
-      id: 'starter',
-      credits: 500,
-      price: 49,
-      priceStr: '49€',
-      popular: false
-    },
-    {
-      id: 'pro',
-      credits: 1500,
-      price: 129,
-      priceStr: '129€',
-      popular: true
-    },
-    {
-      id: 'business',
-      credits: 5000,
-      price: 399,
-      priceStr: '399€',
-      popular: false
-    },
+    { id: 'starter', credits: 500, price: 49, priceStr: '49€', popular: false },
+    { id: 'pro', credits: 1500, price: 129, priceStr: '129€', popular: true },
+    { id: 'business', credits: 5000, price: 399, priceStr: '399€', popular: false },
   ]
 
   const invoices = [
@@ -49,13 +29,17 @@ export default function Credits({ onNavigate }) {
 
   const loadCreditsData = async () => {
     try {
-      const { user } = await getCurrentUser()
-      if (!user) return
+      const { user: currentUser } = await getCurrentUser()
+      if (!currentUser) {
+        onNavigate('login')
+        return
+      }
+      setUser(currentUser)
 
       const { data: profile } = await supabase
         .from('profiles')
         .select('credits_balance')
-        .eq('id', user.id)
+        .eq('id', currentUser.id)
         .single()
 
       setCurrentCredits(profile?.credits_balance || 0)
@@ -63,7 +47,7 @@ export default function Credits({ onNavigate }) {
       const { data: txData } = await supabase
         .from('credit_transactions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false })
         .limit(10)
 
@@ -109,234 +93,170 @@ export default function Credits({ onNavigate }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-slate-600 dark:text-gray-300">Lädt...</p>
-        </div>
+      <div className="min-h-screen bg-voyanero-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-voyanero-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl min-h-screen bg-slate-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Zurück zum Dashboard
-          </button>
-          <DarkModeToggle />
+    <Layout onNavigate={onNavigate} currentPage="credits" user={user}>
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Billing & Credits</h1>
+          <p className="text-gray-400 text-lg">Verwalten Sie Ihre Credits, Zahlungsmethoden und Rechnungen. Kein Abo erforderlich.</p>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white text-left">Billing & Credits</h1>
-        <p className="text-slate-500 dark:text-gray-400 mt-2 text-left">
-          Manage your credits, payment methods, and invoices. No subscription required.
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {/* Left Column (2/3 width) */}
-        <div className="lg:col-span-2 space-y-8">
-
-          {/* Current Balance */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-6">
-            <div className="text-left w-full sm:w-auto">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-gray-400 text-left">Aktuelles Guthaben</h2>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">{currentCredits.toLocaleString()}</span>
-                <span className="text-lg text-slate-600 dark:text-gray-300">Credits</span>
-              </div>
-              <p className="text-sm text-slate-500 dark:text-gray-400 mt-2 flex items-center gap-2 text-left">
-                <Zap className="w-4 h-4 text-yellow-500 fill-current" />
-                Kein monatliches Abo aktiv. Pay-as-you-go.
-              </p>
-            </div>
-            <button
-              onClick={() => document.getElementById('credit-packages')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-600/20 whitespace-nowrap"
-            >
-              Credits aufladen
-            </button>
-          </div>
-
-          {/* Credit Packages */}
-          <section id="credit-packages">
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-left">
-              <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" /> Credit Pakete
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {creditPackages.map((pkg) => (
-                <div
-                  key={pkg.id}
-                  className={`relative bg-white dark:bg-gray-800 p-6 rounded-xl border-2 transition-all hover:shadow-lg flex flex-col items-center text-center cursor-pointer
-                    ${pkg.popular ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200 dark:border-gray-700 hover:border-blue-300'}
-                  `}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Current Balance */}
+            <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 p-8 rounded-3xl shadow-2xl">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                <div>
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-2">Verfügbares Guthaben</h2>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-bold text-white">{currentCredits.toLocaleString()}</span>
+                    <span className="text-xl text-gray-400">Credits</span>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-yellow-500 fill-current" />
+                    Automatische Aufladung deaktiviert
+                  </p>
+                </div>
+                <button
+                  onClick={() => document.getElementById('credit-packages')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="bg-voyanero-500 hover:bg-voyanero-400 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-voyanero-500/20"
                 >
-                  {pkg.popular && (
-                    <div className="absolute -top-3 bg-blue-600 dark:bg-blue-700 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
-                      Bestseller
-                    </div>
-                  )}
-                  <div className="mb-4">
-                    <span className="text-3xl font-bold text-slate-900 dark:text-white">{pkg.credits}</span>
-                    <span className="block text-sm text-slate-500 dark:text-gray-400 font-medium">Credits</span>
-                  </div>
-                  <div className="text-2xl font-semibold text-blue-600 dark:text-blue-400 mb-4">{pkg.priceStr}</div>
-                  <button
-                    onClick={() => handlePurchase(pkg)}
-                    className={`w-full py-2.5 rounded-lg text-sm font-medium transition-colors
-                      ${pkg.popular ? 'bg-blue-600 dark:bg-blue-700 text-white hover:bg-blue-700' : 'bg-slate-100 text-slate-700 dark:text-gray-200 hover:bg-slate-200'}
-                    `}
-                  >
-                    Auswählen
-                  </button>
-                  <ul className="mt-4 space-y-2 text-xs text-slate-500 dark:text-gray-400 text-left w-full">
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3 h-3 text-emerald-600" />
-                      Kein Verfallsdatum
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3 h-3 text-emerald-600" />
-                      Sofort verfügbar
-                    </li>
-                  </ul>
-                </div>
-              ))}
+                  Credits aufladen
+                </button>
+              </div>
             </div>
-          </section>
 
-          {/* Invoice History */}
-          <section className="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100 dark:border-gray-700 flex justify-between items-center">
-              <h3 className="text-lg font-bold flex items-center gap-2 text-left">
-                <History className="w-5 h-5 text-slate-500 dark:text-gray-400" /> Rechnungshistorie
+            {/* Credit Packages */}
+            <section id="credit-packages">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white">
+                <Zap className="w-6 h-6 text-voyanero-500" /> Credit Pakete
               </h3>
-              <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">Alle anzeigen</button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 uppercase text-xs font-semibold">
-                  <tr>
-                    <th className="px-6 py-3 text-left">Rechnungs-Nr.</th>
-                    <th className="px-6 py-3 text-left">Datum</th>
-                    <th className="px-6 py-3 text-left">Beschreibung</th>
-                    <th className="px-6 py-3 text-left">Betrag</th>
-                    <th className="px-6 py-3 text-right">Download</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
-                  {invoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors">
-                      <td className="px-6 py-4 font-medium text-slate-900 dark:text-white text-left">{inv.id}</td>
-                      <td className="px-6 py-4 text-slate-500 dark:text-gray-400 text-left">{inv.date}</td>
-                      <td className="px-6 py-4 text-slate-900 dark:text-white text-left">{inv.description}</td>
-                      <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white text-left">{inv.amount}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                          <Download className="w-4 h-4 inline-block" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-        </div>
-
-        {/* Right Column (1/3 width) */}
-        <div className="space-y-6">
-
-          {/* Payment Methods */}
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm">
-            <h3 className="text-lg font-bold mb-4 text-left">Zahlungsmethode</h3>
-
-            <div className="space-y-3">
-              <div
-                onClick={() => setSelectedMethod('visa')}
-                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${selectedMethod === 'visa' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
-                  }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="bg-slate-100 p-2 rounded">
-                    <CreditCard className="w-5 h-5 text-slate-700 dark:text-gray-200" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {creditPackages.map((pkg) => (
+                  <div
+                    key={pkg.id}
+                    className={`relative bg-[#0B1121]/60 backdrop-blur-md border-2 p-6 rounded-2xl transition-all hover:shadow-lg hover:-translate-y-1 ${pkg.popular ? 'border-voyanero-500 shadow-voyanero-500/20' : 'border-white/10 hover:border-white/20'
+                      }`}
+                  >
+                    {pkg.popular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-voyanero-500 text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide">
+                        Bestseller
+                      </div>
+                    )}
+                    <div className="text-center mb-4">
+                      <span className="text-4xl font-bold text-white">{pkg.credits}</span>
+                      <span className="block text-sm text-gray-400 font-medium mt-1">Credits</span>
+                    </div>
+                    <div className="text-3xl font-bold text-voyanero-400 mb-6 text-center">{pkg.priceStr}</div>
+                    <button
+                      onClick={() => handlePurchase(pkg)}
+                      className={`w-full py-3 rounded-xl text-sm font-bold transition-all ${pkg.popular
+                          ? 'bg-voyanero-500 text-white hover:bg-voyanero-400 shadow-lg shadow-voyanero-500/20'
+                          : 'bg-white/10 text-white hover:bg-white/20'
+                        }`}
+                    >
+                      Auswählen
+                    </button>
+                    <ul className="mt-6 space-y-2 text-sm text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500" />
+                        Keine monatlichen Gebühren
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500" />
+                        Credits verfallen nie
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-500" />
+                        Sofort einsatzbereit
+                      </li>
+                    </ul>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white text-left">Visa •••• 4242</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400 text-left">Expires 12/28</p>
+                ))}
+              </div>
+            </section>
+
+            {/* Transaction History */}
+            <section>
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white">
+                <History className="w-6 h-6 text-voyanero-500" /> Transaktionsverlauf
+              </h3>
+              <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden">
+                {transactions.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <AlertCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400">Noch keine Transaktionen</p>
                   </div>
-                </div>
-                {selectedMethod === 'visa' && (
-                  <div className="w-4 h-4 rounded-full bg-blue-600 dark:bg-blue-700 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-white" />
+                ) : (
+                  <div className="divide-y divide-white/5">
+                    {transactions.map((tx) => (
+                      <div key={tx.id} className="p-4 hover:bg-white/5 transition">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-white">{tx.description}</p>
+                            <p className="text-sm text-gray-500">{new Date(tx.created_at).toLocaleDateString('de-DE')}</p>
+                          </div>
+                          <span className={`font-bold ${tx.amount > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {tx.amount > 0 ? '+' : ''}{tx.amount} Credits
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
+            </section>
+          </div>
 
-              <div
-                onClick={() => setSelectedMethod('mastercard')}
-                className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${selectedMethod === 'mastercard' ? 'border-blue-600 bg-blue-50' : 'border-slate-200 dark:border-gray-700 hover:border-slate-300'
-                  }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="bg-slate-100 p-2 rounded">
-                    <CreditCard className="w-5 h-5 text-slate-700 dark:text-gray-200" />
+          {/* Right Column - Invoices */}
+          <div className="space-y-8">
+            <section>
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white">
+                <CreditCard className="w-6 h-6 text-voyanero-500" /> Rechnungen
+              </h3>
+              <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-2xl p-6 space-y-4">
+                {invoices.map((invoice) => (
+                  <div key={invoice.id} className="flex justify-between items-start pb-4 border-b border-white/5 last:border-0">
+                    <div>
+                      <p className="font-medium text-white text-sm">{invoice.id}</p>
+                      <p className="text-xs text-gray-500 mt-1">{invoice.date}</p>
+                      <p className="text-xs text-gray-400 mt-1">{invoice.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-white">{invoice.amount}</p>
+                      <button className="text-voyanero-400 hover:text-voyanero-300 text-xs mt-2 flex items-center gap-1">
+                        <Download className="w-3 h-3" /> PDF
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-white text-left">Mastercard •••• 8899</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400 text-left">Expires 09/26</p>
-                  </div>
-                </div>
-                {selectedMethod === 'mastercard' && (
-                  <div className="w-4 h-4 rounded-full bg-blue-600 dark:bg-blue-700 flex items-center justify-center">
-                    <Check className="w-3 h-3 text-white" />
-                  </div>
-                )}
+                ))}
               </div>
+            </section>
 
-              <button className="w-full py-3 border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-lg text-sm font-medium text-slate-500 dark:text-gray-400 hover:border-blue-600 hover:text-blue-600 dark:text-blue-400 transition-colors flex items-center justify-center gap-2">
-                + Neue Methode hinzufügen
-              </button>
-            </div>
-          </div>
-
-          {/* Security Info */}
-          <div className="bg-blue-900 p-6 rounded-xl text-white relative overflow-hidden">
-            <div className="relative z-10">
-              <ShieldCheck className="w-8 h-8 mb-4 text-blue-300" />
-              <h4 className="font-bold text-lg mb-2 text-left">Sichere Zahlung</h4>
-              <p className="text-blue-200 text-sm text-left">
-                Alle Transaktionen sind SSL-verschlüsselt und sicher verarbeitet.
-                Wir speichern keine sensiblen Kreditkartendaten.
-              </p>
-            </div>
-            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-800 rounded-full opacity-50 blur-2xl"></div>
-          </div>
-
-          {/* Billing Address Notice */}
-          <div className="bg-amber-50 p-4 rounded-lg border border-amber-100 flex gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-            <div className="text-left">
-              <h4 className="text-sm font-bold text-amber-800 text-left">Rechnungsadresse</h4>
-              <p className="text-xs text-amber-700 mt-1 text-left">
-                Bitte stellen Sie sicher, dass Ihre Rechnungsadresse für steuerliche Zwecke korrekt ist.
-              </p>
-              <button
-                onClick={() => onNavigate('settings')}
-                className="text-xs font-bold text-amber-800 mt-2 underline"
-              >
-                Adresse bearbeiten
-              </button>
+            {/* Security Info */}
+            <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-2xl p-6">
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="w-5 h-5 text-emerald-500 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-white text-sm mb-1">Sichere Zahlung</h4>
+                  <p className="text-xs text-gray-400">
+                    Alle Zahlungen werden über Stripe verschlüsselt und sicher verarbeitet.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <Footer />
+    </Layout>
   )
 }
