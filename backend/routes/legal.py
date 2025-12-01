@@ -71,3 +71,37 @@ async def get_avv_status(user_id: str):
     except Exception as e:
         print(f"💥 Error checking AVV status: {str(e)}")
         return {"is_signed": False}
+
+@router.get("/avv/signature/{user_id}")
+async def get_avv_signature(user_id: str):
+    """
+    Get AVV signature data for a user
+    """
+    supabase = get_supabase_client()
+    
+    try:
+        # Get signature from avv_logs
+        res = supabase.table('avv_logs').select('signature_data, signed_at').eq('user_id', user_id).order('signed_at', desc=True).limit(1).execute()
+        
+        if not res.data or len(res.data) == 0:
+            return {
+                "is_signed": False,
+                "signature_data": None,
+                "signed_at": None
+            }
+        
+        signature_record = res.data[0]
+        
+        return {
+            "is_signed": True,
+            "signature_data": signature_record.get('signature_data'),
+            "signed_at": signature_record.get('signed_at')
+        }
+        
+    except Exception as e:
+        print(f"💥 Error fetching AVV signature: {str(e)}")
+        return {
+            "is_signed": False,
+            "signature_data": None,
+            "signed_at": None
+        }
