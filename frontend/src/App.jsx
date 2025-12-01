@@ -6,6 +6,7 @@ import Campaigns from './pages/Campaigns'
 import CampaignDetail from './pages/CampaignDetail'
 import Credits from './pages/Credits'
 import Settings from './pages/Settings'
+import Contacts from './pages/Contacts'
 import { getCurrentUser } from './lib/supabase'
 import { Toaster } from 'react-hot-toast'
 
@@ -38,6 +39,7 @@ function App() {
 
         // Handle deep links
         if (path === '/campaigns') setCurrentPage('campaigns')
+        else if (path === '/contacts') setCurrentPage('contacts')
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
         else if (path === '/academy') setCurrentPage('academy')
@@ -63,6 +65,7 @@ function App() {
     let path = '/login'
     if (currentPage === 'dashboard') path = '/dashboard'
     else if (currentPage === 'campaigns') path = '/campaigns'
+    else if (currentPage === 'contacts') path = '/contacts'
     else if (currentPage === 'credits') path = '/credits'
     else if (currentPage === 'settings') path = '/settings'
     else if (currentPage === 'academy') path = '/academy'
@@ -83,6 +86,7 @@ function App() {
       if (isAuthenticated) {
         if (path === '/dashboard') setCurrentPage('dashboard')
         else if (path === '/campaigns') setCurrentPage('campaigns')
+        else if (path === '/contacts') setCurrentPage('contacts')
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
         else if (path === '/academy') setCurrentPage('academy')
@@ -140,6 +144,15 @@ function App() {
       <>
         <Toaster position="top-right" />
         <Campaigns onNavigate={handleNavigate} />
+      </>
+    )
+  }
+
+  if (currentPage === 'contacts' && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <Contacts onNavigate={handleNavigate} />
       </>
     )
   }
