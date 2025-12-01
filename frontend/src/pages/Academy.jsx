@@ -1,46 +1,7 @@
-import { BookOpen, Video, FileText, Zap, Users, Award } from 'lucide-react'
+import { BookOpen, PlayCircle, FileText, Zap, Users } from 'lucide-react'
 import Layout from '../components/Layout'
 
 export default function Academy({ onNavigate }) {
-  const resources = [
-    {
-      icon: Video,
-      title: 'Video Tutorials',
-      description: 'Schritt-für-Schritt Anleitungen für Voyanero',
-      count: '12 Videos',
-      color: 'bg-red-50 text-red-600'
-    },
-    {
-      icon: FileText,
-      title: 'Dokumentation',
-      description: 'Vollständige technische Dokumentation',
-      count: '25 Artikel',
-      color: 'bg-blue-50 text-blue-600'
-    },
-    {
-      icon: Zap,
-      title: 'Best Practices',
-      description: 'Tipps für erfolgreiche Lead-Generierung',
-      count: '8 Guides',
-      color: 'bg-yellow-50 text-yellow-600'
-    },
-    {
-      icon: Users,
-      title: 'Community',
-      description: 'Austausch mit anderen Nutzern',
-      count: 'Bald verfügbar',
-      color: 'bg-purple-50 text-purple-600'
-    }
-  ]
-
-  const quickLinks = [
-    { title: 'Erste Schritte', href: '#' },
-    { title: 'Campaign erstellen', href: '#' },
-    { title: 'Leads suchen', href: '#' },
-    { title: 'Email-Kampagnen', href: '#' },
-    { title: 'DSGVO-Compliance', href: '#' },
-  ]
-
   return (
     <Layout
       onNavigate={onNavigate}
@@ -48,73 +9,84 @@ export default function Academy({ onNavigate }) {
       title="Voyanero Academy"
       subtitle="Lernen Sie alles über erfolgreiche Lead-Generierung"
     >
+      <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8">
+        {/* Hero Banner - Adjusted Colors & Mobile Sizing */}
+        <div className="relative rounded-2xl md:rounded-3xl overflow-hidden bg-gradient-to-br from-[#172554] via-[#1e1b4b] to-[#020408] text-white p-5 md:p-10 border border-blue-900/30 shadow-xl">
+          {/* Background Effects */}
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+          <div className="absolute top-0 right-0 w-40 md:w-64 h-40 md:h-64 bg-blue-500 opacity-10 rounded-full blur-[60px] translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-40 md:w-64 h-40 md:h-64 bg-indigo-500 opacity-10 rounded-full blur-[60px] -translate-x-1/3 translate-y-1/3"></div>
 
-      {/* Coming Soon Banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-800 dark:to-blue-900 rounded-xl p-8 mb-8 text-white">
-        <div className="flex items-center gap-3 mb-4">
-          <Award className="w-8 h-8" />
-          <h2 className="text-2xl font-bold text-left">Bald verfügbar!</h2>
-        </div>
-        <p className="text-blue-100 dark:text-blue-200 mb-4 text-left">
-          Wir arbeiten an umfassenden Lernmaterialien, Video-Tutorials und Best Practices
-          für Ihre erfolgreiche Lead-Generierung mit Voyanero.
-        </p>
-        <p className="text-sm text-blue-200 dark:text-blue-300 text-left">
-          📧 Sie werden per Email benachrichtigt, sobald die Academy online geht.
-        </p>
-      </div>
-
-      {/* Resource Cards */}
-      <div>
-        <h2 className="text-xl font-bold mb-6 text-left dark:text-white">Was Sie erwartet</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {resources.map((resource, idx) => (
-            <div
-              key={idx}
-              className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-slate-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${resource.color} dark:opacity-90`}>
-                  <resource.icon className="w-6 h-6" />
-                </div>
-                <div className="flex-1 text-left">
-                  <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1 text-left">{resource.title}</h3>
-                  <p className="text-sm text-slate-500 dark:text-gray-400 mb-2 text-left">{resource.description}</p>
-                  <span className="text-xs font-medium text-slate-400 dark:text-gray-500 text-left">{resource.count}</span>
-                </div>
-              </div>
+          <div className="relative z-10 max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-200 font-bold tracking-wider text-[10px] uppercase mb-4">
+              <Zap className="w-3 h-3" /> Bald verfügbar
             </div>
-          ))}
-        </div>
-      </div>
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4 leading-tight">Meistern Sie die Kunst der Kaltakquise.</h2>
+            <p className="text-blue-100/80 text-sm md:text-lg mb-6 md:mb-8 leading-relaxed max-w-lg">
+              Wir arbeiten an umfassenden Lernmaterialien, Video-Tutorials und Best Practices für Ihre erfolgreiche Lead-Generierung mit Voyanero.
+            </p>
 
-      {/* Quick Links */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-gray-700 p-6">
-        <h3 className="font-bold text-lg mb-4 text-left dark:text-white">Häufig gesucht</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {quickLinks.map((link, idx) => (
-            <a
-              key={idx}
-              href={link.href}
-              className="flex items-center gap-2 px-4 py-3 rounded-lg border border-slate-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
-            >
-              <span className="text-sm font-medium text-slate-700 dark:text-gray-200 text-left">{link.title}</span>
-            </a>
-          ))}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 p-3 md:p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center shrink-0">
+                <span className="text-blue-950 font-bold text-sm md:text-base">✉️</span>
+              </div>
+              <p className="text-xs md:text-sm font-medium text-blue-50">Sie werden per Email benachrichtigt, sobald die Academy online geht.</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Support CTA */}
-      <div className="mt-8 bg-slate-50 dark:bg-gray-800 rounded-xl p-6 border border-slate-100 dark:border-gray-700">
-        <p className="text-slate-600 dark:text-gray-300 mb-4 text-left">
-          Haben Sie Fragen? Unser Support-Team hilft Ihnen gerne weiter.
-        </p>
-        <button
-          onClick={() => onNavigate('support')}
-          className="inline-flex items-center gap-2 bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 transition font-medium"
-        >
-          Zum Support
-        </button>
+        {/* Content Grid Placeholder */}
+        <div>
+          <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6">Was Sie erwartet</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0A0F1A]/60 border border-gray-200 dark:border-white/5 hover:border-blue-500/50 transition-all group">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <PlayCircle className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <h4 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-1 md:mb-2">Video Tutorials</h4>
+              <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm mb-3 md:mb-4">Schritt-für-Schritt Anleitungen für Voyanero Features und Strategien.</p>
+              <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">12 Videos</span>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0A0F1A]/60 border border-gray-200 dark:border-white/5 hover:border-blue-500/50 transition-all group">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <FileText className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <h4 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-1 md:mb-2">Dokumentation</h4>
+              <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm mb-3 md:mb-4">Vollständige technische Dokumentation und API Referenzen.</p>
+              <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">25 Artikel</span>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0A0F1A]/60 border border-gray-200 dark:border-white/5 hover:border-blue-500/50 transition-all group">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500 mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <Zap className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <h4 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-1 md:mb-2">Best Practices</h4>
+              <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm mb-3 md:mb-4">Tipps für erfolgreiche Lead-Generierung und E-Mail Marketing.</p>
+              <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">8 Guides</span>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-white dark:bg-[#0A0F1A]/60 border border-gray-200 dark:border-white/5 hover:border-blue-500/50 transition-all group">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500 mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                <Users className="w-5 h-5 md:w-6 md:h-6" />
+              </div>
+              <h4 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-1 md:mb-2">Community</h4>
+              <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm mb-3 md:mb-4">Austausch mit anderen Nutzern und Experten.</p>
+              <span className="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider">Bald verfügbar</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 md:p-6 rounded-2xl bg-gray-100 dark:bg-[#0F1623] border border-gray-200 dark:border-white/5">
+          <h3 className="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-3 md:mb-4">Häufig gesucht</h3>
+          <div className="flex flex-wrap gap-2 md:gap-3">
+            {['Erste Schritte', 'Campaign erstellen', 'Leads suchen', 'Email-Kampagnen', 'DSGVO-Compliance', 'Account Einstellungen'].map(tag => (
+              <span key={tag} className="px-3 py-1.5 md:px-4 md:py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg text-xs md:text-sm text-gray-600 dark:text-gray-300 hover:border-blue-500 hover:text-blue-500 cursor-pointer transition-colors">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </Layout>
   )
