@@ -47,8 +47,8 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                                             key={item.id}
                                             onClick={() => onNavigate(item.id)}
                                             className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${isActive
-                                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                                                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
                                                 }`}
                                         >
                                             <Icon className="w-4 h-4" />
@@ -105,10 +105,10 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                             © {new Date().getFullYear()} Voyanero. All rights reserved.
                         </p>
                         <div className="flex gap-6 text-sm">
-                            <a href="/impressum" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Impressum</a>
-                            <a href="/agb" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">AGB</a>
-                            <a href="/datenschutz" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Datenschutz</a>
-                            <a href="/av-vertrag" className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">AV-Vertrag</a>
+                            <button onClick={() => onNavigate('impressum')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Impressum</button>
+                            <button onClick={() => onNavigate('agb')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">AGB</button>
+                            <button onClick={() => onNavigate('datenschutz')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Datenschutz</button>
+                            <button onClick={() => onNavigate('av-vertrag')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">AV-Vertrag</button>
                         </div>
                     </div>
                 </div>
