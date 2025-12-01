@@ -382,6 +382,7 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
 @router.patch("/leads/{lead_id}/status")
 async def update_lead_status(lead_id: str, request: dict):
     """Update lead status (invalid, contacted, new)"""
+    supabase = get_supabase_client()
     try:
         status = request.get('status')
         if status not in ['invalid', 'contacted', 'new']:
