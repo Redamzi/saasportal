@@ -38,9 +38,9 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
-app.include_router(payments_router)
-app.include_router(campaigns_router)
-app.include_router(impressum_router)
+app.include_router(campaigns.router)
+app.include_router(impressum.router)
+app.include_router(legal.router)
 
 
 @app.get("/health")

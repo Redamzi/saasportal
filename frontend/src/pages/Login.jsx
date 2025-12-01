@@ -266,7 +266,13 @@ function Login() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-white/70 text-sm">
-          <p>© 2024 Voyanero. All rights reserved.</p>
+          <p className="mb-2">© 2024 Voyanero. All rights reserved.</p>
+          <div className="flex justify-center gap-4">
+            <a href="/impressum" className="hover:text-white transition underline">Impressum</a>
+            <a href="/agb" className="hover:text-white transition underline">AGB</a>
+            <a href="/datenschutz" className="hover:text-white transition underline">Datenschutz</a>
+            <a href="/av-vertrag" className="hover:text-white transition underline">AV-Vertrag</a>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -20,15 +20,31 @@ function App() {
 
   const checkAuth = async () => {
     try {
-      const { user } = await getCurrentUser()
+      const { user, profile } = await getCurrentUser()
 
       if (user) {
         setIsAuthenticated(true)
-        // Handle deep links
+
+        // Gatekeeper: Check AVV Signature
+        // Only enforce if we have profile data and it's not signed
+        const isAvvSigned = profile?.is_avv_signed
         const path = window.location.pathname
+
+        if (!isAvvSigned && path !== '/avv' && path !== '/login' && path !== '/') {
+          // Redirect to AVV page if not signed and trying to access protected route
+          window.location.href = '/avv'
+          return
+        }
+
+        // Handle deep links
         if (path === '/campaigns') setCurrentPage('campaigns')
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
+        else if (path === '/academy') setCurrentPage('academy')
+        else if (path === '/impressum') setCurrentPage('impressum')
+        else if (path === '/agb') setCurrentPage('agb')
+        else if (path === '/datenschutz') setCurrentPage('datenschutz')
+        else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         else setCurrentPage('dashboard')
       } else {
         setIsAuthenticated(false)
@@ -49,6 +65,11 @@ function App() {
     else if (currentPage === 'campaigns') path = '/campaigns'
     else if (currentPage === 'credits') path = '/credits'
     else if (currentPage === 'settings') path = '/settings'
+    else if (currentPage === 'academy') path = '/academy'
+    else if (currentPage === 'impressum') path = '/impressum'
+    else if (currentPage === 'agb') path = '/agb'
+    else if (currentPage === 'datenschutz') path = '/datenschutz'
+    else if (currentPage === 'av-vertrag') path = '/av-vertrag'
 
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path)
@@ -64,6 +85,11 @@ function App() {
         else if (path === '/campaigns') setCurrentPage('campaigns')
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
+        else if (path === '/academy') setCurrentPage('academy')
+        else if (path === '/impressum') setCurrentPage('impressum')
+        else if (path === '/agb') setCurrentPage('agb')
+        else if (path === '/datenschutz') setCurrentPage('datenschutz')
+        else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         else setCurrentPage('dashboard')
       } else if (path === '/login' || path === '/') {
         setCurrentPage('login')
@@ -136,12 +162,58 @@ function App() {
     )
   }
 
+  if (currentPage === 'academy' && isAuthenticated) {
+    const Academy = React.lazy(() => import('./pages/Academy'))
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <Academy onNavigate={handleNavigate} />
+      </React.Suspense>
+    )
+  }
+
   if (currentPage === 'campaignDetail' && isAuthenticated) {
     return (
       <>
         <Toaster position="top-right" />
         <CampaignDetail onNavigate={handleNavigate} campaignId={pageData?.campaignId} />
       </>
+    )
+  }
+
+  // Legal Pages
+  if (currentPage === 'impressum') {
+    const Impressum = React.lazy(() => import('./pages/legal/Impressum'))
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <Impressum onNavigate={handleNavigate} />
+      </React.Suspense>
+    )
+  }
+
+  if (currentPage === 'agb') {
+    const AGB = React.lazy(() => import('./pages/legal/AGB'))
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <AGB onNavigate={handleNavigate} />
+      </React.Suspense>
+    )
+  }
+
+  if (currentPage === 'datenschutz') {
+    const Datenschutz = React.lazy(() => import('./pages/legal/Datenschutz'))
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <Datenschutz onNavigate={handleNavigate} />
+      </React.Suspense>
+    )
+  }
+
+  if (currentPage === 'av-vertrag') {
+    const AVVertrag = React.lazy(() => import('./pages/legal/AVVertrag'))
+    return (
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <AVVertrag onNavigate={handleNavigate} />
+      </React.Suspense>
     )
   }
 

@@ -377,3 +377,60 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
         "message": "Crawling started in background", 
         "leads_found": 0 # Will be updated async
     }
+
+
+@router.patch("/leads/{lead_id}/status")
+async def update_lead_status(lead_id: str, request: dict):
+    """Update lead status (invalid, contacted, new)"""
+    try:
+        status = request.get('status')
+        if status not in ['invalid', 'contacted', 'new']:
+            raise HTTPException(status_code=400, detail="Invalid status value")
+        
+        update_data = {'status': status}
+        
+        # If marking as contacted, update timestamp
+        if status == 'contacted':
+            update_data['last_contacted_at'] = datetime.now().isoformat()
+            
+        result = supabase.table('leads').update(update_data).eq('id', lead_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Lead not found")
+        
+        return {"success": True, "lead": result.data[0]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating lead status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.patch("/leads/{lead_id}/email")
+async def update_lead_email(lead_id: str, request: dict):
+    """Add manual email to lead"""
+    try:
+        email = request.get('email')
+        if not email:
+            raise HTTPException(status_code=400, detail="Email is required")
+        
+        # Basic email validation
+        import re
+        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
+            raise HTTPException(status_code=400, detail="Invalid email format")
+        
+        result = supabase.table('leads').update({
+            'email': email,
+            'email_source': 'manual_user',
+            'email_verified': False
+        }).eq('id', lead_id).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Lead not found")
+        
+        return {"success": True, "lead": result.data[0]}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating lead email: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

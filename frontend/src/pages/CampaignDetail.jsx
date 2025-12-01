@@ -19,6 +19,9 @@ function CampaignDetail({ campaignId, onNavigate }) {
     minRating: 0,
     minReviews: 0,
   })
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [selectedLeadForEmail, setSelectedLeadForEmail] = useState(null)
+  const [manualEmail, setManualEmail] = useState('')
 
   useEffect(() => {
     loadData()
@@ -93,6 +96,85 @@ function CampaignDetail({ campaignId, onNavigate }) {
     } catch (error) {
       console.error('Delete error:', error)
       alert(`❌ Fehler beim Löschen: ${error.message}`)
+    }
+  }
+
+  // Handler for marking lead as invalid
+  const handleMarkAsInvalid = async (leadId) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/leads/${leadId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'invalid' }),
+      })
+
+      if (response.ok) {
+        await loadData()
+        alert('✅ Lead als ungültig markiert')
+      } else {
+        throw new Error('Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error marking as invalid:', error)
+      alert('❌ Fehler beim Markieren')
+    }
+  }
+
+  // Handler for marking lead as contacted
+  const handleMarkAsContacted = async (leadId) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/leads/${leadId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'contacted' }),
+      })
+
+      if (response.ok) {
+        await loadData()
+        alert('✅ Lead als kontaktiert markiert')
+      } else {
+        throw new Error('Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error marking as contacted:', error)
+      alert('❌ Fehler beim Markieren')
+    }
+  }
+
+  // Handler for opening manual email modal
+  const handleOpenEmailModal = (lead) => {
+    setSelectedLeadForEmail(lead)
+    setManualEmail('')
+    setShowEmailModal(true)
+  }
+
+  // Handler for saving manual email
+  const handleSaveManualEmail = async () => {
+    if (!manualEmail || !selectedLeadForEmail) return
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/leads/${selectedLeadForEmail.id}/email`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: manualEmail }),
+      })
+
+      if (response.ok) {
+        setShowEmailModal(false)
+        setSelectedLeadForEmail(null)
+        setManualEmail('')
+        await loadData()
+        alert('✅ Email erfolgreich hinzugefügt')
+      } else {
+        const error = await response.json()
+        throw new Error(error.detail || 'Failed to add email')
+      }
+    } catch (error) {
+      console.error('Error adding manual email:', error)
+      alert(`❌ Fehler: ${error.message}`)
     }
   }
 
@@ -547,7 +629,15 @@ function CampaignDetail({ campaignId, onNavigate }) {
                               )}
                             </div>
                           ) : (
-                            <span className="text-gray-400 dark:text-gray-500">Keine Email</span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleOpenEmailModal(lead)
+                              }}
+                              className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                            >
+                              ➕ Email hinzufügen
+                            </button>
                           )}
                         </div>
 
@@ -590,13 +680,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                           </p>
                         </div>
 
-                        {/* Rating */}
-                        <div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Bewertung:</p>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            ⭐ {lead.google_rating?.toFixed(1) || lead.rating?.toFixed(1) || 'N/A'} ({lead.reviews_count || 0} Bewertungen)
-                          </p>
-                        </div>
+                        {/* Rating Removed */}
 
                         {/* Status */}
                         <div>
@@ -637,7 +721,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              alert('Funktion "Als ungültig markieren" kommt bald!')
+                              handleMarkAsInvalid(lead.id)
                             }}
                             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition text-sm font-medium"
                           >
@@ -646,7 +730,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              alert('Funktion "Als kontaktiert markieren" kommt bald!')
+                              handleMarkAsContacted(lead.id)
                             }}
                             className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition text-sm font-medium"
                           >
@@ -829,6 +913,55 @@ function CampaignDetail({ campaignId, onNavigate }) {
             <p className="text-lg font-semibold text-center text-gray-900 dark:text-white">Crawling leads...</p>
             <p className="text-sm text-gray-600 dark:text-gray-300 text-center mt-2">This may take a minute</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">Please wait while we search for leads</p>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Email Modal */}
+      {showEmailModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Email manuell hinzufügen</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Fügen Sie eine Email-Adresse für <strong>{selectedLeadForEmail?.company_name || 'diesen Lead'}</strong> hinzu.
+            </p>
+
+            <div className="mb-4">
+              <label htmlFor="manualEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email Adresse
+              </label>
+              <input
+                type="email"
+                id="manualEmail"
+                value={manualEmail}
+                onChange={(e) => setManualEmail(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                placeholder="name@firma.de"
+                autoFocus
+              />
+            </div>
+
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg mb-6 border border-yellow-200 dark:border-yellow-800">
+              <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                ⚠️ <strong>Hinweis:</strong> Sie tragen diese Email auf eigene Verantwortung ein. Stellen Sie sicher, dass Sie die Berechtigung haben, diese Person zu kontaktieren.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={handleSaveManualEmail}
+                disabled={!manualEmail}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Speichern
+              </button>
+            </div>
           </div>
         </div>
       )}

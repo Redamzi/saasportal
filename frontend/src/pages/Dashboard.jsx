@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   DollarSign, Users, FolderKanban, CreditCard,
-  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp
+  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen
 } from "lucide-react"
 import { getCurrentUser, signOut } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
@@ -250,6 +250,13 @@ export default function Dashboard({ onNavigate }) {
             icon={Settings}
             onClick={() => onNavigate('settings')}
             colorClass="from-amber-50 to-amber-100"
+          />
+          <ActionCard
+            title="Academy"
+            description="Tutorials & Hilfe"
+            icon={BookOpen}
+            onClick={() => onNavigate('academy')} // Assuming 'academy' route exists in App.jsx? Wait, I need to check App.jsx
+            colorClass="from-purple-50 to-purple-100"
           />
         </div>
       </div>
