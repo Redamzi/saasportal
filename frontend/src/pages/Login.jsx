@@ -93,36 +93,46 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 dark:from-blue-900 dark:via-purple-900 dark:to-pink-900 flex items-center justify-center px-4">
-      <div className="absolute top-4 right-4">
+    <div className="min-h-screen bg-voyanero-900 flex items-center justify-center px-4 relative overflow-hidden font-sans">
+      {/* Background Blobs */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-voyanero-500/10 rounded-full blur-[120px] animate-blob"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+      </div>
+
+      <div className="absolute top-4 right-4 z-50">
         <DarkModeToggle />
       </div>
-      <div className="max-w-md w-full">
+
+      <div className="max-w-md w-full relative z-10">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-2">Voyanero</h1>
-          <p className="text-white/80 text-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-voyanero-500 to-blue-600 mb-4 shadow-lg shadow-voyanero-500/30">
+            <span className="text-3xl font-bold text-white">V</span>
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Voyanero</h1>
+          <p className="text-gray-400 text-lg">
             Your SaaS Platform for Lead Generation
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
+        <div className="bg-[#0B1121]/60 backdrop-blur-xl border border-white/5 rounded-3xl shadow-2xl p-8">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">
             {isLogin ? 'Welcome Back' : 'Create Account'}
           </h2>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+              <p className="text-red-400 text-sm font-medium">{error}</p>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg">
-              <p className="text-green-700 dark:text-green-300 text-sm">{success}</p>
+            <div className="mb-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+              <p className="text-emerald-400 text-sm font-medium">{success}</p>
             </div>
           )}
 
@@ -130,43 +140,35 @@ function Login() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Email Address
               </label>
               <input
                 type="email"
-                id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-voyanero-500 focus:border-transparent transition text-white placeholder-gray-500 outline-none"
                 placeholder="your@email.com"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Password
               </label>
               <input
                 type="password"
-                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-voyanero-500 focus:border-transparent transition text-white placeholder-gray-500 outline-none"
                 placeholder="••••••••"
               />
               {!isLogin && (
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-1 text-xs text-gray-500">
                   Minimum 6 characters
                 </p>
               )}
@@ -177,37 +179,29 @@ function Login() {
               <>
                 {/* Company Name */}
                 <div>
-                  <label
-                    htmlFor="company"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Company Name *
                   </label>
                   <input
                     type="text"
-                    id="company"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     required={!isLogin}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-voyanero-500 focus:border-transparent transition text-white placeholder-gray-500 outline-none"
                     placeholder="Acme Corp"
                   />
                 </div>
 
                 {/* Full Name */}
                 <div>
-                  <label
-                    htmlFor="fullName"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
                     Full Name (Optional)
                   </label>
                   <input
                     type="text"
-                    id="fullName"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-voyanero-500 focus:border-transparent transition text-white placeholder-gray-500 outline-none"
                     placeholder="John Doe"
                   />
                 </div>
@@ -218,7 +212,7 @@ function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-voyanero-500 text-white py-3 rounded-xl font-bold hover:bg-voyanero-400 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-voyanero-500/20 hover:shadow-voyanero-500/30 hover:-translate-y-0.5"
             >
               {loading
                 ? isLogin
@@ -235,17 +229,17 @@ function Login() {
             <button
               type="button"
               onClick={toggleMode}
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition"
+              className="text-sm text-gray-400 hover:text-white transition"
             >
               {isLogin ? (
                 <>
                   Don't have an account?{' '}
-                  <span className="text-blue-600 dark:text-blue-400 font-semibold">Sign Up</span>
+                  <span className="text-voyanero-400 font-bold">Sign Up</span>
                 </>
               ) : (
                 <>
                   Already have an account?{' '}
-                  <span className="text-blue-600 dark:text-blue-400 font-semibold">Log In</span>
+                  <span className="text-voyanero-400 font-bold">Log In</span>
                 </>
               )}
             </button>
@@ -256,7 +250,7 @@ function Login() {
             <div className="mt-4 text-center">
               <button
                 type="button"
-                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition"
+                className="text-sm text-gray-500 hover:text-gray-300 transition"
               >
                 Forgot password?
               </button>
@@ -265,7 +259,7 @@ function Login() {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-white/70 text-sm">
+        <div className="mt-8 text-center text-gray-500 text-sm">
           <p className="mb-2">© 2024 Voyanero. All rights reserved.</p>
           <div className="flex justify-center gap-4">
             <a href="/impressum" className="hover:text-white transition underline">Impressum</a>

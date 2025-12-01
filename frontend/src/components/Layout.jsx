@@ -1,9 +1,11 @@
-import React from 'react'
-import { BookOpen, LogOut, LayoutDashboard, FolderKanban, CreditCard, Settings as SettingsIcon, Users } from 'lucide-react'
+import React, { useState } from 'react'
+import { BookOpen, LogOut, LayoutDashboard, FolderKanban, CreditCard, Settings as SettingsIcon, Users, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import DarkModeToggle from './DarkModeToggle'
 import { signOut } from '../lib/supabase'
 
 export default function Layout({ children, onNavigate, currentPage, user, title, subtitle, actions }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const handleLogout = async () => {
         await signOut()
@@ -20,100 +22,167 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
     ]
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-            {/* Header */}
-            <header className="bg-white dark:bg-gray-800 shadow-sm z-10 sticky top-0">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        {/* Logo & Title */}
-                        <div className="flex items-center gap-8">
-                            <div
-                                className="flex items-center gap-2 cursor-pointer"
-                                onClick={() => onNavigate('dashboard')}
-                            >
-                                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                                    V
-                                </div>
-                                <span className="text-xl font-bold text-gray-900 dark:text-white hidden md:block">Voyanero</span>
-                            </div>
+        <div className="min-h-screen bg-voyanero-900 text-white relative overflow-hidden font-sans selection:bg-voyanero-500/30">
+            {/* Background Blobs */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-voyanero-500/10 rounded-full blur-[120px] animate-blob"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+            </div>
 
-                            {/* Desktop Navigation */}
-                            <nav className="hidden md:flex items-center gap-1">
-                                {navItems.map((item) => {
-                                    const Icon = item.icon
-                                    const isActive = currentPage === item.id || (currentPage === 'campaignDetail' && item.id === 'campaigns')
-
-                                    return (
-                                        <button
-                                            key={item.id}
-                                            onClick={() => onNavigate(item.id)}
-                                            className={`px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${isActive
-                                                ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                                                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-                                                }`}
-                                        >
-                                            <Icon className="w-4 h-4" />
-                                            {item.label}
-                                        </button>
-                                    )
-                                })}
-                            </nav>
-                        </div>
-
-                        {/* Right Side Actions */}
-                        <div className="flex items-center gap-4">
-                            <DarkModeToggle />
-
-                            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
-
-                            <button
-                                onClick={handleLogout}
-                                className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                                title="Abmelden"
-                            >
-                                <LogOut className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-voyanero-900/80 backdrop-blur-md border-b border-white/5 px-4 h-16 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-voyanero-500 rounded-lg flex items-center justify-center font-bold text-white">V</div>
+                    <span className="font-bold text-lg text-white">Voyanero</span>
                 </div>
-            </header>
+                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-gray-400">
+                    {isMobileMenuOpen ? <X /> : <Menu />}
+                </button>
+            </div>
 
-            {/* Page Content */}
-            <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Page Header (Optional) */}
-                {(title || actions) && (
-                    <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            {title && <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 text-left">{title}</h1>}
-                            {subtitle && <p className="text-gray-600 dark:text-gray-400 text-left">{subtitle}</p>}
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 z-40 bg-voyanero-900/95 backdrop-blur-xl pt-20 px-4 md:hidden">
+                    <nav className="flex flex-col gap-2">
+                        {navItems.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => { onNavigate(item.id); setIsMobileMenuOpen(false) }}
+                                className={`p-4 rounded-xl flex items-center gap-3 text-lg font-medium transition-all ${currentPage === item.id
+                                        ? 'bg-voyanero-500 text-white shadow-lg shadow-voyanero-500/20'
+                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    }`}
+                            >
+                                <item.icon className="w-6 h-6" />
+                                {item.label}
+                            </button>
+                        ))}
+                        <button onClick={handleLogout} className="p-4 rounded-xl flex items-center gap-3 text-lg font-medium text-red-400 hover:bg-red-500/10 mt-4">
+                            <LogOut className="w-6 h-6" />
+                            Abmelden
+                        </button>
+                    </nav>
+                </div>
+            )}
+
+            <div className="flex h-screen pt-16 md:pt-0 relative z-10">
+                {/* Desktop Sidebar (Floating Glass) */}
+                <aside
+                    className={`hidden md:flex flex-col fixed left-4 top-4 bottom-4 z-50 transition-all duration-300 ease-in-out
+                        bg-[#0A0F1A]/60 backdrop-blur-xl border border-white/5 shadow-2xl rounded-3xl
+                        ${isSidebarOpen ? 'w-72' : 'w-20'}
+                    `}
+                >
+                    {/* Logo Area */}
+                    <div className="h-20 flex items-center justify-center border-b border-white/5 relative">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-voyanero-500 to-blue-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-voyanero-500/20">
+                                V
+                            </div>
+                            {isSidebarOpen && (
+                                <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                                    Voyanero
+                                </span>
+                            )}
                         </div>
-                        {actions && (
-                            <div className="flex items-center gap-3">
-                                {actions}
+
+                        {/* Toggle Button */}
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="absolute -right-3 top-8 w-6 h-6 bg-voyanero-800 border border-white/10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition shadow-lg"
+                        >
+                            {isSidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+                        </button>
+                    </div>
+
+                    {/* Navigation */}
+                    <nav className="flex-1 py-6 px-3 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
+                        {navItems.map((item) => {
+                            const isActive = currentPage === item.id || (currentPage === 'campaignDetail' && item.id === 'campaigns')
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => onNavigate(item.id)}
+                                    className={`
+                                        flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden
+                                        ${isActive
+                                            ? 'bg-voyanero-500 text-white shadow-lg shadow-voyanero-500/25'
+                                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                        }
+                                        ${!isSidebarOpen && 'justify-center'}
+                                    `}
+                                    title={!isSidebarOpen ? item.label : ''}
+                                >
+                                    <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'} transition-colors`} />
+                                    {isSidebarOpen && <span className="font-medium">{item.label}</span>}
+
+                                    {/* Active Indicator for collapsed state */}
+                                    {!isSidebarOpen && isActive && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full"></div>
+                                    )}
+                                </button>
+                            )
+                        })}
+                    </nav>
+
+                    {/* Footer Actions */}
+                    <div className="p-4 border-t border-white/5 flex flex-col gap-2">
+                        <div className={`flex items-center gap-3 px-3 py-2 rounded-xl bg-white/5 border border-white/5 ${!isSidebarOpen && 'justify-center'}`}>
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white">
+                                {user?.email?.[0].toUpperCase() || 'U'}
+                            </div>
+                            {isSidebarOpen && (
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate text-white">{user?.user_metadata?.full_name || 'User'}</p>
+                                    <p className="text-xs text-gray-500 truncate">Pro Plan</p>
+                                </div>
+                            )}
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors ${!isSidebarOpen && 'justify-center'}`}
+                        >
+                            <LogOut className="w-5 h-5" />
+                            {isSidebarOpen && <span className="text-sm font-medium">Abmelden</span>}
+                        </button>
+                    </div>
+                </aside>
+
+                {/* Main Content Wrapper */}
+                <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'md:ml-80' : 'md:ml-28'}`}>
+
+                    {/* Top Header (Glass) */}
+                    <header className="h-20 sticky top-0 z-40 px-8 flex items-center justify-between bg-voyanero-900/80 backdrop-blur-md border-b border-white/5">
+                        <div>
+                            {/* Breadcrumbs or Title could go here */}
+                            <h2 className="text-gray-400 text-sm font-medium">
+                                {currentPage === 'dashboard' ? 'Overview' :
+                                    currentPage === 'campaigns' ? 'Campaigns' :
+                                        currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
+                            </h2>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {/* Actions passed from props */}
+                            {actions}
+                            <div className="h-8 w-px bg-white/10 mx-2 hidden md:block"></div>
+                            <div className="hidden md:block">
+                                <DarkModeToggle />
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Scrollable Content */}
+                    <main className="flex-1 p-8 overflow-y-auto">
+                        {(title || subtitle) && (
+                            <div className="mb-8">
+                                {title && <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">{title}</h1>}
+                                {subtitle && <p className="text-gray-400 text-lg">{subtitle}</p>}
                             </div>
                         )}
-                    </div>
-                )}
-
-                {children}
-            </main>
-
-            {/* Footer */}
-            <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8 mt-auto">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            © {new Date().getFullYear()} Voyanero. All rights reserved.
-                        </p>
-                        <div className="flex gap-6 text-sm">
-                            <button onClick={() => onNavigate('impressum')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Impressum</button>
-                            <button onClick={() => onNavigate('agb')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">AGB</button>
-                            <button onClick={() => onNavigate('datenschutz')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">Datenschutz</button>
-                            <button onClick={() => onNavigate('av-vertrag')} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition">AV-Vertrag</button>
-                        </div>
-                    </div>
+                        {children}
+                    </main>
                 </div>
-            </footer>
+            </div>
         </div>
     )
 }
