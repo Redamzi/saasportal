@@ -69,6 +69,11 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                 print(f"⏭️  Skipping - no name")
                 continue
             
+            # User Requirement: Skip leads without website
+            if not normalized.get('website'):
+                print(f"⏭️  Skipping {normalized.get('name')} - no website")
+                continue
+            
             if not normalized.get('address') and not normalized.get('city'):
                 print(f"⏭️  Skipping {normalized.get('name')} - no address")
                 continue
