@@ -186,6 +186,20 @@ class ImpressumScraper:
                     impressum_url = urljoin(base_url, href)
                     print(f"✅ Found Impressum link: {impressum_url}")
                     return impressum_url
+    
+        # Third, as a last resort, try common URL patterns directly
+        # This helps when Selenium loads the page but link detection fails
+        print(f"⚠️  No Impressum link found in HTML, trying standard URL patterns...")
+        fallback_patterns = ['/impressum/', '/impressum', '/kontakt/', '/contact/', '/imprint/']
+        for pattern in fallback_patterns:
+            test_url = urljoin(base_url, pattern)
+            try:
+                response = self.session.head(test_url, timeout=3, allow_redirects=True)
+                if response.status_code == 200:
+                    print(f"✅ Found Impressum via fallback pattern: {test_url}")
+                    return test_url
+            except:
+                continue
         
         print(f"⚠️  No Impressum page found for {base_url}")
         return None
