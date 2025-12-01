@@ -193,7 +193,7 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
             scraper = get_impressum_scraper()
             
             # Run batch scrape
-            scrape_results = scraper.scrape_batch(urls, max_workers=5)
+            scrape_results = scraper.scrape_batch(urls, max_workers=10)
             
             found_count = 0
             
