@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { BookOpen, LogOut, LayoutDashboard, FolderKanban, CreditCard, Settings as SettingsIcon, Users, Menu, X, ChevronLeft, ChevronRight, Search, Bell, Coins } from 'lucide-react'
 import DarkModeToggle from './DarkModeToggle'
+import Footer from './Footer'
 import { signOut } from '../lib/supabase'
 
 export default function Layout({ children, onNavigate, currentPage, user, title, subtitle, actions }) {
@@ -210,6 +211,9 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                         )}
                         {children}
                     </main>
+
+                    {/* Footer - Fixed at bottom */}
+                    <Footer />
                 </div>
             </div>
         </div>

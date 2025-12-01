@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { User, Building2, Mail, Lock, Bell, Globe } from 'lucide-react'
 import { getCurrentUser, getUserProfile } from '../lib/supabase'
 import Layout from '../components/Layout'
-import Footer from '../components/Footer'
 
 function Settings({ onNavigate }) {
   const [user, setUser] = useState(null)
@@ -101,8 +100,8 @@ function Settings({ onNavigate }) {
         {/* Message */}
         {message.text && (
           <div className={`p-4 rounded-xl border ${message.type === 'success'
-              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-              : 'bg-red-500/10 border-red-500/20 text-red-400'
+            ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+            : 'bg-red-500/10 border-red-500/20 text-red-400'
             }`}>
             {message.text}
           </div>
@@ -260,7 +259,6 @@ function Settings({ onNavigate }) {
           </div>
         </div>
       </div>
-      <Footer />
     </Layout>
   )
 }

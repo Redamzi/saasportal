@@ -3,7 +3,6 @@ import { Zap, Check, CreditCard, History, ShieldCheck, Download, AlertCircle } f
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
-import Footer from '../components/Footer'
 
 export default function Credits({ onNavigate }) {
   const [user, setUser] = useState(null)
@@ -159,8 +158,8 @@ export default function Credits({ onNavigate }) {
                     <button
                       onClick={() => handlePurchase(pkg)}
                       className={`w-full py-3 rounded-xl text-sm font-bold transition-all ${pkg.popular
-                          ? 'bg-voyanero-500 text-white hover:bg-voyanero-400 shadow-lg shadow-voyanero-500/20'
-                          : 'bg-white/10 text-white hover:bg-white/20'
+                        ? 'bg-voyanero-500 text-white hover:bg-voyanero-400 shadow-lg shadow-voyanero-500/20'
+                        : 'bg-white/10 text-white hover:bg-white/20'
                         }`}
                     >
                       Auswählen
@@ -256,7 +255,6 @@ export default function Credits({ onNavigate }) {
           </div>
         </div>
       </div>
-      <Footer />
     </Layout>
   )
 }

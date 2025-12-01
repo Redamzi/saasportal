@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
 import { getCurrentUser } from '../../lib/supabase'
+import { Download, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
+import Layout from '../../components/Layout'
 
 export default function AVVertrag({ onNavigate }) {
     const sigCanvas = useRef({})
@@ -80,9 +82,9 @@ export default function AVVertrag({ onNavigate }) {
             setSignatureData(signatureDataToSave)
             setSignedAt(new Date().toISOString())
 
-            // Reload page or redirect to dashboard after short delay
+            // Redirect to dashboard after short delay
             setTimeout(() => {
-                window.location.href = '/dashboard'
+                onNavigate('dashboard')
             }, 1500)
 
         } catch (error) {
@@ -101,23 +103,21 @@ export default function AVVertrag({ onNavigate }) {
 
     if (loadingSignature) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600 dark:text-gray-300">Lade Vertragsstatus...</p>
-                </div>
+            <div className="min-h-screen bg-voyanero-900 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-voyanero-500"></div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-            <header className="bg-white dark:bg-gray-800 shadow z-10">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <Layout onNavigate={onNavigate} currentPage="av-vertrag" user={user}>
+            <div className="space-y-6">
+                {/* Header */}
+                <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <h1 className="text-xl font-bold text-gray-900 dark:text-white">AVV Vertrag</h1>
+                        <h1 className="text-3xl font-bold text-white">AVV Vertrag</h1>
                         {isSigned && (
-                            <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-bold rounded-full uppercase">
+                            <span className="px-4 py-1.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-full uppercase">
                                 Aktiv
                             </span>
                         )}
@@ -125,118 +125,111 @@ export default function AVVertrag({ onNavigate }) {
                     {isSigned && (
                         <button
                             onClick={() => window.print()}
-                            className="px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium flex items-center gap-2"
+                            className="px-4 py-2 text-sm text-voyanero-400 hover:text-voyanero-300 font-medium flex items-center gap-2 bg-white/5 hover:bg-white/10 rounded-xl transition border border-white/10"
                         >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                            <Download className="w-4 h-4" />
                             PDF Herunterladen
                         </button>
                     )}
                 </div>
-            </header>
 
-            <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-                <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 mb-6 prose dark:prose-invert max-w-none h-96 overflow-y-auto border border-gray-200 dark:border-gray-700">
-                    <h2>Auftragsverarbeitungsvertrag (AVV)</h2>
+                {/* Contract Content */}
+                <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-3xl p-8 shadow-2xl">
+                    <div className="prose prose-invert max-w-none h-96 overflow-y-auto custom-scrollbar">
+                        <h2 className="text-2xl font-bold text-white mb-4">Auftragsverarbeitungsvertrag (AVV)</h2>
 
-                    <h3>1. Parteien</h3>
-                    <p><strong>Auftraggeber:</strong> Nutzer der Voyanero-Plattform (gewerbliche Firmen)</p>
-                    <p><strong>Auftragsverarbeiter:</strong> Voyanero.com, Kielstraße 28, 44145 Dortmund</p>
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">1. Parteien</h3>
+                        <p className="text-gray-300"><strong className="text-white">Auftraggeber:</strong> Nutzer der Voyanero-Plattform (gewerbliche Firmen)</p>
+                        <p className="text-gray-300"><strong className="text-white">Auftragsverarbeiter:</strong> Voyanero.com, Kielstraße 28, 44145 Dortmund</p>
 
-                    <h3>2. Gegenstand</h3>
-                    <p>
-                        Voyanero verarbeitet personenbezogene Daten im Rahmen der Kontaktvermittlung, des technischen E-Mail-Versands und der KI-gestützten Textassistenz.
-                    </p>
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">2. Gegenstand</h3>
+                        <p className="text-gray-300">
+                            Voyanero verarbeitet personenbezogene Daten im Rahmen der Kontaktvermittlung, des technischen E-Mail-Versands und der KI-gestützten Textassistenz.
+                        </p>
 
-                    <h3>3. Art der Daten</h3>
-                    <ul>
-                        <li>geschäftliche Kontaktdaten</li>
-                        <li>Kommunikationsinhalte zwischen Firmen</li>
-                        <li>technische Metadaten</li>
-                    </ul>
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">3. Art der Daten</h3>
+                        <ul className="text-gray-300 space-y-1">
+                            <li>geschäftliche Kontaktdaten</li>
+                            <li>Kommunikationsinhalte zwischen Firmen</li>
+                            <li>technische Metadaten</li>
+                        </ul>
 
-                    <h3>4. Dauer der Verarbeitung</h3>
-                    <p>
-                        Für die Dauer der Nutzung des Dienstes; danach Löschung gemäß Regelungen der Datenschutzerklärung.
-                    </p>
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">4. Dauer der Verarbeitung</h3>
+                        <p className="text-gray-300">
+                            Für die Dauer der Nutzung des Dienstes; danach Löschung gemäß Regelungen der Datenschutzerklärung.
+                        </p>
 
-                    <p className="text-sm text-gray-500 mt-8">
-                        * Dies ist ein rechtsverbindlicher Vertrag. Bitte lesen Sie ihn sorgfältig durch.
-                    </p>
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">5. Technische und organisatorische Maßnahmen (TOM)</h3>
+                        <ul className="text-gray-300 space-y-1">
+                            <li>Verschlüsselung der Datenübertragung (TLS)</li>
+                            <li>Zugriffskontrolle durch Authentifizierung</li>
+                            <li>Regelmäßige Backups</li>
+                            <li>Logging und Monitoring</li>
+                        </ul>
+
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">6. Pflichten des Auftraggebers</h3>
+                        <p className="text-gray-300">
+                            Der Auftraggeber ist verantwortlich für die Rechtmäßigkeit der Datenverarbeitung und muss sicherstellen, dass er die erforderlichen Einwilligungen eingeholt hat.
+                        </p>
+
+                        <h3 className="text-xl font-bold text-white mt-6 mb-3">7. Unterauftragsverhältnisse</h3>
+                        <p className="text-gray-300">
+                            Voyanero darf Unterauftragsverarbeiter (z.B. Hosting-Provider, E-Mail-Dienste) einsetzen. Eine Liste wird auf Anfrage bereitgestellt.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2">
-                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                            </svg>
-                            Digitale Signatur
-                        </h3>
-                        {isSigned && (
-                            <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        )}
+                {/* Signature Section */}
+                <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-3xl p-8 shadow-2xl">
+                    <div className="flex items-center gap-3 mb-6">
+                        <svg className="w-6 h-6 text-voyanero-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        <h3 className="text-2xl font-bold text-white">Digitale Signatur</h3>
                     </div>
 
                     {isSigned ? (
-                        <div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                Dieser Vertrag wurde digital unterzeichnet.
-                            </p>
-
-                            <div className="border-2 border-gray-200 dark:border-gray-600 rounded-lg mb-4 bg-gray-50 dark:bg-gray-900 p-4">
-                                <img
-                                    src={signatureData}
-                                    alt="Digital Unterschrieben"
-                                    className="w-full h-48 object-contain"
-                                />
+                        <div className="space-y-4">
+                            <div className="bg-black/30 border-2 border-dashed border-emerald-500/30 rounded-2xl p-8 flex flex-col items-center justify-center">
+                                <img src={signatureData} alt="Signature" className="max-h-32 mb-4" />
+                                <p className="text-emerald-400 font-medium">Dieser Vertrag wurde digital unterzeichnet.</p>
                             </div>
-
-                            <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span>Unterschrieben am {formatDate(signedAt)}</span>
+                            <div className="flex items-center gap-2 text-emerald-400">
+                                <Check className="w-5 h-5" />
+                                <span className="text-sm">Unterschrieben am {formatDate(signedAt)}</span>
                             </div>
                         </div>
                     ) : (
-                        <div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                Bitte unterschreiben Sie in dem Feld unten.
-                            </p>
-
-                            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg mb-4 bg-white touch-none">
+                        <div className="space-y-4">
+                            <div className="bg-black/30 border-2 border-dashed border-white/10 rounded-2xl overflow-hidden">
                                 <SignatureCanvas
                                     ref={sigCanvas}
-                                    penColor="black"
                                     canvasProps={{
-                                        className: 'w-full h-48 rounded-lg cursor-crosshair'
+                                        className: 'w-full h-48 cursor-crosshair',
+                                        style: { background: 'transparent' }
                                     }}
+                                    penColor="#60A5FA"
                                 />
                             </div>
-
-                            <div className="flex justify-between items-center">
+                            <div className="flex gap-3">
                                 <button
                                     onClick={clear}
-                                    className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition border border-white/10"
                                 >
-                                    Löschen & Neu
+                                    Löschen
                                 </button>
                                 <button
                                     onClick={save}
                                     disabled={loading}
-                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                    className="flex-1 px-4 py-3 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold transition shadow-lg shadow-voyanero-500/20 disabled:opacity-50"
                                 >
-                                    {loading ? 'Speichere...' : 'Vertrag abschließen'}
+                                    {loading ? 'Speichern...' : 'Unterschreiben & Speichern'}
                                 </button>
                             </div>
                         </div>
                     )}
                 </div>
-            </main>
-        </div>
+            </div>
+        </Layout>
     )
 }

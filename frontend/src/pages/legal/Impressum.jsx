@@ -1,78 +1,100 @@
-import React from 'react'
-import { ArrowLeft } from 'lucide-react'
-import DarkModeToggle from '../../components/DarkModeToggle'
+import React, { useState, useEffect } from 'react'
+import { getCurrentUser } from '../../lib/supabase'
+import { Building2, Mail, Phone, MapPin } from 'lucide-react'
+import Layout from '../../components/Layout'
 
 export default function Impressum({ onNavigate }) {
+    const [user, setUser] = useState(null)
+
+    useEffect(() => {
+        loadUser()
+    }, [])
+
+    const loadUser = async () => {
+        const { user } = await getCurrentUser()
+        setUser(user)
+    }
+
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            {/* Header */}
-            <header className="bg-white dark:bg-gray-800 shadow">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <button
-                        onClick={() => onNavigate('dashboard')}
-                        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center gap-2"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                        Zurück
-                    </button>
-                    <div className="flex items-center gap-4">
-                        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Impressum</h1>
-                        <DarkModeToggle />
+        <Layout onNavigate={onNavigate} currentPage="impressum" user={user}>
+            <div className="space-y-8">
+                {/* Header */}
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Impressum</h1>
+                    <p className="text-gray-400 text-lg">Angaben gemäß § 5 TMG</p>
+                </div>
+
+                {/* Content */}
+                <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-3xl p-8 shadow-2xl">
+                    <div className="space-y-8">
+                        {/* Company Info */}
+                        <div>
+                            <div className="flex items-center gap-3 mb-4">
+                                <Building2 className="w-6 h-6 text-voyanero-500" />
+                                <h2 className="text-2xl font-bold text-white">Firmeninformationen</h2>
+                            </div>
+                            <div className="space-y-2 text-gray-300">
+                                <p className="text-lg font-semibold text-white">Voyanero</p>
+                                <p>Inhaber: [Name]</p>
+                                <div className="flex items-start gap-2 mt-4">
+                                    <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
+                                    <div>
+                                        <p>Kielstraße 28</p>
+                                        <p>44145 Dortmund</p>
+                                        <p>Deutschland</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contact */}
+                        <div className="border-t border-white/10 pt-8">
+                            <h3 className="text-xl font-bold text-white mb-4">Kontakt</h3>
+                            <div className="space-y-3 text-gray-300">
+                                <div className="flex items-center gap-3">
+                                    <Phone className="w-5 h-5 text-gray-500" />
+                                    <span>+49 (0) XXX XXXXXXX</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <Mail className="w-5 h-5 text-gray-500" />
+                                    <a href="mailto:kontakt@voyanero.com" className="text-voyanero-400 hover:text-voyanero-300 transition">
+                                        kontakt@voyanero.com
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Legal */}
+                        <div className="border-t border-white/10 pt-8">
+                            <h3 className="text-xl font-bold text-white mb-4">Rechtliche Angaben</h3>
+                            <div className="space-y-2 text-gray-300">
+                                <p><strong className="text-white">Umsatzsteuer-ID:</strong> DE XXXXXXXXX</p>
+                                <p><strong className="text-white">Registergericht:</strong> Amtsgericht Dortmund</p>
+                                <p><strong className="text-white">Registernummer:</strong> HRB XXXXX</p>
+                            </div>
+                        </div>
+
+                        {/* Disclaimer */}
+                        <div className="border-t border-white/10 pt-8">
+                            <h3 className="text-xl font-bold text-white mb-4">Haftungsausschluss</h3>
+                            <div className="space-y-4 text-gray-300 text-sm">
+                                <div>
+                                    <h4 className="font-semibold text-white mb-2">Haftung für Inhalte</h4>
+                                    <p>
+                                        Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-white mb-2">Haftung für Links</h4>
+                                    <p>
+                                        Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </header>
-
-            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-8 prose dark:prose-invert max-w-none">
-                    <h2>Angaben gemäß § 5 TMG</h2>
-                    <p>
-                        <strong>Voyanero GmbH (i.G.)</strong><br />
-                        Musterstraße 123<br />
-                        12345 Musterstadt<br />
-                        Deutschland
-                    </p>
-
-                    <h3>Vertreten durch:</h3>
-                    <p>Max Mustermann</p>
-
-                    <h3>Kontakt:</h3>
-                    <p>
-                        Telefon: +49 (0) 123 456789<br />
-                        E-Mail: support@voyanero.com
-                    </p>
-
-                    <h3>Registereintrag:</h3>
-                    <p>
-                        Eintragung im Handelsregister.<br />
-                        Registergericht: Amtsgericht Musterstadt<br />
-                        Registernummer: HRB 12345
-                    </p>
-
-                    <h3>Umsatzsteuer:</h3>
-                    <p>
-                        Umsatzsteuer-Identifikationsnummer gemäß §27 a Umsatzsteuergesetz:<br />
-                        DE 123 456 789
-                    </p>
-
-                    <h3>Streitschlichtung</h3>
-                    <p>
-                        Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
-                        <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr</a>.<br />
-                        Unsere E-Mail-Adresse finden Sie oben im Impressum.
-                    </p>
-
-                    <p>
-                        Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
-                    </p>
-
-                    <h3>Haftung für Inhalte</h3>
-                    <p>
-                        Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
-                        Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen
-                        oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-                    </p>
-                </div>
-            </main>
-        </div>
+            </div>
+        </Layout>
     )
 }
