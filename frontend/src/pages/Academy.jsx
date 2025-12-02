@@ -1,11 +1,45 @@
+import { useState, useEffect } from 'react'
 import { BookOpen, PlayCircle, FileText, Zap, Users } from 'lucide-react'
 import Layout from '../components/Layout'
+import { getCurrentUser } from '../lib/supabase'
 
 export default function Academy({ onNavigate }) {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadUser()
+  }, [])
+
+  const loadUser = async () => {
+    try {
+      const { user: currentUser } = await getCurrentUser()
+      if (!currentUser) {
+        onNavigate('login')
+        return
+      }
+      setUser(currentUser)
+    } catch (error) {
+      console.error('Error loading user:', error)
+      onNavigate('login')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-voyanero-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-voyanero-500"></div>
+      </div>
+    )
+  }
+
   return (
     <Layout
       onNavigate={onNavigate}
       currentPage="academy"
+      user={user}
       title="Voyanero Academy"
       subtitle="Lernen Sie alles über erfolgreiche Lead-Generierung"
     >
