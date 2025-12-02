@@ -265,7 +265,6 @@ function Login() {
             <a href="/impressum" className="hover:text-white transition underline">Impressum</a>
             <a href="/agb" className="hover:text-white transition underline">AGB</a>
             <a href="/datenschutz" className="hover:text-white transition underline">Datenschutz</a>
-            <a href="/av-vertrag" className="hover:text-white transition underline">AV-Vertrag</a>
           </div>
         </div>
       </div>
