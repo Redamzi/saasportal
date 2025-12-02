@@ -215,7 +215,7 @@ export default function Dashboard({ onNavigate }) {
             <h3 className="text-xl font-bold text-white">Schnellzugriff</h3>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-40">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <QuickAction
               title="Kampagne"
               subtitle="Neu erstellen"
@@ -260,13 +260,16 @@ export default function Dashboard({ onNavigate }) {
             </div>
 
             <div className="space-y-1">
-              <LiveFeedItem title="Kampagne 'Pizzeria' gestartet" time="2 Min" type="success" />
-              <LiveFeedItem title="500 Credits aufgeladen" time="1 Std" type="info" />
-              <LiveFeedItem title="12 Neue Leads gefunden" time="3 Std" type="info" />
-              <LiveFeedItem title="Export CSV erstellt" time="Gestern" type="warning" />
+              <div onClick={() => toast.success('Kampagne läuft')} className="cursor-pointer"><LiveFeedItem title="Kampagne 'Pizzeria' gestartet" time="2 Min" type="success" /></div>
+              <div onClick={() => toast.success('Transaktion erfolgreich')} className="cursor-pointer"><LiveFeedItem title="500 Credits aufgeladen" time="1 Std" type="info" /></div>
+              <div onClick={() => toast.success('Leads werden verarbeitet')} className="cursor-pointer"><LiveFeedItem title="12 Neue Leads gefunden" time="3 Std" type="info" /></div>
+              <div onClick={() => toast.success('Download gestartet')} className="cursor-pointer"><LiveFeedItem title="Export CSV erstellt" time="Gestern" type="warning" /></div>
             </div>
 
-            <button className="w-full mt-4 py-2 text-sm text-voyanero-400 hover:text-voyanero-300 font-medium transition-colors flex items-center justify-center gap-1 group">
+            <button
+              onClick={() => toast.success('Vollständiger Verlauf wird geladen...')}
+              className="w-full mt-4 py-2 text-sm text-voyanero-400 hover:text-voyanero-300 font-medium transition-colors flex items-center justify-center gap-1 group"
+            >
               Vollständigen Verlauf ansehen
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>

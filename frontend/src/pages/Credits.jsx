@@ -3,6 +3,7 @@ import { Zap, Check, CreditCard, History, ShieldCheck, Download, AlertCircle } f
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
+import { toast } from 'react-hot-toast'
 
 export default function Credits({ onNavigate }) {
   const [user, setUser] = useState(null)
@@ -62,7 +63,7 @@ export default function Credits({ onNavigate }) {
     try {
       const { user } = await getCurrentUser()
       if (!user) {
-        alert('❌ Bitte zuerst einloggen')
+        toast.error('Bitte zuerst einloggen')
         return
       }
 
@@ -83,11 +84,34 @@ export default function Credits({ onNavigate }) {
       if (data.url) {
         window.location.href = data.url
       } else {
-        alert('❌ Fehler beim Erstellen der Checkout-Session')
+        toast.error('Fehler beim Erstellen der Checkout-Session')
       }
     } catch (error) {
-      alert('❌ Fehler: ' + error.message)
+      toast.error('Fehler: ' + error.message)
     }
+  }
+
+  const handleDownloadInvoice = (invoice) => {
+    const invoiceContent = `
+RECHNUNG
+--------------------------------
+Rechnungs-Nr: ${invoice.id}
+Datum: ${invoice.date}
+Beschreibung: ${invoice.description}
+Betrag: ${invoice.amount}
+--------------------------------
+Vielen Dank für Ihren Kauf bei Voyanero.
+    `
+    const blob = new Blob([invoiceContent], { type: 'text/plain' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Rechnung_${invoice.id}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    window.URL.revokeObjectURL(url)
+    toast.success('Rechnung heruntergeladen')
   }
 
   if (loading) {
@@ -231,7 +255,10 @@ export default function Credits({ onNavigate }) {
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-white">{invoice.amount}</p>
-                      <button className="text-voyanero-400 hover:text-voyanero-300 text-xs mt-2 flex items-center gap-1">
+                      <button
+                        onClick={() => handleDownloadInvoice(invoice)}
+                        className="text-voyanero-400 hover:text-voyanero-300 text-xs mt-2 flex items-center gap-1"
+                      >
                         <Download className="w-3 h-3" /> PDF
                       </button>
                     </div>

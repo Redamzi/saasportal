@@ -80,7 +80,7 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
 
             {/* Mobile Header */}
             <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-voyanero-900/80 backdrop-blur-md border-b border-white/5 px-4 h-16 flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate('dashboard')}>
                     <div className="w-8 h-8 bg-voyanero-500 rounded-lg flex items-center justify-center font-bold text-white">V</div>
                     <span className="font-bold text-lg text-white">Voyanero</span>
                 </div>
