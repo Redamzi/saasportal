@@ -108,6 +108,8 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname
+      const isLegalPage = ['/impressum', '/agb', '/datenschutz', '/av-vertrag', '/avv'].includes(path)
+
       if (isAuthenticated) {
         if (path === '/dashboard') setCurrentPage('dashboard')
         else if (path === '/campaigns') setCurrentPage('campaigns')
@@ -120,8 +122,18 @@ function App() {
         else if (path === '/datenschutz') setCurrentPage('datenschutz')
         else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         else setCurrentPage('dashboard')
-      } else if (path === '/login' || path === '/') {
-        setCurrentPage('login')
+      } else {
+        // Not authenticated - allow legal pages
+        if (isLegalPage) {
+          if (path === '/impressum') setCurrentPage('impressum')
+          else if (path === '/agb') setCurrentPage('agb')
+          else if (path === '/datenschutz') setCurrentPage('datenschutz')
+          else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
+        } else if (path === '/login' || path === '/') {
+          setCurrentPage('login')
+        } else {
+          setCurrentPage('login')
+        }
       }
     }
 
