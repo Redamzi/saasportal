@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signIn, signUp } from '../lib/supabase'
+import { signIn, signUp, supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import DarkModeToggle from '../components/DarkModeToggle'
 
@@ -8,12 +8,39 @@ function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [resetEmail, setResetEmail] = useState('')
+  const [resetLoading, setResetLoading] = useState(false)
 
   // Form state
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [fullName, setFullName] = useState('')
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault()
+    setResetLoading(true)
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success('Password reset email sent! Please check your inbox.')
+        setShowForgotPassword(false)
+        setResetEmail('')
+      }
+    } catch (err) {
+      toast.error('Failed to send reset email. Please try again.')
+      console.error('Reset password error:', err)
+    } finally {
+      setResetLoading(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -170,6 +197,17 @@ function Login() {
                   Minimum 6 characters
                 </p>
               )}
+              {isLogin && (
+                <div className="mt-2 text-right">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-voyanero-400 hover:text-voyanero-300 transition"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Signup Only Fields */}
@@ -258,13 +296,69 @@ function Login() {
 
         {/* Footer */}
         <div className="mt-8 text-center text-gray-500 text-sm">
-          <p className="mb-2">© 2024 Voyanero. All rights reserved.</p>
-          <div className="flex justify-center gap-4">
-            <a href="/impressum" className="hover:text-white transition underline">Impressum</a>
-            <a href="/agb" className="hover:text-white transition underline">AGB</a>
-            <a href="/datenschutz" className="hover:text-white transition underline">Datenschutz</a>
+          {/* Footer Links */}
+          <div className="mt-8 text-center space-y-2">
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
+              <a href="/impressum" className="hover:text-voyanero-400 transition">
+                Impressum
+              </a>
+              <a href="/agb" className="hover:text-voyanero-400 transition">
+                AGB
+              </a>
+              <a href="/datenschutz" className="hover:text-voyanero-400 transition">
+                Datenschutz
+              </a>
+            </div>
           </div>
         </div>
+
+        {/* Forgot Password Modal */}
+        {showForgotPassword && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div className="bg-[#0B1121]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold text-white mb-2">Reset Password</h3>
+              <p className="text-gray-400 text-sm mb-6">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-voyanero-500 focus:border-transparent transition text-white placeholder-gray-500 outline-none"
+                    placeholder="your@email.com"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword(false)
+                      setResetEmail('')
+                    }}
+                    className="flex-1 px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-medium hover:bg-white/10 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="flex-1 px-4 py-3 bg-voyanero-500 text-white rounded-xl font-bold hover:bg-voyanero-400 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-voyanero-500/20"
+                  >
+                    {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
