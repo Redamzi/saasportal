@@ -93,16 +93,14 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-voyanero-900 flex items-center justify-center px-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-voyanero-900 flex items-center justify-center px-4 py-12 relative overflow-hidden font-sans">
       {/* Background Blobs */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-voyanero-500/10 rounded-full blur-[120px] animate-blob"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
       </div>
 
-      <div className="absolute top-4 right-4 z-50">
-        <DarkModeToggle />
-      </div>
+      {/* Dark Mode Toggle Removed (App is Dark Mode only) */}
 
       <div className="max-w-md w-full relative z-10">
         {/* Logo/Brand */}

@@ -43,7 +43,7 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <DarkModeToggle />
+                        {/* Dark Mode Toggle Removed */}
                         <button
                             onClick={() => onNavigate('login')}
                             className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-voyanero-500/20"
@@ -232,10 +232,7 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                             </button>
 
-                            {/* Dark Mode Toggle */}
-                            <div className="hidden md:block">
-                                <DarkModeToggle />
-                            </div>
+                            {/* Dark Mode Toggle Removed */}
 
                             {/* User Menu */}
                             <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/5 transition">
