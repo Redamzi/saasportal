@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { signIn, signUp, supabase } from '../lib/supabase'
+import { signIn, signUp, resetPasswordRequest } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import DarkModeToggle from '../components/DarkModeToggle'
 
@@ -23,12 +23,10 @@ function Login() {
     setResetLoading(true)
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
+      const { error } = await resetPasswordRequest(resetEmail)
 
       if (error) {
-        toast.error(error.message)
+        toast.error(error.message || 'Failed to send reset email')
       } else {
         toast.success('Password reset email sent! Please check your inbox.')
         setShowForgotPassword(false)
