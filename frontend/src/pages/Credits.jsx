@@ -4,6 +4,8 @@ import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
 import { toast } from 'react-hot-toast'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 export default function Credits({ onNavigate }) {
   const [user, setUser] = useState(null)
@@ -92,26 +94,114 @@ export default function Credits({ onNavigate }) {
   }
 
   const handleDownloadInvoice = (invoice) => {
-    const invoiceContent = `
-RECHNUNG
---------------------------------
-Rechnungs-Nr: ${invoice.id}
-Datum: ${invoice.date}
-Beschreibung: ${invoice.description}
-Betrag: ${invoice.amount}
---------------------------------
-Vielen Dank für Ihren Kauf bei Voyanero.
-    `
-    const blob = new Blob([invoiceContent], { type: 'text/plain' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `Rechnung_${invoice.id}.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
-    toast.success('Rechnung heruntergeladen')
+    const doc = new jsPDF()
+
+    // --- Colors ---
+    const voyaneroBlue = '#3B82F6'
+    const darkBg = '#0B1121'
+    const textGray = '#6B7280'
+
+    // --- Header Background ---
+    doc.setFillColor(darkBg)
+    doc.rect(0, 0, 210, 40, 'F')
+
+    // --- Logo (Simulated with Text/Shapes) ---
+    doc.setFillColor(voyaneroBlue)
+    doc.roundedRect(15, 10, 12, 12, 3, 3, 'F')
+    doc.setTextColor('#FFFFFF')
+    doc.setFontSize(16)
+    doc.setFont('helvetica', 'bold')
+    doc.text('V', 18, 18)
+
+    doc.setFontSize(22)
+    doc.text('Voyanero', 32, 19)
+
+    doc.setFontSize(10)
+    doc.setTextColor('#9CA3AF')
+    doc.text('SaaS Portal Solutions', 32, 25)
+
+    // --- Invoice Title ---
+    doc.setFontSize(30)
+    doc.setTextColor(voyaneroBlue)
+    doc.text('RECHNUNG', 140, 25)
+
+    // --- Invoice Details (Top Right) ---
+    doc.setFontSize(10)
+    doc.setTextColor(textGray)
+    doc.text(`Rechnungs-Nr:`, 140, 35)
+    doc.text(`Datum:`, 140, 40)
+
+    doc.setTextColor('#000000')
+    doc.text(invoice.id, 175, 35)
+    doc.text(invoice.date, 175, 40)
+
+    // --- Bill To / From ---
+    doc.setFontSize(10)
+    doc.setTextColor(textGray)
+    doc.text('Rechnungssteller:', 15, 60)
+    doc.text('Rechnungsempfänger:', 110, 60)
+
+    doc.setTextColor('#000000')
+    doc.setFont('helvetica', 'bold')
+    doc.text('Voyanero Inc.', 15, 65)
+    doc.text(user?.user_metadata?.full_name || 'Kunde', 110, 65)
+
+    doc.setFont('helvetica', 'normal')
+    doc.text('Musterstraße 123', 15, 70)
+    doc.text('10115 Berlin', 15, 75)
+    doc.text('Deutschland', 15, 80)
+    doc.text('support@voyanero.com', 15, 85)
+
+    doc.text(user?.email || '', 110, 70)
+
+    // --- Table ---
+    autoTable(doc, {
+      startY: 100,
+      head: [['Beschreibung', 'Menge', 'Einzelpreis', 'Gesamt']],
+      body: [
+        [invoice.description, '1', invoice.amount, invoice.amount],
+      ],
+      headStyles: { fillColor: voyaneroBlue, textColor: '#FFFFFF', fontStyle: 'bold' },
+      bodyStyles: { textColor: '#000000' },
+      alternateRowStyles: { fillColor: '#F3F4F6' },
+      margin: { top: 100 },
+    })
+
+    // --- Totals ---
+    const finalY = doc.lastAutoTable.finalY + 10
+    doc.setFontSize(10)
+    doc.setTextColor(textGray)
+    doc.text('Zwischensumme:', 140, finalY)
+    doc.text('MwSt. (19%):', 140, finalY + 5)
+
+    doc.setFontSize(12)
+    doc.setTextColor(voyaneroBlue)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Gesamtsumme:', 140, finalY + 12)
+
+    doc.setFontSize(10)
+    doc.setTextColor('#000000')
+    doc.setFont('helvetica', 'normal')
+
+    // Simple calculation for display purposes (assuming amount includes tax or is net)
+    // For this mock, we just display the amount again as total
+    doc.text(invoice.amount, 175, finalY)
+    doc.text('inkl.', 175, finalY + 5)
+
+    doc.setFontSize(12)
+    doc.setTextColor(voyaneroBlue)
+    doc.setFont('helvetica', 'bold')
+    doc.text(invoice.amount, 175, finalY + 12)
+
+    // --- Footer ---
+    doc.setFontSize(9)
+    doc.setTextColor(textGray)
+    doc.text('Vielen Dank für Ihren Kauf bei Voyanero.', 105, 280, { align: 'center' })
+    doc.text('Diese Rechnung wurde maschinell erstellt und ist ohne Unterschrift gültig.', 105, 285, { align: 'center' })
+
+    // Save
+    doc.save(`Rechnung_${invoice.id}.pdf`)
+    toast.success('Rechnung als PDF heruntergeladen')
   }
 
   if (loading) {
