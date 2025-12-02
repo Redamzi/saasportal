@@ -23,9 +23,10 @@ function App() {
     try {
       const { user, profile } = await getCurrentUser()
 
-      // Check if current path is a legal page (accessible without auth)
+      // Check if current path is a PUBLIC legal page (accessible without auth)
+      // AV-Vertrag is NOT public anymore
       const path = window.location.pathname
-      const isLegalPage = ['/impressum', '/agb', '/datenschutz', '/av-vertrag', '/avv'].includes(path)
+      const isPublicLegalPage = ['/impressum', '/agb', '/datenschutz'].includes(path)
 
       if (user) {
         setIsAuthenticated(true)
@@ -34,7 +35,7 @@ function App() {
         // Only enforce if we have profile data and it's not signed
         const isAvvSigned = profile?.is_avv_signed
 
-        if (!isAvvSigned && path !== '/avv' && path !== '/av-vertrag' && path !== '/login' && path !== '/' && !isLegalPage) {
+        if (!isAvvSigned && path !== '/avv' && path !== '/av-vertrag' && path !== '/login' && path !== '/' && !isPublicLegalPage) {
           // Redirect to AVV page if not signed and trying to access protected route
           window.location.href = '/avv'
           return
@@ -55,12 +56,11 @@ function App() {
         // User not authenticated
         setIsAuthenticated(false)
 
-        // Allow access to legal pages without authentication
-        if (isLegalPage) {
+        // Allow access to PUBLIC legal pages without authentication
+        if (isPublicLegalPage) {
           if (path === '/impressum') setCurrentPage('impressum')
           else if (path === '/agb') setCurrentPage('agb')
           else if (path === '/datenschutz') setCurrentPage('datenschutz')
-          else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         } else {
           setCurrentPage('login')
         }
@@ -69,15 +69,14 @@ function App() {
       console.error('Auth check error:', error)
       setIsAuthenticated(false)
 
-      // Still allow legal pages on error
+      // Still allow PUBLIC legal pages on error
       const path = window.location.pathname
-      const isLegalPage = ['/impressum', '/agb', '/datenschutz', '/av-vertrag', '/avv'].includes(path)
+      const isPublicLegalPage = ['/impressum', '/agb', '/datenschutz'].includes(path)
 
-      if (isLegalPage) {
+      if (isPublicLegalPage) {
         if (path === '/impressum') setCurrentPage('impressum')
         else if (path === '/agb') setCurrentPage('agb')
         else if (path === '/datenschutz') setCurrentPage('datenschutz')
-        else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
       } else {
         setCurrentPage('login')
       }
@@ -110,7 +109,7 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname
-      const isLegalPage = ['/impressum', '/agb', '/datenschutz', '/av-vertrag', '/avv'].includes(path)
+      const isPublicLegalPage = ['/impressum', '/agb', '/datenschutz'].includes(path)
 
       if (isAuthenticated) {
         if (path === '/dashboard') setCurrentPage('dashboard')
@@ -125,12 +124,11 @@ function App() {
         else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         else setCurrentPage('dashboard')
       } else {
-        // Not authenticated - allow legal pages
-        if (isLegalPage) {
+        // Not authenticated - allow ONLY PUBLIC legal pages
+        if (isPublicLegalPage) {
           if (path === '/impressum') setCurrentPage('impressum')
           else if (path === '/agb') setCurrentPage('agb')
           else if (path === '/datenschutz') setCurrentPage('datenschutz')
-          else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         } else if (path === '/login' || path === '/') {
           setCurrentPage('login')
         } else {
@@ -232,7 +230,7 @@ function App() {
     )
   }
 
-  // Legal Pages (accessible without authentication)
+  // Public Legal Pages (accessible without authentication)
   if (currentPage === 'impressum') {
     const Impressum = React.lazy(() => import('./pages/legal/Impressum'))
     return (
@@ -269,7 +267,8 @@ function App() {
     )
   }
 
-  if (currentPage === 'av-vertrag') {
+  // AV-Vertrag (Protected - requires authentication)
+  if (currentPage === 'av-vertrag' && isAuthenticated) {
     const AVVertrag = React.lazy(() => import('./pages/legal/AVVertrag'))
     return (
       <>
