@@ -23,15 +23,18 @@ function App() {
     try {
       const { user, profile } = await getCurrentUser()
 
+      // Check if current path is a legal page (accessible without auth)
+      const path = window.location.pathname
+      const isLegalPage = ['/impressum', '/agb', '/datenschutz', '/av-vertrag', '/avv'].includes(path)
+
       if (user) {
         setIsAuthenticated(true)
 
         // Gatekeeper: Check AVV Signature
         // Only enforce if we have profile data and it's not signed
         const isAvvSigned = profile?.is_avv_signed
-        const path = window.location.pathname
 
-        if (!isAvvSigned && path !== '/avv' && path !== '/login' && path !== '/') {
+        if (!isAvvSigned && path !== '/avv' && path !== '/av-vertrag' && path !== '/login' && path !== '/' && !isLegalPage) {
           // Redirect to AVV page if not signed and trying to access protected route
           window.location.href = '/avv'
           return
@@ -49,13 +52,35 @@ function App() {
         else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
         else setCurrentPage('dashboard')
       } else {
+        // User not authenticated
         setIsAuthenticated(false)
-        setCurrentPage('login')
+
+        // Allow access to legal pages without authentication
+        if (isLegalPage) {
+          if (path === '/impressum') setCurrentPage('impressum')
+          else if (path === '/agb') setCurrentPage('agb')
+          else if (path === '/datenschutz') setCurrentPage('datenschutz')
+          else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
+        } else {
+          setCurrentPage('login')
+        }
       }
     } catch (error) {
       console.error('Auth check error:', error)
       setIsAuthenticated(false)
-      setCurrentPage('login')
+
+      // Still allow legal pages on error
+      const path = window.location.pathname
+      const isLegalPage = ['/impressum', '/agb', '/datenschutz', '/av-vertrag', '/avv'].includes(path)
+
+      if (isLegalPage) {
+        if (path === '/impressum') setCurrentPage('impressum')
+        else if (path === '/agb') setCurrentPage('agb')
+        else if (path === '/datenschutz') setCurrentPage('datenschutz')
+        else if (path === '/av-vertrag' || path === '/avv') setCurrentPage('av-vertrag')
+      } else {
+        setCurrentPage('login')
+      }
     }
   }
 
@@ -193,40 +218,52 @@ function App() {
     )
   }
 
-  // Legal Pages
+  // Legal Pages (accessible without authentication)
   if (currentPage === 'impressum') {
     const Impressum = React.lazy(() => import('./pages/legal/Impressum'))
     return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <Impressum onNavigate={handleNavigate} />
-      </React.Suspense>
+      <>
+        <Toaster position="top-right" />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <Impressum onNavigate={handleNavigate} />
+        </React.Suspense>
+      </>
     )
   }
 
   if (currentPage === 'agb') {
     const AGB = React.lazy(() => import('./pages/legal/AGB'))
     return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <AGB onNavigate={handleNavigate} />
-      </React.Suspense>
+      <>
+        <Toaster position="top-right" />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <AGB onNavigate={handleNavigate} />
+        </React.Suspense>
+      </>
     )
   }
 
   if (currentPage === 'datenschutz') {
     const Datenschutz = React.lazy(() => import('./pages/legal/Datenschutz'))
     return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <Datenschutz onNavigate={handleNavigate} />
-      </React.Suspense>
+      <>
+        <Toaster position="top-right" />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <Datenschutz onNavigate={handleNavigate} />
+        </React.Suspense>
+      </>
     )
   }
 
   if (currentPage === 'av-vertrag') {
     const AVVertrag = React.lazy(() => import('./pages/legal/AVVertrag'))
     return (
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <AVVertrag onNavigate={handleNavigate} />
-      </React.Suspense>
+      <>
+        <Toaster position="top-right" />
+        <React.Suspense fallback={<div>Loading...</div>}>
+          <AVVertrag onNavigate={handleNavigate} />
+        </React.Suspense>
+      </>
     )
   }
 
