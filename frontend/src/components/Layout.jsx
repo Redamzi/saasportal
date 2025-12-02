@@ -22,6 +22,54 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
         { id: 'settings', label: 'Einstellungen', icon: SettingsIcon },
     ]
 
+    // Public Mode (No User)
+    if (!user) {
+        return (
+            <div className="min-h-screen bg-voyanero-900 text-white relative overflow-hidden font-sans selection:bg-voyanero-500/30">
+                {/* Background Blobs */}
+                <div className="fixed inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-voyanero-500/10 rounded-full blur-[120px] animate-blob"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] animate-blob animation-delay-2000"></div>
+                </div>
+
+                {/* Public Header */}
+                <header className="fixed top-0 left-0 right-0 z-50 bg-voyanero-900/80 backdrop-blur-md border-b border-white/5 px-4 md:px-8 h-20 flex items-center justify-between">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('login')}>
+                        <div className="w-10 h-10 bg-gradient-to-br from-voyanero-500 to-blue-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-voyanero-500/20">
+                            V
+                        </div>
+                        <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+                            Voyanero
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <DarkModeToggle />
+                        <button
+                            onClick={() => onNavigate('login')}
+                            className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-medium transition-all shadow-lg shadow-voyanero-500/20"
+                        >
+                            Anmelden
+                        </button>
+                    </div>
+                </header>
+
+                {/* Main Content - Centered */}
+                <div className="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto relative z-10 min-h-screen flex flex-col">
+                    <main className="flex-1">
+                        {(title || subtitle) && (
+                            <div className="mb-8 text-center">
+                                {title && <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">{title}</h1>}
+                                {subtitle && <p className="text-gray-400 text-lg max-w-2xl mx-auto">{subtitle}</p>}
+                            </div>
+                        )}
+                        {children}
+                    </main>
+                    <Footer />
+                </div>
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-voyanero-900 text-white relative overflow-hidden font-sans selection:bg-voyanero-500/30">
             {/* Background Blobs */}
