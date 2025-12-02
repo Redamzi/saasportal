@@ -86,6 +86,8 @@ function App() {
 
   // Simple client-side routing based on currentPage state
   useEffect(() => {
+    if (currentPage === 'loading') return
+
     // Update URL without reload
     let path = '/login'
     if (currentPage === 'dashboard') path = '/dashboard'
