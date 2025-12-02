@@ -84,9 +84,24 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                     <div className="w-8 h-8 bg-voyanero-500 rounded-lg flex items-center justify-center font-bold text-white">V</div>
                     <span className="font-bold text-lg text-white">Voyanero</span>
                 </div>
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-gray-400">
-                    {isMobileMenuOpen ? <X /> : <Menu />}
-                </button>
+                <div className="flex items-center gap-3">
+                    {/* Mobile Credits */}
+                    <button onClick={() => onNavigate('credits')} className="flex items-center gap-1.5 px-2 py-1.5 bg-voyanero-500/10 rounded-lg text-voyanero-400">
+                        <Coins className="w-4 h-4" />
+                        <span className="text-sm font-bold">{user?.credits || 0}</span>
+                    </button>
+
+                    {/* Mobile Notifications */}
+                    <button className="relative p-1.5 text-gray-400">
+                        <Bell className="w-5 h-5" />
+                        <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    </button>
+
+                    {/* Mobile Menu Toggle */}
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-1.5 text-gray-400">
+                        {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Menu Overlay */}
@@ -201,7 +216,7 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                 <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'md:ml-80' : 'md:ml-28'} md:mr-4`}>
 
                     {/* Top Header (Glass) - WITH SEARCH AND CREDITS */}
-                    <header className="h-20 sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between bg-voyanero-900/80 backdrop-blur-md border-b border-white/5">
+                    <header className="hidden md:flex h-20 sticky top-0 z-40 px-4 md:px-8 items-center justify-between bg-voyanero-900/80 backdrop-blur-md border-b border-white/5">
                         {/* Left: Search Bar */}
                         <div className="flex-1 max-w-md hidden md:block">
                             <div className="relative">
