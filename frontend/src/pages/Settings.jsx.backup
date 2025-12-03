@@ -14,7 +14,6 @@ function Settings({ onNavigate }) {
     fullName: '',
     companyName: '',
     subdomain: '',
-    websiteUrl: '',
     // LLM Profile - Company Master Data
     companyDescription: '',
     companyIndustry: '',
@@ -193,41 +192,6 @@ function Settings({ onNavigate }) {
                 {/* LLM Profile - Company Master Data */}
                 <h3 className="text-lg font-bold text-white mb-4">Firmendaten für Email-Generierung</h3>
                 <p className="text-sm text-gray-400 mb-6">Diese Informationen werden von der AI verwendet, um personalisierte Emails zu erstellen.</p>
-
-                {/* Auto-Fill from Website */}
-                <div className="bg-voyanero-500/10 border border-voyanero-500/20 rounded-xl p-4 mb-6">
-                  <h4 className="text-sm font-bold text-voyanero-400 mb-3 flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    Automatisch ausfüllen
-                  </h4>
-                  <p className="text-xs text-gray-400 mb-3">Gib deine Website-URL ein und wir füllen die Felder automatisch aus.</p>
-                  <div className="flex gap-3">
-                    <input
-                      type="url"
-                      name="websiteUrl"
-                      value={formData.websiteUrl}
-                      onChange={handleChange}
-                      className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none"
-                      placeholder="https://deine-website.de"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!formData.websiteUrl) {
-                          alert('Bitte gib eine Website-URL ein')
-                          return
-                        }
-                        alert('🚀 Auto-Fill Feature kommt bald!\n\nWir werden deine Website analysieren und die Felder automatisch ausfüllen.')
-                      }}
-                      disabled={!formData.websiteUrl}
-                      className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                    >
-                      ✨ Ausfüllen
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-500 mb-4 text-center">--- ODER manuell eingeben ---</p>
 
                 {/* Company Description */}
                 <div>
