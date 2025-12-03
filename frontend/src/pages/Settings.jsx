@@ -214,17 +214,63 @@ function Settings({ onNavigate }) {
                     />
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         if (!formData.websiteUrl) {
                           alert('Bitte gib eine Website-URL ein')
                           return
                         }
-                        alert('🚀 Auto-Fill Feature kommt bald!\n\nWir werden deine Website analysieren und die Felder automatisch ausfüllen.')
+
+                        setSaving(true)
+                        setMessage({ type: '', text: '' })
+
+                        try {
+                          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/profile/auto-fill`, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              website_url: formData.websiteUrl
+                            })
+                          })
+
+                          if (!response.ok) {
+                            const error = await response.json()
+                            throw new Error(error.detail || 'Fehler beim Analysieren der Website')
+                          }
+
+                          const data = await response.json()
+
+                          // Auto-fill form fields
+                          setFormData(prev => ({
+                            ...prev,
+                            companyDescription: data.company_description || prev.companyDescription,
+                            companyIndustry: data.company_industry || prev.companyIndustry,
+                            companyServices: data.company_services || prev.companyServices,
+                            companyUsp: data.company_usp || prev.companyUsp,
+                            valueProposition: data.value_proposition || prev.valueProposition,
+                            problemSolution: data.problem_solution || prev.problemSolution,
+                            successMetrics: data.success_metrics || prev.successMetrics,
+                          }))
+
+                          setMessage({
+                            type: 'success',
+                            text: '✅ Felder wurden automatisch ausgefüllt! Bitte überprüfen und anpassen.'
+                          })
+                        } catch (error) {
+                          console.error('Auto-fill error:', error)
+                          setMessage({
+                            type: 'error',
+                            text: error.message || 'Fehler beim Analysieren der Website. Bitte versuchen Sie es erneut.'
+                          })
+                        } finally {
+                          setSaving(false)
+                        }
                       }}
-                      disabled={!formData.websiteUrl}
+                      disabled={!formData.websiteUrl || saving}
                       className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                     >
-                      ✨ Ausfüllen
+                      {saving ? '⏳ Analysiere...' : '✨ Ausfüllen'}
                     </button>
                   </div>
                 </div>
