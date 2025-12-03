@@ -17,7 +17,7 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'campaigns', label: 'Kampagnen', icon: FolderKanban },
         { id: 'contacts', label: 'Kontakte', icon: Users },
-        { id: 'credits', label: 'Credits', icon: CreditCard },
+        { id: 'credits', label: 'Credits & Finanzen', icon: CreditCard },
         { id: 'academy', label: 'Academy', icon: BookOpen },
         { id: 'settings', label: 'Einstellungen', icon: SettingsIcon },
     ]

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import {
   DollarSign, Users, FolderKanban, CreditCard,
-  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Plus, Database, Download, Activity, Zap
+  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Plus, Database, Download, Activity, Zap, Coins
 } from "lucide-react"
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
@@ -20,8 +20,11 @@ const chartData3 = [
   { value: 85 }, { value: 88 }, { value: 82 }, { value: 90 }, { value: 92 }, { value: 88 }, { value: 95 }
 ]
 
-const StatsCard = ({ title, value, subtext, data, color, icon: Icon }) => (
-  <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-3xl p-6 relative overflow-hidden group hover:border-white/10 transition-all duration-300 h-48 flex flex-col justify-between">
+const StatsCard = ({ title, value, subtext, data, color, icon: Icon, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-3xl p-6 relative overflow-hidden group hover:border-white/10 transition-all duration-300 h-48 flex flex-col justify-between ${onClick ? 'cursor-pointer hover:bg-white/5' : ''}`}
+  >
     <div className="relative z-10 flex justify-between items-start">
       <div>
         <h3 className="text-3xl font-bold text-white mb-1 tracking-tight">{value}</h3>
@@ -253,19 +256,21 @@ export default function Dashboard({ onNavigate }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatsCard
           title="Verfügbares Guthaben"
-          value={`${stats.credits.toLocaleString()} €`}
+          value={`${stats.credits}`}
           subtext="Automatische Aufladung deaktiviert"
           data={chartData1}
-          icon={DollarSign}
-          color={{ hex: '#8B5CF6', bg: 'bg-purple-500/10', text: 'text-purple-400' }}
+          color={{ bg: "bg-indigo-500/20", text: "text-indigo-400", hex: "#818cf8" }}
+          icon={Coins}
+          onClick={() => onNavigate('credits')}
         />
         <StatsCard
           title="Generierte Leads (7 Tage)"
           value={stats.totalLeads}
           subtext="+24 Leads seit gestern"
           data={chartData2}
+          color={{ bg: "bg-emerald-500/20", text: "text-emerald-400", hex: "#34d399" }}
           icon={Users}
-          color={{ hex: '#10B981', bg: 'bg-emerald-500/10', text: 'text-emerald-400' }}
+          onClick={() => onNavigate('campaigns')}
         />
         <StatsCard
           title="System Auslastung"
