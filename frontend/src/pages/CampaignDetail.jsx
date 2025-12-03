@@ -5,7 +5,7 @@ import Layout from '../components/Layout'
 import MagicButton from '../components/MagicButton'
 import {
   Trash2, Search, Download, Globe, Mail, Phone, Check, AlertTriangle,
-  Plus, X, ChevronDown, ChevronRight, RefreshCw, Database
+  Plus, X, ChevronDown, ChevronRight, RefreshCw, Database, Settings, Users, TrendingUp
 } from 'lucide-react'
 
 function CampaignDetail({ campaignId, onNavigate }) {
@@ -22,6 +22,20 @@ function CampaignDetail({ campaignId, onNavigate }) {
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState(null)
   const [manualEmail, setManualEmail] = useState('')
+  const [showEmailConfigModal, setShowEmailConfigModal] = useState(false)
+  const [emailConfigData, setEmailConfigData] = useState({
+    targetIndustries: '',
+    targetCompanySize: 'medium',
+    targetPainPoints: '',
+    targetOpportunities: '',
+    acquisitionGoal: 'appointment',
+    acquisitionCta: '',
+    emailTone: 'professional',
+    emailFormality: 'sie',
+    emailLanguage: 'de',
+    emailMaxLength: 200,
+    emailStyleRules: '',
+  })
 
   useEffect(() => {
     loadData()
@@ -280,6 +294,13 @@ function CampaignDetail({ campaignId, onNavigate }) {
           >
             <Download size={18} /> Export CSV
           </button>
+          <MagicButton
+            onClick={() => setShowEmailConfigModal(true)}
+            icon={Settings}
+            className="py-2.5 px-6"
+          >
+            Email-Konfiguration
+          </MagicButton>
         </div>
       </div>
 
@@ -444,6 +465,254 @@ function CampaignDetail({ campaignId, onNavigate }) {
               <MagicButton onClick={handleSaveManualEmail} disabled={!manualEmail} className="py-2 px-6">
                 Save
               </MagicButton>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Configuration Modal */}
+      {showEmailConfigModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#0B1121] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0B1121] z-10">
+              <h2 className="text-xl font-bold text-white">Email-Konfiguration</h2>
+              <button onClick={() => setShowEmailConfigModal(false)} className="text-gray-400 hover:text-white">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-8">
+              {/* Section 1: Zielkunden */}
+              <div>
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-voyanero-500" />
+                  Zielkunden-Profil
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Ziel-Branchen (kommagetrennt)
+                    </label>
+                    <input
+                      type="text"
+                      value={emailConfigData.targetIndustries}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetIndustries: e.target.value })}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      placeholder="z.B. Handwerk, Gastronomie, Einzelhandel"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Unternehmensgröße
+                    </label>
+                    <select
+                      value={emailConfigData.targetCompanySize}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetCompanySize: e.target.value })}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                    >
+                      <option value="small">Klein (1-10 Mitarbeiter)</option>
+                      <option value="medium">Mittel (11-50 Mitarbeiter)</option>
+                      <option value="large">Groß (50+ Mitarbeiter)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Typische Probleme / Pain Points
+                    </label>
+                    <textarea
+                      value={emailConfigData.targetPainPoints}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetPainPoints: e.target.value })}
+                      rows={3}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none"
+                      placeholder="z.B. Keine Zeit für Marketing, veraltete Website, schlechte Google-Sichtbarkeit"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Erkennbare Chancen / Schwachstellen
+                    </label>
+                    <textarea
+                      value={emailConfigData.targetOpportunities}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetOpportunities: e.target.value })}
+                      rows={3}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none"
+                      placeholder="z.B. Veraltete Website, kein Buchungssystem, schlechtes Google-Ranking, keine Social Media Präsenz"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: Akquise-Ziel */}
+              <div className="border-t border-white/10 pt-8">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-voyanero-500" />
+                  Akquise-Ziel
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Hauptziel der Email
+                    </label>
+                    <select
+                      value={emailConfigData.acquisitionGoal}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionGoal: e.target.value })}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                    >
+                      <option value="first_contact">Erstkontakt herstellen</option>
+                      <option value="appointment">Termin vereinbaren</option>
+                      <option value="demo">Demo/Call vorschlagen</option>
+                      <option value="offer">Angebot anbieten</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Call-to-Action
+                    </label>
+                    <input
+                      type="text"
+                      value={emailConfigData.acquisitionCta}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionCta: e.target.value })}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      placeholder="z.B. Vereinbaren Sie einen kostenlosen Beratungstermin"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Tonfall & Stil */}
+              <div className="border-t border-white/10 pt-8">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-voyanero-500" />
+                  Tonfall & Stil
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Tonfall
+                      </label>
+                      <select
+                        value={emailConfigData.emailTone}
+                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailTone: e.target.value })}
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      >
+                        <option value="professional">Professionell</option>
+                        <option value="friendly">Freundlich</option>
+                        <option value="casual">Locker</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Anrede
+                      </label>
+                      <select
+                        value={emailConfigData.emailFormality}
+                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailFormality: e.target.value })}
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      >
+                        <option value="sie">Sie (förmlich)</option>
+                        <option value="du">Du (informell)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Sprache
+                      </label>
+                      <select
+                        value={emailConfigData.emailLanguage}
+                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailLanguage: e.target.value })}
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      >
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Max. Wortanzahl: {emailConfigData.emailMaxLength}
+                      </label>
+                      <input
+                        type="range"
+                        min="100"
+                        max="500"
+                        step="50"
+                        value={emailConfigData.emailMaxLength}
+                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailMaxLength: parseInt(e.target.value) })}
+                        className="w-full accent-voyanero-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Zusätzliche Stilregeln (optional)
+                    </label>
+                    <textarea
+                      value={emailConfigData.emailStyleRules}
+                      onChange={(e) => setEmailConfigData({ ...emailConfigData, emailStyleRules: e.target.value })}
+                      rows={2}
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none"
+                      placeholder="z.B. Keine Floskeln, kurze Sätze, keine Emojis"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  onClick={() => setShowEmailConfigModal(false)}
+                  className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold"
+                >
+                  Abbrechen
+                </button>
+                <MagicButton
+                  onClick={async () => {
+                    try {
+                      const { supabase } = await import('../lib/supabase')
+                      const { error } = await supabase
+                        .from('campaigns')
+                        .update({
+                          target_industries: emailConfigData.targetIndustries.split(',').map(s => s.trim()),
+                          target_company_size: emailConfigData.targetCompanySize,
+                          target_pain_points: emailConfigData.targetPainPoints,
+                          target_opportunities: emailConfigData.targetOpportunities,
+                          acquisition_goal: emailConfigData.acquisitionGoal,
+                          acquisition_cta: emailConfigData.acquisitionCta,
+                          email_tone: emailConfigData.emailTone,
+                          email_formality: emailConfigData.emailFormality,
+                          email_language: emailConfigData.emailLanguage,
+                          email_max_length: emailConfigData.emailMaxLength,
+                          email_style_rules: emailConfigData.emailStyleRules,
+                          email_config_completed: true,
+                        })
+                        .eq('id', campaignId)
+
+                      if (error) throw error
+
+                      alert('✅ Email-Konfiguration gespeichert!')
+                      setShowEmailConfigModal(false)
+                      loadData()
+                    } catch (error) {
+                      console.error('Error saving email config:', error)
+                      alert('❌ Fehler beim Speichern')
+                    }
+                  }}
+                  className="py-2 px-6"
+                >
+                  Speichern
+                </MagicButton>
+              </div>
             </div>
           </div>
         </div>
