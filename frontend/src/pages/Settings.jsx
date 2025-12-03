@@ -14,6 +14,14 @@ function Settings({ onNavigate }) {
     fullName: '',
     companyName: '',
     subdomain: '',
+    // LLM Profile - Company Master Data
+    companyDescription: '',
+    companyIndustry: '',
+    companyServices: '',
+    companyUsp: '',
+    valueProposition: '',
+    problemSolution: '',
+    successMetrics: '',
   })
 
   useEffect(() => {
@@ -34,6 +42,13 @@ function Settings({ onNavigate }) {
         fullName: userProfile?.full_name || '',
         companyName: userProfile?.company_name || '',
         subdomain: userProfile?.subdomain || '',
+        companyDescription: userProfile?.company_description || '',
+        companyIndustry: userProfile?.company_industry || '',
+        companyServices: userProfile?.company_services || '',
+        companyUsp: userProfile?.company_usp || '',
+        valueProposition: userProfile?.value_proposition || '',
+        problemSolution: userProfile?.problem_solution || '',
+        successMetrics: userProfile?.success_metrics || '',
       })
     } catch (error) {
       console.error('Error loading data:', error)
@@ -58,6 +73,13 @@ function Settings({ onNavigate }) {
       const updates = {}
       if (formData.fullName) updates.full_name = formData.fullName
       if (formData.companyName) updates.company_name = formData.companyName
+      if (formData.companyDescription) updates.company_description = formData.companyDescription
+      if (formData.companyIndustry) updates.company_industry = formData.companyIndustry
+      if (formData.companyServices) updates.company_services = formData.companyServices
+      if (formData.companyUsp) updates.company_usp = formData.companyUsp
+      if (formData.valueProposition) updates.value_proposition = formData.valueProposition
+      if (formData.problemSolution) updates.problem_solution = formData.problemSolution
+      if (formData.successMetrics) updates.success_metrics = formData.successMetrics
 
       const { data, error } = await updateUserProfile(user.id, updates)
 
@@ -162,6 +184,118 @@ function Settings({ onNavigate }) {
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-2">E-Mail kann nicht geändert werden</p>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-white/10 my-6"></div>
+
+                {/* LLM Profile - Company Master Data */}
+                <h3 className="text-lg font-bold text-white mb-4">Firmendaten für Email-Generierung</h3>
+                <p className="text-sm text-gray-400 mb-6">Diese Informationen werden von der AI verwendet, um personalisierte Emails zu erstellen.</p>
+
+                {/* Company Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Was macht dein Unternehmen?
+                  </label>
+                  <textarea
+                    name="companyDescription"
+                    value={formData.companyDescription}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition resize-none"
+                    placeholder="z.B. Wir sind eine Full-Service Digitalagentur spezialisiert auf Webentwicklung und SEO..."
+                  />
+                </div>
+
+                {/* Company Industry */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Branche
+                  </label>
+                  <input
+                    type="text"
+                    name="companyIndustry"
+                    value={formData.companyIndustry}
+                    onChange={handleChange}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition"
+                    placeholder="z.B. IT-Dienstleistungen, Marketing, Handwerk"
+                  />
+                </div>
+
+                {/* Company Services */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Deine Dienstleistungen / Produkte
+                  </label>
+                  <textarea
+                    name="companyServices"
+                    value={formData.companyServices}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition resize-none"
+                    placeholder="z.B. Webdesign, SEO-Optimierung, Social Media Marketing, Google Ads..."
+                  />
+                </div>
+
+                {/* Company USP */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Dein Alleinstellungsmerkmal (USP)
+                  </label>
+                  <textarea
+                    name="companyUsp"
+                    value={formData.companyUsp}
+                    onChange={handleChange}
+                    rows={2}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition resize-none"
+                    placeholder="z.B. 15 Jahre Erfahrung, 500+ zufriedene Kunden, garantierte Ergebnisse..."
+                  />
+                </div>
+
+                {/* Value Proposition */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Wertversprechen
+                  </label>
+                  <textarea
+                    name="valueProposition"
+                    value={formData.valueProposition}
+                    onChange={handleChange}
+                    rows={2}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition resize-none"
+                    placeholder="z.B. Wir steigern Ihre Online-Sichtbarkeit und generieren messbare Leads..."
+                  />
+                </div>
+
+                {/* Problem → Solution */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Problem → Lösung
+                  </label>
+                  <textarea
+                    name="problemSolution"
+                    value={formData.problemSolution}
+                    onChange={handleChange}
+                    rows={3}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition resize-none"
+                    placeholder="z.B. Viele Unternehmen haben keine Zeit für Marketing → Wir übernehmen das komplett..."
+                  />
+                </div>
+
+                {/* Success Metrics */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Messbare Erfolge / Zahlen
+                  </label>
+                  <textarea
+                    name="successMetrics"
+                    value={formData.successMetrics}
+                    onChange={handleChange}
+                    rows={2}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 focus:border-transparent outline-none transition resize-none"
+                    placeholder="z.B. 30% mehr Leads, 50% bessere Conversion-Rate, durchschnittlich 10.000€ Umsatzsteigerung..."
+                  />
                 </div>
 
                 {/* Submit Button */}
