@@ -37,25 +37,23 @@ const StatsCard = ({ title, value, subtext, data, color, icon: Icon, onClick }) 
     </div>
 
     {/* Chart Background */}
-    <div className="absolute bottom-0 left-0 right-0 h-24 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none flex items-end">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
-        <AreaChart data={data}>
-          <defs>
-            <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={color.hex} stopOpacity={0.8} />
-              <stop offset="95%" stopColor={color.hex} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <Area
-            type="monotone"
-            dataKey="value"
-            stroke={color.hex}
-            fill={`url(#gradient-${title})`}
-            strokeWidth={2}
-            isAnimationActive={true}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+    <div className="absolute bottom-0 left-0 right-0 h-24 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none flex items-end overflow-hidden">
+      <AreaChart width={500} height={96} data={data}>
+        <defs>
+          <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color.hex} stopOpacity={0.8} />
+            <stop offset="95%" stopColor={color.hex} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke={color.hex}
+          fill={`url(#gradient-${title})`}
+          strokeWidth={2}
+          isAnimationActive={true}
+        />
+      </AreaChart>
     </div>
   </div>
 )
