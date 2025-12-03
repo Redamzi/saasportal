@@ -34,7 +34,7 @@ const StatsCard = ({ title, value, subtext, data, color, icon: Icon }) => (
     </div>
 
     {/* Chart Background */}
-    <div className="absolute bottom-0 left-0 right-0 h-24 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none">
+    <div className="absolute bottom-0 left-0 right-0 h-24 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none flex items-end">
       <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
         <AreaChart data={data}>
           <defs>
@@ -350,7 +350,7 @@ export default function Dashboard({ onNavigate }) {
             </div>
 
             <button
-              onClick={() => toast.success('Vollständiger Verlauf wird geladen...')}
+              onClick={() => onNavigate('history')}
               className="w-full mt-4 py-2 text-sm text-voyanero-400 hover:text-voyanero-300 font-medium transition-colors flex items-center justify-center gap-1 group"
             >
               Vollständigen Verlauf ansehen

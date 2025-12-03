@@ -7,6 +7,7 @@ import CampaignDetail from './pages/CampaignDetail'
 import Credits from './pages/Credits'
 import Settings from './pages/Settings'
 import Contacts from './pages/Contacts'
+import HistoryPage from './pages/History'
 import { getCurrentUser } from './lib/supabase'
 import { Toaster } from 'react-hot-toast'
 
@@ -47,6 +48,7 @@ function App() {
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
         else if (path === '/academy') setCurrentPage('academy')
+        else if (path === '/history') setCurrentPage('history')
         else if (path === '/impressum') setCurrentPage('impressum')
         else if (path === '/agb') setCurrentPage('agb')
         else if (path === '/datenschutz') setCurrentPage('datenschutz')
@@ -95,6 +97,7 @@ function App() {
     else if (currentPage === 'credits') path = '/credits'
     else if (currentPage === 'settings') path = '/settings'
     else if (currentPage === 'academy') path = '/academy'
+    else if (currentPage === 'history') path = '/history'
     else if (currentPage === 'impressum') path = '/impressum'
     else if (currentPage === 'agb') path = '/agb'
     else if (currentPage === 'datenschutz') path = '/datenschutz'
@@ -118,6 +121,7 @@ function App() {
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
         else if (path === '/academy') setCurrentPage('academy')
+        else if (path === '/history') setCurrentPage('history')
         else if (path === '/impressum') setCurrentPage('impressum')
         else if (path === '/agb') setCurrentPage('agb')
         else if (path === '/datenschutz') setCurrentPage('datenschutz')
@@ -226,6 +230,15 @@ function App() {
       <>
         <Toaster position="top-right" />
         <CampaignDetail onNavigate={handleNavigate} campaignId={pageData?.campaignId} />
+      </>
+    )
+  }
+
+  if (currentPage === 'history' && isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" />
+        <HistoryPage onNavigate={handleNavigate} />
       </>
     )
   }
