@@ -12,10 +12,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Chromium and Chromedriver (more stable for Docker)
+# Using --no-install-recommends to avoid 300+ unnecessary GUI packages
 RUN apt-get update && apt-get install -y \
     chromium \
     chromium-driver \
-    chromium-common \
+    --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables for Chrome
