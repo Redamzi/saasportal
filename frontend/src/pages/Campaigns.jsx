@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Eye, Search, Trash2, FolderKanban, Plus, X } from 'lucide-react'
 import { getCurrentUser } from '../lib/supabase'
 import Layout from '../components/Layout'
+import MagicButton from '../components/MagicButton'
 
 function Campaigns({ onNavigate }) {
   const [user, setUser] = useState(null)
@@ -214,13 +215,13 @@ function Campaigns({ onNavigate }) {
       title="Meine Kampagnen"
       subtitle="Erstellen und verwalten Sie Ihre Lead-Generierungs-Kampagnen"
       actions={
-        <button
+        <MagicButton
           onClick={handleOpenCreateModal}
-          className="bg-voyanero-500 hover:bg-voyanero-400 text-white font-bold py-2 px-4 rounded-xl shadow-lg shadow-voyanero-500/20 transition-all hover:-translate-y-0.5 flex items-center gap-2"
+          icon={Plus}
+          className="py-2 px-4"
         >
-          <Plus size={18} />
           Neue Kampagne
-        </button>
+        </MagicButton>
       }
     >
       {campaigns.length === 0 ? (
@@ -247,9 +248,9 @@ function Campaigns({ onNavigate }) {
               <div className="p-6 border-b border-white/5">
                 <div className="flex justify-between items-start mb-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${campaign.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                      campaign.status === 'crawling' ? 'bg-voyanero-500/10 text-voyanero-400 border-voyanero-500/20' :
-                        campaign.status === 'failed' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                          'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                    campaign.status === 'crawling' ? 'bg-voyanero-500/10 text-voyanero-400 border-voyanero-500/20' :
+                      campaign.status === 'failed' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                        'bg-gray-500/10 text-gray-400 border-gray-500/20'
                     }`}>
                     {campaign.status}
                   </span>
@@ -333,8 +334,10 @@ function Campaigns({ onNavigate }) {
                 />
               </div>
               <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={handleCloseCreateModal} className="px-4 py-2 text-gray-400 hover:text-white">Abbrechen</button>
-                <button type="submit" className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold">Erstellen</button>
+                <button type="button" onClick={handleCloseCreateModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Abbrechen</button>
+                <MagicButton type="submit" className="py-2 px-6">
+                  Erstellen
+                </MagicButton>
               </div>
             </form>
           </div>
@@ -395,8 +398,10 @@ function Campaigns({ onNavigate }) {
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={handleCloseSearchModal} className="px-4 py-2 text-gray-400 hover:text-white">Abbrechen</button>
-                <button type="submit" className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold">Suche starten</button>
+                <button type="button" onClick={handleCloseSearchModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Abbrechen</button>
+                <MagicButton type="submit" icon={Search} className="py-2 px-6">
+                  Suche starten
+                </MagicButton>
               </div>
             </form>
           </div>

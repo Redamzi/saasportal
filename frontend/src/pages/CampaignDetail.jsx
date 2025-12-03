@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
 import Layout from '../components/Layout'
+import MagicButton from '../components/MagicButton'
 import {
   Trash2, Search, Download, Globe, Mail, Phone, Check, AlertTriangle,
   Plus, X, ChevronDown, ChevronRight, RefreshCw, Database
@@ -234,8 +235,8 @@ function CampaignDetail({ campaignId, onNavigate }) {
             <p className="text-gray-400">{campaign.description || 'No description'}</p>
           </div>
           <span className={`px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider border ${campaign.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-              campaign.status === 'crawling' ? 'bg-voyanero-500/10 text-voyanero-400 border-voyanero-500/20' :
-                'bg-gray-500/10 text-gray-400 border-gray-500/20'
+            campaign.status === 'crawling' ? 'bg-voyanero-500/10 text-voyanero-400 border-voyanero-500/20' :
+              'bg-gray-500/10 text-gray-400 border-gray-500/20'
             }`}>
             {campaign.status}
           </span>
@@ -349,9 +350,9 @@ function CampaignDetail({ campaignId, onNavigate }) {
                       </div>
                       <div className="flex justify-end gap-3 items-center">
                         <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider border ${lead.status === 'contacted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                            lead.status === 'converted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                              lead.status === 'invalid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                          lead.status === 'converted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                            lead.status === 'invalid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                              'bg-gray-500/10 text-gray-400 border-gray-500/20'
                           }`}>
                           {lead.status || 'new'}
                         </span>
@@ -423,8 +424,10 @@ function CampaignDetail({ campaignId, onNavigate }) {
                 <p className="text-voyanero-400 font-bold">Cost: {parseInt(searchFormData.targetLeadCount) || 10} Credits</p>
               </div>
               <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={handleCloseSearchModal} className="px-4 py-2 text-gray-400 hover:text-white">Cancel</button>
-                <button type="submit" className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold">Start Search</button>
+                <button type="button" onClick={handleCloseSearchModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Cancel</button>
+                <MagicButton type="submit" icon={Search} className="py-2 px-6">
+                  Start Search
+                </MagicButton>
               </div>
             </form>
           </div>
@@ -437,8 +440,10 @@ function CampaignDetail({ campaignId, onNavigate }) {
             <h3 className="text-xl font-bold text-white mb-4">Add Manual Email</h3>
             <input type="email" value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} placeholder="name@company.com" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none mb-4" autoFocus />
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowEmailModal(false)} className="px-4 py-2 text-gray-400 hover:text-white">Cancel</button>
-              <button onClick={handleSaveManualEmail} disabled={!manualEmail} className="px-6 py-2 bg-voyanero-500 hover:bg-voyanero-400 text-white rounded-xl font-bold disabled:opacity-50">Save</button>
+              <button onClick={() => setShowEmailModal(false)} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Cancel</button>
+              <MagicButton onClick={handleSaveManualEmail} disabled={!manualEmail} className="py-2 px-6">
+                Save
+              </MagicButton>
             </div>
           </div>
         </div>
