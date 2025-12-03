@@ -43,6 +43,7 @@ function Settings({ onNavigate }) {
         fullName: userProfile?.full_name || '',
         companyName: userProfile?.company_name || '',
         subdomain: userProfile?.subdomain || '',
+        websiteUrl: userProfile?.company_website || '',
         companyDescription: userProfile?.company_description || '',
         companyIndustry: userProfile?.company_industry || '',
         companyServices: userProfile?.company_services || '',
@@ -74,6 +75,7 @@ function Settings({ onNavigate }) {
       const updates = {}
       if (formData.fullName) updates.full_name = formData.fullName
       if (formData.companyName) updates.company_name = formData.companyName
+      if (formData.websiteUrl) updates.company_website = formData.websiteUrl
       if (formData.companyDescription) updates.company_description = formData.companyDescription
       if (formData.companyIndustry) updates.company_industry = formData.companyIndustry
       if (formData.companyServices) updates.company_services = formData.companyServices

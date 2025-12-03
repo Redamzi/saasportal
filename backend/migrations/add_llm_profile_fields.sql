@@ -5,6 +5,7 @@
 ALTER TABLE profiles 
 
 -- 1. Company/User Information
+ADD COLUMN IF NOT EXISTS company_website TEXT,
 ADD COLUMN IF NOT EXISTS company_description TEXT,
 ADD COLUMN IF NOT EXISTS company_industry TEXT,
 ADD COLUMN IF NOT EXISTS company_services TEXT,
