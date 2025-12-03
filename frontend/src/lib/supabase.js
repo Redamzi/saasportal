@@ -125,12 +125,24 @@ export const signOut = async () => {
  */
 export const getCurrentUser = async () => {
   try {
+    // First check if there's an active session
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession()
+
+    // If no session or session error, return null (not an error state)
+    if (sessionError || !session) {
+      return { user: null, profile: null, error: null }
+    }
+
+    // Now get the user
     const {
       data: { user },
-      error,
+      error: userError,
     } = await supabase.auth.getUser()
 
-    if (error) throw error
+    if (userError) throw userError
 
     if (!user) {
       return { user: null, profile: null, error: null }

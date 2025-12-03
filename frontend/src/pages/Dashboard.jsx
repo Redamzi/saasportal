@@ -34,7 +34,7 @@ const StatsCard = ({ title, value, subtext, data, color, icon: Icon }) => (
 
     {/* Chart Background */}
     <div className="absolute bottom-0 left-0 right-0 h-24 opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <AreaChart data={data}>
           <defs>
             <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
@@ -92,6 +92,7 @@ export default function Dashboard({ onNavigate }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [stats, setStats] = useState({ credits: 0, totalLeads: 0, totalCampaigns: 0 })
+  const [recentActivity, setRecentActivity] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -132,10 +133,80 @@ export default function Dashboard({ onNavigate }) {
         totalLeads: leadsCount || 0,
         totalCampaigns: campaignsCount || 0
       })
+
+      // Fetch recent activity (leads and campaigns)
+      const { data: recentLeads } = await supabase
+        .from('leads')
+        .select('company_name, created_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      const { data: recentCampaigns } = await supabase
+        .from('campaigns')
+        .select('name, created_at, status')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      // Combine and sort activities
+      const activities = [
+        ...(recentLeads?.map(l => ({
+          type: 'lead',
+          title: `Neuer Lead: ${l.company_name}`,
+          time: new Date(l.created_at),
+          status: 'info'
+        })) || []),
+        ...(recentCampaigns?.map(c => ({
+          type: 'campaign',
+          title: `Kampagne "${c.name}" ${c.status === 'completed' ? 'abgeschlossen' : 'gestartet'}`,
+          time: new Date(c.created_at),
+          status: c.status === 'completed' ? 'success' : 'warning'
+        })) || [])
+      ].sort((a, b) => b.time - a.time).slice(0, 5)
+
+      setRecentActivity(activities)
     } catch (error) {
       console.error('Error:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExport = async () => {
+    try {
+      const { data: leads, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', user.id)
+
+      if (error) throw error
+
+      if (!leads || leads.length === 0) {
+        alert('Keine Leads zum Exportieren gefunden.')
+        return
+      }
+
+      // Convert to CSV
+      const headers = Object.keys(leads[0]).join(',')
+      const csv = [
+        headers,
+        ...leads.map(row => Object.values(row).map(val => `"${val}"`).join(','))
+      ].join('\n')
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `leads_export_${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('Fehler beim Exportieren der Daten.')
     }
   }
 
@@ -232,7 +303,7 @@ export default function Dashboard({ onNavigate }) {
             />
             <QuickAction
               title="Datenbank"
-              subtitle="Leads durchsuchen"
+              subtitle="Meine Kontakte"
               icon={Database}
               onClick={() => onNavigate('contacts')}
               color="bg-emerald-500/20"
@@ -241,7 +312,7 @@ export default function Dashboard({ onNavigate }) {
               title="Export"
               subtitle="CSV herunterladen"
               icon={Download}
-              onClick={() => { }}
+              onClick={handleExport}
               color="bg-amber-500/20"
             />
           </div>
@@ -260,10 +331,21 @@ export default function Dashboard({ onNavigate }) {
             </div>
 
             <div className="space-y-1">
-              <div onClick={() => toast.success('Kampagne läuft')} className="cursor-pointer"><LiveFeedItem title="Kampagne 'Pizzeria' gestartet" time="2 Min" type="success" /></div>
-              <div onClick={() => toast.success('Transaktion erfolgreich')} className="cursor-pointer"><LiveFeedItem title="500 Credits aufgeladen" time="1 Std" type="info" /></div>
-              <div onClick={() => toast.success('Leads werden verarbeitet')} className="cursor-pointer"><LiveFeedItem title="12 Neue Leads gefunden" time="3 Std" type="info" /></div>
-              <div onClick={() => toast.success('Download gestartet')} className="cursor-pointer"><LiveFeedItem title="Export CSV erstellt" time="Gestern" type="warning" /></div>
+              {recentActivity.length > 0 ? (
+                recentActivity.map((activity, index) => (
+                  <div key={index} className="cursor-pointer">
+                    <LiveFeedItem
+                      title={activity.title}
+                      time={activity.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      type={activity.status}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-gray-500 text-sm">
+                  Keine aktuellen Aktivitäten
+                </div>
+              )}
             </div>
 
             <button

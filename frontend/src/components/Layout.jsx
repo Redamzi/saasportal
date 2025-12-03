@@ -139,7 +139,7 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                 >
                     {/* Logo Area */}
                     <div className="h-20 flex items-center justify-center border-b border-white/5 relative">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
                             <div className="w-10 h-10 bg-gradient-to-br from-voyanero-500 to-blue-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-voyanero-500/20">
                                 V
                             </div>
@@ -263,10 +263,17 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
 
                     {/* Scrollable Content */}
                     <main className="flex-1 p-4 md:p-8 overflow-y-auto">
-                        {(title || subtitle) && (
-                            <div className="mb-8">
-                                {title && <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">{title}</h1>}
-                                {subtitle && <p className="text-gray-400 text-lg">{subtitle}</p>}
+                        {(title || subtitle || actions) && (
+                            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                                <div>
+                                    {title && <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">{title}</h1>}
+                                    {subtitle && <p className="text-gray-400 text-lg">{subtitle}</p>}
+                                </div>
+                                {actions && (
+                                    <div className="flex-shrink-0">
+                                        {actions}
+                                    </div>
+                                )}
                             </div>
                         )}
                         {children}
