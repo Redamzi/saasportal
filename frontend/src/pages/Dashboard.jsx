@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import {
   DollarSign, Users, FolderKanban, CreditCard,
   UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Plus, Database, Download, Activity, Zap
