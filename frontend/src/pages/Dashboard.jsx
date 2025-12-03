@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import {
   DollarSign, Users, FolderKanban, CreditCard,
-  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Plus, Database, Download, Activity, Zap, Coins
+  UserPlus, Settings, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Plus, Database, Download, Activity, Zap, Coins, Sparkles
 } from "lucide-react"
 import { getCurrentUser } from '../lib/supabase'
 import { supabase } from '../lib/supabase'
@@ -231,11 +231,11 @@ export default function Dashboard({ onNavigate }) {
       {/* Hero Section */}
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-voyanero-500/10 border border-voyanero-500/20 text-voyanero-500 text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-voyanero-500/10 border border-voyanero-500/20 text-voyanero-500 text-xs font-bold uppercase tracking-wider mb-4 animate-pulse">
             Live System
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-2">
-            Guten Abend, <span className="text-transparent bg-clip-text bg-gradient-to-r from-voyanero-400 to-voyanero-600">{firstName}.</span>
+            Guten Abend, <span className="text-transparent bg-clip-text bg-gradient-to-r from-voyanero-400 to-blue-400">{firstName}.</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-xl">
             Deine Lead-Maschine läuft auf Hochtouren. Hier ist dein aktueller Statusbericht.
@@ -243,10 +243,17 @@ export default function Dashboard({ onNavigate }) {
         </div>
         <button
           onClick={() => onNavigate('campaigns')}
-          className="bg-voyanero-500 hover:bg-voyanero-400 text-white font-bold py-3 px-6 rounded-xl shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.7)] transition-all hover:-translate-y-0.5 flex items-center gap-2"
+          className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-voyanero-500/50 rounded-2xl backdrop-blur-sm shadow-xl hover:shadow-voyanero-500/20 overflow-hidden hover:scale-105 hover:-translate-y-1"
         >
-          <Plus size={20} />
-          Kampagne starten
+          {/* Gradient Sweep Effect */}
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-voyanero-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+          {/* Button Content */}
+          <span className="relative flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-yellow-400" />
+            Kampagne starten
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </span>
         </button>
       </div>
 
