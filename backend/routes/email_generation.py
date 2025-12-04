@@ -271,30 +271,56 @@ def build_email_prompt(profile: dict, campaign: dict, lead: dict) -> str:
 
 **Empfänger:**
 - Firma: {lead_company}
-- Kontaktperson: {lead_name if lead_name else "Geschäftsführung"}
-- Branche: {lead_industry if lead_industry else "unbekannt"}
+- Kontaktperson: {lead_name if lead_name else ""}
+- Branche: {lead_industry if lead_industry else ""}
 
-**Email-Ziel:** {email_goal}
-**Call-to-Action:** {cta}
-**Tonfall:** {tone}
-**Anrede:** {salutation}
-**Max. Wortanzahl:** {max_words}
+**Email-Konfiguration:**
+- Ziel: {email_goal}
+- Tonfall: {tone}
+- Anrede: {salutation}
+- Max. Wörter: {max_words}
 
-**Pain Points der Zielgruppe:** {pain_points}
-**Erkennbare Chancen:** {opportunities}
+**KRITISCHE REGELN (STRIKT EINHALTEN):**
 
-**Wichtige Regeln:**
-1. DSGVO-konform (B2B erlaubt)
-2. Personalisiert auf {lead_company} und {lead_industry}
-3. Keine Spam-Wörter ("KOSTENLOS", "SUPER ANGEBOT", etc.)
-4. Professionell und respektvoll
-5. Klarer Call-to-Action
-6. Kein Footer (wird automatisch hinzugefügt)
+1. **KEINE FALSCHEN BEHAUPTUNGEN:**
+   - Erfinde KEINE Informationen über {lead_company}
+   - Behaupte NICHT, dass du ihre Website analysiert hast
+   - Sage NICHT "keine Website" oder "veraltete Website" ohne Beweise
+   - Nutze NUR die gegebenen Informationen
+
+2. **PERSONALISIERUNG:**
+   - Verwende den Namen "{lead_name if lead_name else 'Sehr geehrte Damen und Herren'}"
+   - Erwähne die Branche "{lead_industry}" nur wenn relevant
+   - Erwähne {company_name} maximal 1x im Text
+
+3. **STRUKTUR:**
+   - Kurze, prägnante Sätze
+   - Maximal {max_words} Wörter
+   - Klarer Call-to-Action am Ende
+   - Keine Wiederholungen
+
+4. **TONFALL:**
+   - {tone}
+   - {salutation}
+   - Professionell, aber nicht aufdringlich
+   - Keine Spam-Wörter ("KOSTENLOS", "JETZT", "SUPER ANGEBOT")
+
+5. **INHALT:**
+   - Fokus auf EINEN konkreten Mehrwert
+   - Keine generischen Phrasen
+   - Klare Handlungsaufforderung
+   - DSGVO-konform (B2B erlaubt)
+
+6. **VERBOTEN:**
+   - Erfundene Details über {lead_company}
+   - Mehrfache Nennung von {company_name}
+   - Lange Aufzählungen
+   - Übertriebene Versprechungen
 
 **Antwortformat (NUR JSON):**
 {{
-  "subject": "Betreffzeile (max. 60 Zeichen)",
-  "body": "Email-Text (max. {max_words} Wörter)"
+  "subject": "Betreffzeile (max. 50 Zeichen, personalisiert auf {lead_company})",
+  "body": "Email-Text (max. {max_words} Wörter, direkt und konkret)"
 }}"""
     
     return prompt
