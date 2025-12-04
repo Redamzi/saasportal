@@ -25,46 +25,41 @@ function CampaignDetail({ campaignId, onNavigate }) {
   const [manualEmail, setManualEmail] = useState('')
   const [showEmailConfigModal, setShowEmailConfigModal] = useState(false)
 
-  const DEFAULT_EMAIL_PROMPT = `Schreibe eine personalisierte B2B-Akquise-Email für {company_name}.
+  const DEFAULT_EMAIL_PROMPT = `Schreibe eine personalisierte B2B-Akquise-Email für {company_name}. Der Absender ist {user_name} von {user_company}.
 
-Der Absender ist {user_name} von Westagentur.de.
-
-Du hast folgende Informationen über die Firma:
+Verfügbare Informationen:
 - Firmenname: {company_name}
 - Website: {lead_website}
 - Standort: {lead_location}
-
-Unser Scraper hat zusätzlich folgende Daten von der Website extrahiert:
 - Meta-Description: {meta_description}
 - Meta-Keywords: {meta_keywords}
-- Erkannte Services: {services}
+- Services: {services}
 - Firmenbeschreibung: {about_text}
 
-KRITISCH WICHTIG:
-- Nutze ausschließlich diese gecrawlten echten Informationen für die Email
-- Erfinde NIEMALS zusätzliche Details über Umsätze, Probleme, Mitarbeiterzahl, Statistiken oder Kundenanzahl die nicht in den Daten stehen
-- Wenn die gecrawlten Daten unvollständig sind, halte dich allgemein bei diesem Punkt
-- Verwende niemals Platzhalter wie [Name], [Firma] oder {{variable}} in der Email, sondern immer die echten Namen und Daten von oben
+WICHTIGE FALLBACK-REGEL:
+Wenn die gecrawlten Daten leer, unklar oder unvollständig sind, schreibe eine einfache Vorstellungs-Email. In diesem Fall stelle nur {user_company} vor, erkläre was Westagentur.de anbietet wie Webdesign, Website-Optimierung und Online-Marketing und biete ein Kennenlerngespräch an. Erwähne KEINE spezifischen Probleme oder Details über {company_name} wenn keine klaren Daten vorliegen.
 
-STRUKTUR:
-Die Email beginnt mit "Hallo Team von" gefolgt vom echten Firmennamen.
+ABSOLUT KRITISCH bei ausreichenden Daten:
+Konzentriere dich ausschließlich auf Services die am konkreten Standort {lead_location} verfügbar sind. Erwähne NIEMALS andere Standorte, deutschlandweite Expansionen, Zukunftspläne oder Geschäftsbereiche die nicht direkt in {lead_location} existieren. Wenn die Daten mehrdeutig sind, nutze die Fallback-Regel.
 
-Nach einer Leerzeile stellst du dich kurz vor mit deinem echten Namen und Westagentur.de.
+Erfinde niemals Zahlen, Umsätze, Probleme, Mitarbeiterzahlen oder Statistiken. Verwende niemals Platzhalter wie [Name], [Firma] oder {{variable}} im Output.
 
-Dann sprichst du in maximal zwei Sätzen ein konkretes Problem an das zur Branche und den Services der Firma passt basierend auf den gecrawlten Informationen.
+VERBOTENE PHRASEN:
+"maßgeschneiderte Lösungen", "Experte für", "spezialisiert auf", "führend", "innovative Lösungen", "marktführend", "Branchenexperten", "umfassende Dienstleistungen".
 
-Nach einer Leerzeile nennst du einen messbaren Mehrwert in ein bis zwei Sätzen der spezifisch zur Branche der Firma passt.
+Die Email beginnt mit "Hallo Team von" und dem echten Firmennamen.
 
-Nach einer Leerzeile kommt der Call-to-Action für ein 15-minütiges Gespräch diese Woche.
+Nach einer Leerzeile stellst du dich kurz vor mit deinem echten Namen und {user_company}.
 
-Nach einer Leerzeile folgt die Grußformel "Gruß" und dein echter Name.
+Bei ausreichenden Daten sprichst du in maximal zwei Sätzen ein konkretes technisches Website-Problem an. Bei Fallback-Email erkläre kurz was Westagentur.de macht.
 
-LIMITS:
-- Jeder Absatz hat maximal drei Zeilen
-- Die komplette Email hat maximal {word_count} Wörter
-- Verwende einen direkten professionellen Ton ohne "Sehr geehrte"
-- Keine Marketing-Floskeln wie "führend", "maßgeschneidert", "innovative Lösungen" oder "marktführend"
-- Trenne alle Absätze mit Leerzeilen für bessere Lesbarkeit`
+Nach einer Leerzeile nennst du einen messbaren Mehrwert oder bei Fallback die Hauptleistungen.
+
+Nach einer Leerzeile kommt der Call-to-Action für ein 15-minütiges Gespräch.
+
+Nach einer Leerzeile folgt "Gruß" und dein echter Name.
+
+Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Absätze mit Leerzeilen.`
 
   const [emailConfigData, setEmailConfigData] = useState({
     targetIndustries: '',
