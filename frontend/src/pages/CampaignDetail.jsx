@@ -392,11 +392,11 @@ function CampaignDetail({ campaignId, onNavigate }) {
             AI-Emails generieren
           </button>
           <MagicButton
-            onClick={() => setShowEmailConfigModal(true)}
+            onClick={() => alert('📧 Email-Versand-Konfiguration kommt bald!\n\nHier werden Sie später Absender-Einstellungen, Zeitpläne und Versand-Optionen konfigurieren können.')}
             icon={Settings}
             className="py-2.5 px-6"
           >
-            Email-Konfiguration
+            Email-Versand-Konfiguration
           </MagicButton>
         </div>
       </div>
@@ -594,7 +594,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-[#0B1121] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0B1121] z-10">
-              <h2 className="text-xl font-bold text-white">Email-Konfiguration</h2>
+              <h2 className="text-xl font-bold text-white">AI Email-Konfiguration</h2>
               <button onClick={() => setShowEmailConfigModal(false)} className="text-gray-400 hover:text-white">
                 <X size={24} />
               </button>
@@ -762,17 +762,12 @@ function CampaignDetail({ campaignId, onNavigate }) {
 
                       // Save email config as JSON field
                       const emailConfig = {
-                        target_industries: emailConfigData.targetIndustries.split(',').map(s => s.trim()),
                         target_company_size: emailConfigData.targetCompanySize,
-                        pain_points: emailConfigData.targetPainPoints,
-                        opportunities: emailConfigData.targetOpportunities,
                         email_goal: emailConfigData.acquisitionGoal,
-                        call_to_action: emailConfigData.acquisitionCta,
                         tone: emailConfigData.emailTone,
                         salutation: emailConfigData.emailFormality,
                         language: emailConfigData.emailLanguage,
                         max_words: emailConfigData.emailMaxLength,
-                        style_rules: emailConfigData.emailStyleRules,
                       }
 
                       const { error } = await supabase
