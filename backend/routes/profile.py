@@ -106,7 +106,7 @@ Antworte NUR mit einem JSON-Objekt in diesem Format:
             client = anthropic.AsyncAnthropic(api_key=anthropic_api_key)
             
             message = await client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-3-5-sonnet-20240620",
                 max_tokens=1000,
                 temperature=0.7,
                 system="Du bist ein Experte für Unternehmensanalyse. Antworte immer nur mit validem JSON.",
