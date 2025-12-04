@@ -10,6 +10,7 @@ from routes.campaigns import router as campaigns_router
 from routes.impressum import router as impressum_router
 from routes.legal import router as legal_router
 from routes.profile import router as profile_router
+from routes.email_generation import router as email_generation_router
 
 # Load environment variables
 load_dotenv()
@@ -45,6 +46,7 @@ app.include_router(campaigns_router)
 app.include_router(impressum_router)
 app.include_router(legal_router)
 app.include_router(profile_router)
+app.include_router(email_generation_router)
 
 
 @app.get("/health")

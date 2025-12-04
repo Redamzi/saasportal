@@ -5,8 +5,9 @@ import Layout from '../components/Layout'
 import MagicButton from '../components/MagicButton'
 import {
   Trash2, Search, Download, Globe, Mail, Phone, Check, AlertTriangle,
-  Plus, X, ChevronDown, ChevronRight, RefreshCw, Database, Settings, Users, TrendingUp
+  Plus, X, ChevronDown, ChevronRight, RefreshCw, Database, Settings, Users, TrendingUp, Sparkles
 } from 'lucide-react'
+import EmailPreviewModal from '../components/EmailPreviewModal'
 
 function CampaignDetail({ campaignId, onNavigate }) {
   const [user, setUser] = useState(null)
@@ -36,9 +37,15 @@ function CampaignDetail({ campaignId, onNavigate }) {
     emailMaxLength: 200,
     emailStyleRules: '',
   })
+  const [generatedEmails, setGeneratedEmails] = useState([])
+  const [isGeneratingEmails, setIsGeneratingEmails] = useState(false)
+  const [showEmailPreviewModal, setShowEmailPreviewModal] = useState(false)
+  const [selectedEmail, setSelectedEmail] = useState(null)
+  const [selectedEmailLead, setSelectedEmailLead] = useState(null)
 
   useEffect(() => {
     loadData()
+    loadGeneratedEmails()
   }, [campaignId])
 
   const loadData = async () => {
@@ -63,6 +70,73 @@ function CampaignDetail({ campaignId, onNavigate }) {
       setCampaign(null)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadGeneratedEmails = async () => {
+    if (!campaignId || campaignId === 'null') return
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/${campaignId}/emails`)
+
+      if (response.ok) {
+        const emails = await response.json()
+        setGeneratedEmails(emails)
+      }
+    } catch (error) {
+      console.error('Error loading generated emails:', error)
+    }
+  }
+
+  const handleGenerateAIEmails = async () => {
+    const emailCount = leads.length
+    const creditCost = emailCount * 0.5
+
+    if (!confirm(`AI-Emails für ${emailCount} Leads generieren?\n\nKosten: ${creditCost} Credits`)) return
+
+    setIsGeneratingEmails(true)
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/${campaignId}/generate-emails`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        alert(`✅ ${result.generated_count} Emails generiert!\n${result.failed_count > 0 ? `⚠️ ${result.failed_count} Fehler` : ''}`)
+        await loadGeneratedEmails()
+      } else {
+        const error = await response.json()
+        throw new Error(error.detail || 'Fehler bei der Email-Generierung')
+      }
+    } catch (error) {
+      console.error('Error generating emails:', error)
+      alert(`❌ Fehler: ${error.message}`)
+    } finally {
+      setIsGeneratingEmails(false)
+    }
+  }
+
+  const handleSaveEmail = async (emailId, updates) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${API_URL}/api/campaigns/${campaignId}/emails/${emailId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      })
+
+      if (response.ok) {
+        alert('✅ Email gespeichert!')
+        await loadGeneratedEmails()
+        setShowEmailPreviewModal(false)
+      } else {
+        throw new Error('Fehler beim Speichern')
+      }
+    } catch (error) {
+      console.error('Error saving email:', error)
+      throw error
     }
   }
 
@@ -294,6 +368,14 @@ function CampaignDetail({ campaignId, onNavigate }) {
           >
             <Download size={18} /> Export CSV
           </button>
+          <button
+            onClick={handleGenerateAIEmails}
+            disabled={leads.length === 0 || isGeneratingEmails}
+            className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-purple-600/20"
+          >
+            {isGeneratingEmails ? <RefreshCw size={18} className="animate-spin" /> : <Sparkles size={18} />}
+            Generate AI Emails
+          </button>
           <MagicButton
             onClick={() => setShowEmailConfigModal(true)}
             icon={Settings}
@@ -351,6 +433,28 @@ function CampaignDetail({ campaignId, onNavigate }) {
                           {lead.email_source === 'outscraper' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">OUT</span>}
                           {lead.email_source === 'impressum_crawler' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">IMP</span>}
                           {lead.email_source === 'manual_user' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">MAN</span>}
+                          {(() => {
+                            const email = generatedEmails.find(e => e.lead_id === lead.id)
+                            if (!email) return null
+
+                            return (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSelectedEmail(email)
+                                  setSelectedEmailLead(lead)
+                                  setShowEmailPreviewModal(true)
+                                }}
+                                className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 ${email.edited_by_user
+                                  ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
+                                  : 'bg-voyanero-500/20 text-voyanero-400 hover:bg-voyanero-500/30'
+                                  } transition`}
+                              >
+                                <Mail size={12} />
+                                {email.edited_by_user ? 'Edited' : 'AI'}
+                              </button>
+                            )
+                          })()}
                         </p>
                       </div>
                       <div className="text-gray-400 text-sm flex items-center gap-2">
@@ -716,6 +820,20 @@ function CampaignDetail({ campaignId, onNavigate }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Email Preview Modal */}
+      {showEmailPreviewModal && selectedEmail && (
+        <EmailPreviewModal
+          email={selectedEmail}
+          lead={selectedEmailLead}
+          onClose={() => {
+            setShowEmailPreviewModal(false)
+            setSelectedEmail(null)
+            setSelectedEmailLead(null)
+          }}
+          onSave={(updates) => handleSaveEmail(selectedEmail.id, updates)}
+        />
       )}
     </Layout>
   )
