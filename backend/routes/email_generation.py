@@ -376,23 +376,30 @@ def parse_email_response(ai_content: str) -> dict:
     if not ai_content:
         raise ValueError("AI response empty after cleanup")
     
-    # Try to parse, if it fails, attempt to fix common issues
+    # Try to parse as JSON first
     try:
         result = json.loads(ai_content)
-    except json.JSONDecodeError as e:
-        print(f"❌ JSON parse error: {e}")
-        print(f"🔍 Content causing error: {ai_content[:200]}")
-        # Remove control characters (except spaces)
-        ai_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', ai_content)
-        # Try again
-        try:
-            result = json.loads(ai_content)
-        except json.JSONDecodeError:
-            # Last resort: try to extract subject and body manually
-            raise ValueError(f"Could not parse AI response as JSON. Content: {ai_content[:200]}")
-    
-    # Validate required fields
-    if "subject" not in result or "body" not in result:
-        raise ValueError(f"AI response missing required fields. Got: {list(result.keys())}")
-    
-    return result
+        # Validate required fields
+        if "subject" not in result or "body" not in result:
+            raise ValueError(f"AI response missing required fields. Got: {list(result.keys())}")
+        return result
+    except (json.JSONDecodeError, ValueError):
+        # If JSON parsing fails, treat as plain text email
+        print("ℹ️ AI returned plain text instead of JSON, auto-generating subject")
+        
+        # Extract first line as basis for subject
+        lines = ai_content.split('\n')
+        first_line = lines[0].strip() if lines else ""
+        
+        # Generate subject from first line (extract company name if present)
+        company_match = re.search(r'(?:Team von|Hallo)\s+([^,]+)', first_line)
+        if company_match:
+            company_name = company_match.group(1).strip()
+            subject = f"Zusammenarbeit mit {company_name}"
+        else:
+            subject = "Gemeinsam erfolgreicher werden"
+        
+        return {
+            "subject": subject,
+            "body": ai_content
+        }
