@@ -113,15 +113,39 @@ async def generate_emails_for_campaign(campaign_id: str):
         
         for lead in leads_to_process:
             try:
-                # Build AI prompt
-                prompt = build_email_prompt(profile, campaign, lead)
+                # Get email config
+                email_config = campaign.get("email_config", {})
+                custom_prompt = email_config.get("custom_prompt")
                 
-                # Call Claude API
+                # Build AI prompt (custom or default)
+                if custom_prompt:
+                    # Replace variables in custom prompt
+                    prompt = custom_prompt.format(
+                        company_name=lead.get("company_name", "Ihr Unternehmen"),
+                        user_name=profile.get("full_name", ""),
+                        word_count=email_config.get("max_words", 200),
+                        lead_industry=lead.get("industry", ""),
+                        lead_website=lead.get("website", ""),
+                        lead_location=lead.get("location", ""),
+                        user_company=profile.get("company_name", ""),
+                        user_position=profile.get("position", "Business Development"),
+                        tone=email_config.get("tone", "professional"),
+                        salutation=email_config.get("salutation", "sie"),
+                        language=email_config.get("language", "de"),
+                        goal=email_config.get("email_goal", "appointment")
+                    )
+                    system_prompt = "Du bist ein Experte für B2B-Akquise-Emails. Erstelle DSGVO-konforme, personalisierte Emails auf Deutsch."
+                else:
+                    # Use default prompt
+                    prompt = build_email_prompt(profile, campaign, lead)
+                    system_prompt = "Du bist ein Experte für B2B-Akquise-Emails. Erstelle DSGVO-konforme, personalisierte Emails auf Deutsch."
+                
+                # Call Claude API (Sonnet 4)
                 message = await client.messages.create(
-                    model="claude-3-haiku-20240307",
-                    max_tokens=800,
-                    temperature=0.7,
-                    system="Du bist ein Experte für B2B-Akquise-Emails. Erstelle DSGVO-konforme, personalisierte Emails auf Deutsch.",
+                    model="claude-sonnet-4-20250514",
+                    max_tokens=1024,
+                    temperature=0.4,
+                    system=system_prompt,
                     messages=[
                         {
                             "role": "user",

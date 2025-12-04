@@ -36,6 +36,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
     emailLanguage: 'de',
     emailMaxLength: 200,
     emailStyleRules: '',
+    customPrompt: '',
   })
   const [generatedEmails, setGeneratedEmails] = useState([])
   const [isGeneratingEmails, setIsGeneratingEmails] = useState(false)
@@ -601,33 +602,22 @@ function CampaignDetail({ campaignId, onNavigate }) {
             </div>
 
             <div className="p-6 space-y-8">
-              {/* Section 1: Zielkunden */}
+              {/* Custom Prompt Field */}
               <div>
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-voyanero-500" />
-                  Zielkunden-Profil
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Unternehmensgröße
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={emailConfigData.targetCompanySize}
-                        onChange={(e) => setEmailConfigData({ ...emailConfigData, targetCompanySize: e.target.value })}
-                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
-                      >
-                        <option value="small">Klein (1-10 Mitarbeiter)</option>
-                        <option value="medium">Mittel (11-50 Mitarbeiter)</option>
-                        <option value="large">Groß (50+ Mitarbeiter)</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
-                        <ChevronDown size={16} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Email-Prompt (Custom AI-Anweisungen)
+                </label>
+                <textarea
+                  value={emailConfigData.customPrompt || ''}
+                  onChange={(e) => setEmailConfigData({ ...emailConfigData, customPrompt: e.target.value })}
+                  rows={12}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none font-mono text-sm"
+                  placeholder="Beschreibe deinen Email-Stil und wichtige Details..."
+                  style={{ width: '100%', maxWidth: '100%' }}
+                />
+                <p className="text-xs text-gray-400 mt-2">
+                  💡 Tipp: Definiere hier deinen eigenen Prompt für die AI-Generierung. Lass leer für Standard-Prompt.
+                </p>
               </div>
 
               {/* Section 2: Akquise-Ziel */}
@@ -768,6 +758,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                         salutation: emailConfigData.emailFormality,
                         language: emailConfigData.emailLanguage,
                         max_words: emailConfigData.emailMaxLength,
+                        custom_prompt: emailConfigData.customPrompt || null,
                       }
 
                       const { error } = await supabase
