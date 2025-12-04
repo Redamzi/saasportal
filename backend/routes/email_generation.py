@@ -355,6 +355,14 @@ def parse_email_response(ai_content: str) -> dict:
     import json
     import re
     
+    # Debug: Log raw AI response
+    print(f"🔍 Raw AI response length: {len(ai_content)}")
+    print(f"🔍 Raw AI response (first 500 chars): {ai_content[:500]}")
+    
+    # Check if response is empty
+    if not ai_content or len(ai_content.strip()) == 0:
+        raise ValueError("AI returned empty response")
+    
     # Remove markdown code blocks if present
     if "```json" in ai_content:
         ai_content = ai_content.split("```json")[1].split("```")[0]
@@ -362,20 +370,29 @@ def parse_email_response(ai_content: str) -> dict:
         ai_content = ai_content.split("```")[1].split("```")[0]
     
     # Clean up control characters that break JSON parsing
-    # Replace newlines, tabs, and other control chars within strings
     ai_content = ai_content.strip()
+    
+    # If still empty after cleanup
+    if not ai_content:
+        raise ValueError("AI response empty after cleanup")
     
     # Try to parse, if it fails, attempt to fix common issues
     try:
         result = json.loads(ai_content)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"❌ JSON parse error: {e}")
+        print(f"🔍 Content causing error: {ai_content[:200]}")
         # Remove control characters (except spaces)
         ai_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', ai_content)
         # Try again
-        result = json.loads(ai_content)
+        try:
+            result = json.loads(ai_content)
+        except json.JSONDecodeError:
+            # Last resort: try to extract subject and body manually
+            raise ValueError(f"Could not parse AI response as JSON. Content: {ai_content[:200]}")
     
     # Validate required fields
     if "subject" not in result or "body" not in result:
-        raise ValueError("AI response missing required fields (subject, body)")
+        raise ValueError(f"AI response missing required fields. Got: {list(result.keys())}")
     
     return result
