@@ -22,6 +22,9 @@ ADD COLUMN IF NOT EXISTS email_max_length INTEGER DEFAULT 200,
 ADD COLUMN IF NOT EXISTS email_style_rules TEXT,
 
 -- Email configuration status
-ADD COLUMN IF NOT EXISTS email_config_completed BOOLEAN DEFAULT false;
+ADD COLUMN IF NOT EXISTS email_config_completed BOOLEAN DEFAULT false,
+
+-- JSON field for flexible email configuration
+ADD COLUMN IF NOT EXISTS email_config JSONB DEFAULT '{}'::jsonb;
 
 COMMENT ON TABLE campaigns IS 'Campaigns with LLM email generation configuration';
