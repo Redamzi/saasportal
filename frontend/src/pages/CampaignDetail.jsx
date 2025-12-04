@@ -51,7 +51,7 @@ Die Email beginnt mit "Hallo Team von" und dem echten Firmennamen.
 
 Nach einer Leerzeile stellst du dich kurz vor mit deinem echten Namen und {user_company}.
 
-Bei ausreichenden Daten sprichst du in maximal zwei Sätzen ein konkretes technisches Website-Problem an. Bei Fallback-Email erkläre kurz was Westagentur.de macht.
+Wenn du aus den Daten (z.B. http statt https) ein technisches Risiko erkennst, nenne es kurz, aber erfinde KEINE Details wie fehlende Checkboxen oder Impressums-Fehler, die du nicht sehen kannst. Wenn kein klares technisches Problem in den Daten steht, fokussiere dich stattdessen auf die Modernisierung des Webauftritts und bessere Sichtbarkeit.
 
 Nach einer Leerzeile nennst du einen messbaren Mehrwert oder bei Fallback die Hauptleistungen.
 
