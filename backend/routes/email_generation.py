@@ -132,7 +132,11 @@ async def generate_emails_for_campaign(campaign_id: str):
                         tone=email_config.get("tone", "professional"),
                         salutation=email_config.get("salutation", "sie"),
                         language=email_config.get("language", "de"),
-                        goal=email_config.get("email_goal", "appointment")
+                        goal=email_config.get("email_goal", "appointment"),
+                        meta_description=lead.get("meta_description", "Keine Angabe"),
+                        meta_keywords=lead.get("meta_keywords", "Keine Angabe"),
+                        services=lead.get("services", "Keine Angabe"),
+                        about_text=lead.get("about_text", "Keine Angabe")
                     )
                     system_prompt = "Du bist ein Experte für B2B-Akquise-Emails. Erstelle DSGVO-konforme, personalisierte Emails auf Deutsch."
                 else:

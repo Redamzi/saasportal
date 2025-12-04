@@ -206,8 +206,12 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                     supabase.table('leads').update({
                         'email': result['email'],
                         'email_source': 'impressum_crawler',
-                        'email_verified': result.get('verified', False)
-                        # is_personal field will be added after database migration
+                        'email_verified': result.get('verified', False),
+                        # Save scraped metadata
+                        'meta_description': result.get('meta_description'),
+                        'meta_keywords': result.get('meta_keywords'),
+                        'services': result.get('services'),
+                        'about_text': result.get('about_text')
                     }).eq('campaign_id', campaign_id).eq('website', result['url']).execute()
                     
                     found_count += 1

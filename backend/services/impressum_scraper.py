@@ -219,6 +219,84 @@ class ImpressumScraper:
         except:
             return True
     
+    def extract_metadata(self, html: str) -> Dict:
+        """
+        Extract metadata from HTML (description, keywords, services, about text)
+        
+        Args:
+            html: HTML content
+        
+        Returns:
+            Dictionary with extracted metadata
+        """
+        soup = BeautifulSoup(html, 'lxml')
+        metadata = {
+            'meta_description': '',
+            'meta_keywords': '',
+            'services': [],
+            'about_text': ''
+        }
+        
+        # 1. Meta Description
+        meta_desc = soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'property': 'og:description'})
+        if meta_desc and meta_desc.get('content'):
+            metadata['meta_description'] = meta_desc['content'].strip()
+            
+        # 2. Meta Keywords
+        meta_keys = soup.find('meta', attrs={'name': 'keywords'})
+        if meta_keys and meta_keys.get('content'):
+            metadata['meta_keywords'] = meta_keys['content'].strip()
+            
+        # 3. Services (Heuristic: Look for "Leistungen", "Services", "Angebot" in nav or headings)
+        services = set()
+        # Check navigation links
+        nav_links = soup.find_all('a', href=True)
+        for link in nav_links:
+            text = link.get_text().strip().lower()
+            if any(keyword in text for keyword in ['leistung', 'service', 'angebot', 'lösung', 'produkt']):
+                services.add(link.get_text().strip())
+        
+        # Check headings
+        for tag in ['h1', 'h2', 'h3']:
+            for heading in soup.find_all(tag):
+                text = heading.get_text().strip()
+                if len(text) < 50 and any(keyword in text.lower() for keyword in ['unsere leistungen', 'unsere services', 'was wir tun']):
+                    # Get the following list or text
+                    next_elem = heading.find_next_sibling()
+                    if next_elem:
+                        if next_elem.name in ['ul', 'ol']:
+                            for li in next_elem.find_all('li'):
+                                services.add(li.get_text().strip())
+                        elif next_elem.name == 'p':
+                            services.add(next_elem.get_text().strip())
+                            
+        metadata['services'] = list(services)[:5] # Limit to top 5 detected services
+        
+        # 4. About Text (Heuristic: "Über uns", "About us" sections or first substantial paragraph)
+        about_text = ""
+        # Try to find "Über uns" section
+        about_section = soup.find(string=re.compile(r'Über uns|About us', re.I))
+        if about_section:
+            parent = about_section.find_parent(['div', 'section', 'p'])
+            if parent:
+                about_text = parent.get_text(separator=' ', strip=True)
+        
+        # Fallback: Use meta description or first long paragraph
+        if not about_text or len(about_text) < 50:
+            if metadata['meta_description']:
+                about_text = metadata['meta_description']
+            else:
+                # Find first paragraph with > 100 chars
+                for p in soup.find_all('p'):
+                    text = p.get_text(strip=True)
+                    if len(text) > 100:
+                        about_text = text
+                        break
+                        
+        metadata['about_text'] = about_text[:500] # Limit length
+        
+        return metadata
+
     def extract_emails_from_html(self, html: str) -> List[str]:
         """
         Extract all email addresses from HTML with improved accuracy
@@ -502,12 +580,18 @@ class ImpressumScraper:
             # Extract emails from HTML
             emails = self.extract_emails_from_html(html_to_scrape)
             
+            # Extract metadata (NEW)
+            metadata = self.extract_metadata(html_to_scrape)
+            
             # HYBRID APPROACH: If no emails found and not already using Selenium, try it
             if not emails and not use_selenium and SELENIUM_AVAILABLE:
                 print(f"⚡ No emails found with normal scraping, trying Selenium...")
                 selenium_html = self.scrape_with_selenium(scraped_url)
                 if selenium_html:
                     emails = self.extract_emails_from_html(selenium_html)
+                    # Update metadata from Selenium HTML if it was empty before
+                    if not metadata['meta_description']:
+                        metadata = self.extract_metadata(selenium_html)
                     if emails:
                         print(f"✅ Selenium found {len(emails)} email(s)!")
             
@@ -519,7 +603,12 @@ class ImpressumScraper:
                     'domain': self.extract_domain(url),
                     'email': None,
                     'all_emails': [],
-                    'error': 'No emails found'
+                    'error': 'No emails found',
+                    # Return metadata even if no email found
+                    'meta_description': metadata['meta_description'],
+                    'meta_keywords': metadata['meta_keywords'],
+                    'services': metadata['services'],
+                    'about_text': metadata['about_text']
                 }
             
             print(f"📧 Found {len(emails)} email(s): {emails}")
@@ -535,7 +624,12 @@ class ImpressumScraper:
                     'domain': self.extract_domain(url),
                     'email': None,
                     'all_emails': emails,
-                    'error': 'No valid emails found'
+                    'error': 'No valid emails found',
+                    # Return metadata
+                    'meta_description': metadata['meta_description'],
+                    'meta_keywords': metadata['meta_keywords'],
+                    'services': metadata['services'],
+                    'about_text': metadata['about_text']
                 }
             
             # Verify the best email
@@ -551,7 +645,12 @@ class ImpressumScraper:
                 'all_emails': emails,
                 'verified': verification['valid'],
                 'is_personal': verification.get('is_personal', False),
-                'scraped_from': scraped_url
+                'scraped_from': scraped_url,
+                # Return metadata
+                'meta_description': metadata['meta_description'],
+                'meta_keywords': metadata['meta_keywords'],
+                'services': metadata['services'],
+                'about_text': metadata['about_text']
             }
             
         except requests.exceptions.Timeout:

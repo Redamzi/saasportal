@@ -25,49 +25,46 @@ function CampaignDetail({ campaignId, onNavigate }) {
   const [manualEmail, setManualEmail] = useState('')
   const [showEmailConfigModal, setShowEmailConfigModal] = useState(false)
 
-  const DEFAULT_EMAIL_PROMPT = `Schreibe B2B-Akquise-Email für {company_name}.
+  const DEFAULT_EMAIL_PROMPT = `Schreibe eine personalisierte B2B-Akquise-Email für {company_name}.
 
-DATEN (werden automatisch ersetzt):
-Absender: {user_name} von {user_company}
-Empfänger: {company_name}
-Branche: {lead_industry}
+Der Absender ist {user_name} von Westagentur.de.
 
-KRITISCHE REGELN:
-- NIEMALS Platzhalter im Output ([Name], {{variable}}, etc.)
-- Nutze die echten Namen von oben
-- Direkter Einstieg, keine "Sehr geehrte..."
-- Konkrete Pain Points der Branche ansprechen
-- Ein messbarer Mehrwert (mit Zahl wenn möglich)
-- Keine Marketing-Floskeln ("führend", "maßgeschneidert")
+Du hast folgende Informationen über die Firma:
+- Firmenname: {company_name}
+- Website: {lead_website}
+- Standort: {lead_location}
 
-STRUKTUR (mit Leerzeilen):
-Zeile 1: Hallo Team von [Firmenname],
+Unser Scraper hat zusätzlich folgende Daten von der Website extrahiert:
+- Meta-Description: {meta_description}
+- Meta-Keywords: {meta_keywords}
+- Erkannte Services: {services}
+- Firmenbeschreibung: {about_text}
 
-Zeile 3-5: [Dein Name] hier von [Deine Firma]. [Konkretes Problem der Branche in max 2 Sätzen]
+KRITISCH WICHTIG:
+- Nutze ausschließlich diese gecrawlten echten Informationen für die Email
+- Erfinde NIEMALS zusätzliche Details über Umsätze, Probleme, Mitarbeiterzahl, Statistiken oder Kundenanzahl die nicht in den Daten stehen
+- Wenn die gecrawlten Daten unvollständig sind, halte dich allgemein bei diesem Punkt
+- Verwende niemals Platzhalter wie [Name], [Firma] oder {{variable}} in der Email, sondern immer die echten Namen und Daten von oben
 
-Zeile 7-9: [Konkreter Mehrwert mit Zahl/Beispiel in 1-2 Sätzen]
+STRUKTUR:
+Die Email beginnt mit "Hallo Team von" gefolgt vom echten Firmennamen.
 
-Zeile 11: [CTA: Termin vorschlagen]
+Nach einer Leerzeile stellst du dich kurz vor mit deinem echten Namen und Westagentur.de.
 
-Zeile 13-14:
-Gruß
-[Dein Name]
+Dann sprichst du in maximal zwei Sätzen ein konkretes Problem an das zur Branche und den Services der Firma passt basierend auf den gecrawlten Informationen.
+
+Nach einer Leerzeile nennst du einen messbaren Mehrwert in ein bis zwei Sätzen der spezifisch zur Branche der Firma passt.
+
+Nach einer Leerzeile kommt der Call-to-Action für ein 15-minütiges Gespräch diese Woche.
+
+Nach einer Leerzeile folgt die Grußformel "Gruß" und dein echter Name.
 
 LIMITS:
-- Max {word_count} Wörter
-- Jeder Absatz max 3 Zeilen
-
-BEISPIEL:
-Hallo Team von Restaurant Emilio,
-
-Max Schulz hier von Westagentur.de. Eure Website lädt auf Mobile 4,2 Sekunden - das kostet euch vermutlich Reservierungen.
-
-Wir optimieren Gastro-Websites: 60% schneller, bessere Google-Rankings, mehr Online-Buchungen.
-
-15min Call diese Woche?
-
-Gruß
-Max Schulz`
+- Jeder Absatz hat maximal drei Zeilen
+- Die komplette Email hat maximal {word_count} Wörter
+- Verwende einen direkten professionellen Ton ohne "Sehr geehrte"
+- Keine Marketing-Floskeln wie "führend", "maßgeschneidert", "innovative Lösungen" oder "marktführend"
+- Trenne alle Absätze mit Leerzeilen für bessere Lesbarkeit`
 
   const [emailConfigData, setEmailConfigData] = useState({
     targetIndustries: '',
