@@ -140,11 +140,11 @@ async def generate_emails_for_campaign(campaign_id: str):
                     prompt = build_email_prompt(profile, campaign, lead)
                     system_prompt = "Du bist ein Experte für B2B-Akquise-Emails. Erstelle DSGVO-konforme, personalisierte Emails auf Deutsch."
                 
-                # Call Claude API (Sonnet 4)
+                # Call Claude API (Sonnet 3.5)
                 message = await client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-3-5-sonnet-20241022",
                     max_tokens=1024,
-                    temperature=0.4,
+                    temperature=0.3,
                     system=system_prompt,
                     messages=[
                         {
