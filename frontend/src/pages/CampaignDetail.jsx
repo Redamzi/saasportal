@@ -763,7 +763,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                       <input
                         type="range"
                         min="100"
-                        max="500"
+                        max="200"
                         step="50"
                         value={emailConfigData.emailMaxLength}
                         onChange={(e) => setEmailConfigData({ ...emailConfigData, emailMaxLength: parseInt(e.target.value) })}
