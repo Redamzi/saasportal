@@ -64,7 +64,7 @@ async def generate_emails_for_campaign(campaign_id: str):
         user_id = campaign["user_id"]
         
         # 2. Load user profile data
-        profile_response = supabase.table("profiles").select("*").eq("user_id", user_id).single().execute()
+        profile_response = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
         if not profile_response.data:
             raise HTTPException(status_code=404, detail="User profile not found")
         
