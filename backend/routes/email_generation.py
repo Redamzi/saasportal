@@ -173,7 +173,7 @@ async def get_campaign_emails(campaign_id: str):
         
         # Get emails with lead data
         response = supabase.table("campaign_emails")\
-            .select("*, leads(company_name, contact_name)")\
+            .select("*, leads(company_name)")\
             .eq("campaign_id", campaign_id)\
             .execute()
         
@@ -182,7 +182,7 @@ async def get_campaign_emails(campaign_id: str):
             emails.append(GeneratedEmail(
                 id=email["id"],
                 lead_id=email["lead_id"],
-                lead_name=email["leads"]["contact_name"] or "Unknown",
+                lead_name=email["leads"]["company_name"] or "Unknown",
                 lead_company=email["leads"]["company_name"] or "Unknown",
                 subject=email["subject"],
                 body=email["body"],
@@ -296,6 +296,7 @@ def build_email_prompt(profile: dict, campaign: dict, lead: dict) -> str:
 def parse_email_response(ai_content: str) -> dict:
     """Parse Claude's JSON response"""
     import json
+    import re
     
     # Remove markdown code blocks if present
     if "```json" in ai_content:
@@ -303,7 +304,18 @@ def parse_email_response(ai_content: str) -> dict:
     elif "```" in ai_content:
         ai_content = ai_content.split("```")[1].split("```")[0]
     
-    result = json.loads(ai_content.strip())
+    # Clean up control characters that break JSON parsing
+    # Replace newlines, tabs, and other control chars within strings
+    ai_content = ai_content.strip()
+    
+    # Try to parse, if it fails, attempt to fix common issues
+    try:
+        result = json.loads(ai_content)
+    except json.JSONDecodeError:
+        # Remove control characters (except spaces)
+        ai_content = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', ai_content)
+        # Try again
+        result = json.loads(ai_content)
     
     # Validate required fields
     if "subject" not in result or "body" not in result:
