@@ -24,6 +24,51 @@ function CampaignDetail({ campaignId, onNavigate }) {
   const [selectedLeadForEmail, setSelectedLeadForEmail] = useState(null)
   const [manualEmail, setManualEmail] = useState('')
   const [showEmailConfigModal, setShowEmailConfigModal] = useState(false)
+
+  const DEFAULT_EMAIL_PROMPT = `Schreibe B2B-Akquise-Email für {company_name}.
+
+DATEN (werden automatisch ersetzt):
+Absender: {user_name} von {user_company}
+Empfänger: {company_name}
+Branche: {lead_industry}
+
+KRITISCHE REGELN:
+- NIEMALS Platzhalter im Output ([Name], {{variable}}, etc.)
+- Nutze die echten Namen von oben
+- Direkter Einstieg, keine "Sehr geehrte..."
+- Konkrete Pain Points der Branche ansprechen
+- Ein messbarer Mehrwert (mit Zahl wenn möglich)
+- Keine Marketing-Floskeln ("führend", "maßgeschneidert")
+
+STRUKTUR (mit Leerzeilen):
+Zeile 1: Hallo Team von [Firmenname],
+
+Zeile 3-5: [Dein Name] hier von [Deine Firma]. [Konkretes Problem der Branche in max 2 Sätzen]
+
+Zeile 7-9: [Konkreter Mehrwert mit Zahl/Beispiel in 1-2 Sätzen]
+
+Zeile 11: [CTA: Termin vorschlagen]
+
+Zeile 13-14:
+Gruß
+[Dein Name]
+
+LIMITS:
+- Max {word_count} Wörter
+- Jeder Absatz max 3 Zeilen
+
+BEISPIEL:
+Hallo Team von Restaurant Emilio,
+
+Max Schulz hier von Westagentur.de. Eure Website lädt auf Mobile 4,2 Sekunden - das kostet euch vermutlich Reservierungen.
+
+Wir optimieren Gastro-Websites: 60% schneller, bessere Google-Rankings, mehr Online-Buchungen.
+
+15min Call diese Woche?
+
+Gruß
+Max Schulz`
+
   const [emailConfigData, setEmailConfigData] = useState({
     targetIndustries: '',
     targetCompanySize: 'medium',
@@ -36,7 +81,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
     emailLanguage: 'de',
     emailMaxLength: 200,
     emailStyleRules: '',
-    customPrompt: '',
+    customPrompt: DEFAULT_EMAIL_PROMPT,
   })
   const [generatedEmails, setGeneratedEmails] = useState([])
   const [isGeneratingEmails, setIsGeneratingEmails] = useState(false)
@@ -610,7 +655,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                 <textarea
                   value={emailConfigData.customPrompt || ''}
                   onChange={(e) => setEmailConfigData({ ...emailConfigData, customPrompt: e.target.value })}
-                  rows={12}
+                  rows={20}
                   className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none font-mono text-sm"
                   placeholder="Beschreibe deinen Email-Stil und wichtige Details..."
                   style={{ width: '100%', maxWidth: '100%' }}
