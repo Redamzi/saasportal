@@ -4,6 +4,7 @@ import httpx
 from bs4 import BeautifulSoup
 import os
 import json
+import traceback
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
 
@@ -147,6 +148,8 @@ Antworte NUR mit einem JSON-Objekt in diesem Format:
                 )
 
     except Exception as e:
+        print(f"❌ Auto-fill error: {str(e)}")
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail=f"Unerwarteter Fehler: {str(e)}"

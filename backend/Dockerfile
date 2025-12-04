@@ -9,7 +9,9 @@ RUN apk add --no-cache \
     chromium-chromedriver \
     libstdc++ \
     libxml2 \
-    libxslt
+    libxslt \
+    ca-certificates \
+    openssl
 
 # Set environment variables for Alpine Chromium
 ENV CHROME_BIN=/usr/bin/chromium-browser
