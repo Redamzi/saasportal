@@ -89,10 +89,20 @@ function CampaignDetail({ campaignId, onNavigate }) {
   }
 
   const handleGenerateAIEmails = async () => {
-    const emailCount = leads.length
+    // Only count leads that have an email address
+    const leadsWithEmail = leads.filter(lead => lead.email)
+    const emailCount = leadsWithEmail.length
+    const leadsWithoutEmail = leads.length - emailCount
     const creditCost = emailCount * 0.5
 
-    if (!confirm(`AI-Emails für ${emailCount} Leads generieren?\n\nKosten: ${creditCost} Credits`)) return
+    if (emailCount === 0) {
+      alert(`❌ Keine Leads mit Email-Adresse gefunden!\n\n${leadsWithoutEmail} Leads haben keine Email.`)
+      return
+    }
+
+    const confirmMessage = `AI-Emails für ${emailCount} Leads generieren?\n\nKosten: ${creditCost} Credits${leadsWithoutEmail > 0 ? `\n\n⚠️ ${leadsWithoutEmail} Leads ohne Email werden übersprungen` : ''}`
+
+    if (!confirm(confirmMessage)) return
 
     setIsGeneratingEmails(true)
     try {
