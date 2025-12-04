@@ -142,7 +142,7 @@ async def generate_emails_for_campaign(campaign_id: str):
                 
                 # Call Claude API (Sonnet 3.5)
                 message = await client.messages.create(
-                    model="claude-3-5-sonnet-20241022",
+                    model="claude-3-5-sonnet-20240620",
                     max_tokens=1024,
                     temperature=0.3,
                     system=system_prompt,
