@@ -52,7 +52,7 @@ async def generate_emails_for_campaign(campaign_id: str):
     4. Deduct credits (0.5 credits per email)
     """
     try:
-        from database.supabase_client import get_supabase_client
+        from services.supabase_client import get_supabase_client
         supabase = get_supabase_client()
         
         # 1. Load campaign data
@@ -168,7 +168,7 @@ async def generate_emails_for_campaign(campaign_id: str):
 async def get_campaign_emails(campaign_id: str):
     """Get all generated emails for a campaign"""
     try:
-        from database.supabase_client import get_supabase_client
+        from services.supabase_client import get_supabase_client
         supabase = get_supabase_client()
         
         # Get emails with lead data
@@ -203,7 +203,7 @@ async def get_campaign_emails(campaign_id: str):
 async def update_campaign_email(campaign_id: str, email_id: str, update: EmailUpdateRequest):
     """Update a generated email (user edited)"""
     try:
-        from database.supabase_client import get_supabase_client
+        from services.supabase_client import get_supabase_client
         supabase = get_supabase_client()
         
         response = supabase.table("campaign_emails")\
