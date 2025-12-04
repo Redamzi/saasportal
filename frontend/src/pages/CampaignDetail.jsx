@@ -610,56 +610,22 @@ function CampaignDetail({ campaignId, onNavigate }) {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Ziel-Branchen (kommagetrennt)
-                    </label>
-                    <input
-                      type="text"
-                      value={emailConfigData.targetIndustries}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetIndustries: e.target.value })}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none"
-                      placeholder="z.B. Handwerk, Gastronomie, Einzelhandel"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
                       Unternehmensgröße
                     </label>
-                    <select
-                      value={emailConfigData.targetCompanySize}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetCompanySize: e.target.value })}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                    >
-                      <option value="small">Klein (1-10 Mitarbeiter)</option>
-                      <option value="medium">Mittel (11-50 Mitarbeiter)</option>
-                      <option value="large">Groß (50+ Mitarbeiter)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Typische Probleme / Pain Points
-                    </label>
-                    <textarea
-                      value={emailConfigData.targetPainPoints}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetPainPoints: e.target.value })}
-                      rows={3}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none"
-                      placeholder="z.B. Keine Zeit für Marketing, veraltete Website, schlechte Google-Sichtbarkeit"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Erkennbare Chancen / Schwachstellen
-                    </label>
-                    <textarea
-                      value={emailConfigData.targetOpportunities}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, targetOpportunities: e.target.value })}
-                      rows={3}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none"
-                      placeholder="z.B. Veraltete Website, kein Buchungssystem, schlechtes Google-Ranking, keine Social Media Präsenz"
-                    />
+                    <div className="relative">
+                      <select
+                        value={emailConfigData.targetCompanySize}
+                        onChange={(e) => setEmailConfigData({ ...emailConfigData, targetCompanySize: e.target.value })}
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                      >
+                        <option value="small">Klein (1-10 Mitarbeiter)</option>
+                        <option value="medium">Mittel (11-50 Mitarbeiter)</option>
+                        <option value="large">Groß (50+ Mitarbeiter)</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -675,29 +641,21 @@ function CampaignDetail({ campaignId, onNavigate }) {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Hauptziel der Email
                     </label>
-                    <select
-                      value={emailConfigData.acquisitionGoal}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionGoal: e.target.value })}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                    >
-                      <option value="first_contact">Erstkontakt herstellen</option>
-                      <option value="appointment">Termin vereinbaren</option>
-                      <option value="demo">Demo/Call vorschlagen</option>
-                      <option value="offer">Angebot anbieten</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Call-to-Action
-                    </label>
-                    <input
-                      type="text"
-                      value={emailConfigData.acquisitionCta}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionCta: e.target.value })}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none"
-                      placeholder="z.B. Vereinbaren Sie einen kostenlosen Beratungstermin"
-                    />
+                    <div className="relative">
+                      <select
+                        value={emailConfigData.acquisitionGoal}
+                        onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionGoal: e.target.value })}
+                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                      >
+                        <option value="first_contact">Erstkontakt herstellen</option>
+                        <option value="appointment">Termin vereinbaren</option>
+                        <option value="demo">Demo/Call vorschlagen</option>
+                        <option value="offer">Angebot anbieten</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                        <ChevronDown size={16} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -714,29 +672,39 @@ function CampaignDetail({ campaignId, onNavigate }) {
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Tonfall
                       </label>
-                      <select
-                        value={emailConfigData.emailTone}
-                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailTone: e.target.value })}
-                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                      >
-                        <option value="professional">Professionell</option>
-                        <option value="friendly">Freundlich</option>
-                        <option value="casual">Locker</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={emailConfigData.emailTone}
+                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailTone: e.target.value })}
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                        >
+                          <option value="professional">Professionell</option>
+                          <option value="friendly">Freundlich</option>
+                          <option value="casual">Locker</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Anrede
                       </label>
-                      <select
-                        value={emailConfigData.emailFormality}
-                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailFormality: e.target.value })}
-                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                      >
-                        <option value="sie">Sie (förmlich)</option>
-                        <option value="du">Du (informell)</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={emailConfigData.emailFormality}
+                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailFormality: e.target.value })}
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                        >
+                          <option value="sie">Sie (förmlich)</option>
+                          <option value="du">Du (informell)</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -745,15 +713,20 @@ function CampaignDetail({ campaignId, onNavigate }) {
                       <label className="block text-sm font-medium text-gray-300 mb-2">
                         Sprache
                       </label>
-                      <select
-                        value={emailConfigData.emailLanguage}
-                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailLanguage: e.target.value })}
-                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                      >
-                        <option value="de">Deutsch</option>
-                        <option value="en">English</option>
-                        <option value="fr">Français</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={emailConfigData.emailLanguage}
+                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailLanguage: e.target.value })}
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                        >
+                          <option value="de">Deutsch</option>
+                          <option value="en">English</option>
+                          <option value="fr">Français</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
                     </div>
 
                     <div>
@@ -770,19 +743,6 @@ function CampaignDetail({ campaignId, onNavigate }) {
                         className="w-full accent-voyanero-500"
                       />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Zusätzliche Stilregeln (optional)
-                    </label>
-                    <textarea
-                      value={emailConfigData.emailStyleRules}
-                      onChange={(e) => setEmailConfigData({ ...emailConfigData, emailStyleRules: e.target.value })}
-                      rows={2}
-                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none"
-                      placeholder="z.B. Keine Floskeln, kurze Sätze, keine Emojis"
-                    />
                   </div>
                 </div>
               </div>
