@@ -89,6 +89,11 @@ function CampaignDetail({ campaignId, onNavigate }) {
   }
 
   const handleGenerateAIEmails = async () => {
+    // Open Email Config Modal first
+    setShowEmailConfigModal(true)
+  }
+
+  const handleConfirmGenerateAIEmails = async () => {
     // Only count leads that have an email address
     const leadsWithEmail = leads.filter(lead => lead.email)
     const emailCount = leadsWithEmail.length
@@ -384,7 +389,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
             className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-purple-600/20"
           >
             {isGeneratingEmails ? <RefreshCw size={18} className="animate-spin" /> : <Sparkles size={18} />}
-            Generate AI Emails
+            AI-Emails generieren
           </button>
           <MagicButton
             onClick={() => setShowEmailConfigModal(true)}
@@ -794,29 +799,34 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   onClick={async () => {
                     try {
                       const { supabase } = await import('../lib/supabase')
+
+                      // Save email config as JSON field
+                      const emailConfig = {
+                        target_industries: emailConfigData.targetIndustries.split(',').map(s => s.trim()),
+                        target_company_size: emailConfigData.targetCompanySize,
+                        pain_points: emailConfigData.targetPainPoints,
+                        opportunities: emailConfigData.targetOpportunities,
+                        email_goal: emailConfigData.acquisitionGoal,
+                        call_to_action: emailConfigData.acquisitionCta,
+                        tone: emailConfigData.emailTone,
+                        salutation: emailConfigData.emailFormality,
+                        language: emailConfigData.emailLanguage,
+                        max_words: emailConfigData.emailMaxLength,
+                        style_rules: emailConfigData.emailStyleRules,
+                      }
+
                       const { error } = await supabase
                         .from('campaigns')
-                        .update({
-                          target_industries: emailConfigData.targetIndustries.split(',').map(s => s.trim()),
-                          target_company_size: emailConfigData.targetCompanySize,
-                          target_pain_points: emailConfigData.targetPainPoints,
-                          target_opportunities: emailConfigData.targetOpportunities,
-                          acquisition_goal: emailConfigData.acquisitionGoal,
-                          acquisition_cta: emailConfigData.acquisitionCta,
-                          email_tone: emailConfigData.emailTone,
-                          email_formality: emailConfigData.emailFormality,
-                          email_language: emailConfigData.emailLanguage,
-                          email_max_length: emailConfigData.emailMaxLength,
-                          email_style_rules: emailConfigData.emailStyleRules,
-                          email_config_completed: true,
-                        })
+                        .update({ email_config: emailConfig, email_config_completed: true })
                         .eq('id', campaignId)
 
                       if (error) throw error
 
-                      alert('✅ Email-Konfiguration gespeichert!')
                       setShowEmailConfigModal(false)
-                      loadData()
+
+                      // Now trigger email generation
+                      await handleConfirmGenerateAIEmails()
+
                     } catch (error) {
                       console.error('Error saving email config:', error)
                       alert('❌ Fehler beim Speichern')
@@ -824,7 +834,7 @@ function CampaignDetail({ campaignId, onNavigate }) {
                   }}
                   className="py-2 px-6"
                 >
-                  Speichern
+                  Emails generieren
                 </MagicButton>
               </div>
             </div>
