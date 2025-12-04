@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import os
 import json
 import traceback
+import anthropic
 
 router = APIRouter(prefix="/api/profile", tags=["profile"])
 
@@ -27,7 +28,7 @@ class AutoFillResponse(BaseModel):
 async def auto_fill_from_website(request: AutoFillRequest):
     """
     Auto-fill company profile data from website URL.
-    Crawls the website, extracts content, and uses AI to analyze.
+    Crawls the website, extracts content, and uses AI (Claude) to analyze.
     """
     try:
         # 1. Fetch website content
@@ -65,12 +66,12 @@ async def auto_fill_from_website(request: AutoFillRequest):
         title = soup.find("title")
         title_text = title.string if title else ""
 
-        # 3. Use AI to analyze (OpenAI)
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        if not openai_api_key:
+        # 3. Use AI to analyze (Anthropic Claude)
+        anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not anthropic_api_key:
             raise HTTPException(
                 status_code=500,
-                detail="OpenAI API Key nicht konfiguriert"
+                detail="ANTHROPIC_API_KEY nicht konfiguriert"
             )
 
         # Prepare AI prompt
@@ -100,52 +101,47 @@ Antworte NUR mit einem JSON-Objekt in diesem Format:
   "success_metrics": "..."
 }}"""
 
-        # Call OpenAI API
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            try:
-                ai_response = await client.post(
-                    "https://api.openai.com/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {openai_api_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "model": "gpt-4o-mini",
-                        "messages": [
-                            {"role": "system", "content": "Du bist ein Experte für Unternehmensanalyse. Antworte immer nur mit validen JSON."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        "temperature": 0.7,
-                        "max_tokens": 1000
+        # Call Anthropic API
+        try:
+            client = anthropic.AsyncAnthropic(api_key=anthropic_api_key)
+            
+            message = await client.messages.create(
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=1000,
+                temperature=0.7,
+                system="Du bist ein Experte für Unternehmensanalyse. Antworte immer nur mit validem JSON.",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
                     }
-                )
-                ai_response.raise_for_status()
-                ai_data = ai_response.json()
-                
-                # Extract AI response
-                ai_content = ai_data["choices"][0]["message"]["content"]
-                
-                # Parse JSON from AI response
-                # Remove markdown code blocks if present
-                if "```json" in ai_content:
-                    ai_content = ai_content.split("```json")[1].split("```")[0]
-                elif "```" in ai_content:
-                    ai_content = ai_content.split("```")[1].split("```")[0]
-                
-                result = json.loads(ai_content.strip())
-                
-                return AutoFillResponse(**result)
-                
-            except httpx.HTTPError as e:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Fehler bei der AI-Analyse: {str(e)}"
-                )
-            except (json.JSONDecodeError, KeyError) as e:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Fehler beim Parsen der AI-Antwort: {str(e)}"
-                )
+                ]
+            )
+            
+            # Extract AI response
+            ai_content = message.content[0].text
+            
+            # Parse JSON from AI response
+            # Remove markdown code blocks if present
+            if "```json" in ai_content:
+                ai_content = ai_content.split("```json")[1].split("```")[0]
+            elif "```" in ai_content:
+                ai_content = ai_content.split("```")[1].split("```")[0]
+            
+            result = json.loads(ai_content.strip())
+            
+            return AutoFillResponse(**result)
+            
+        except anthropic.APIError as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Fehler bei der AI-Analyse (Claude): {str(e)}"
+            )
+        except (json.JSONDecodeError, KeyError) as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Fehler beim Parsen der AI-Antwort: {str(e)}"
+            )
 
     except Exception as e:
         print(f"❌ Auto-fill error: {str(e)}")
