@@ -84,13 +84,20 @@ async def generate_emails_for_campaign(campaign_id: str):
         # Filter out leads that already have emails
         leads_to_process = [lead for lead in leads if lead["id"] not in existing_lead_ids]
         
-        if not leads_to_process:
+        # IMPORTANT: Only process leads that have an email address
+        leads_with_email = [lead for lead in leads_to_process if lead.get("email")]
+        leads_without_email = len(leads_to_process) - len(leads_with_email)
+        
+        if not leads_with_email:
             return EmailGenerationResponse(
                 generated_count=0,
                 failed_count=0,
                 total_leads=len(leads),
-                errors=["All leads already have generated emails"]
+                errors=[f"No leads with email addresses found. {leads_without_email} leads have no email."]
             )
+        
+        # Update leads_to_process to only include leads with email
+        leads_to_process = leads_with_email
         
         # 5. Initialize Claude client
         anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
