@@ -221,7 +221,7 @@ class ImpressumScraper:
     
     def extract_metadata(self, html: str) -> Dict:
         """
-        Extract metadata from HTML (description, keywords, services, about text)
+        Extract metadata from HTML (description, keywords, services, about text, schema.org, headlines)
         
         Args:
             html: HTML content
@@ -234,7 +234,10 @@ class ImpressumScraper:
             'meta_description': '',
             'meta_keywords': '',
             'services': [],
-            'about_text': ''
+            'about_text': '',
+            'schema_org': {},
+            'headlines': [],
+            'og_data': {}
         }
         
         # 1. Meta Description
@@ -246,8 +249,57 @@ class ImpressumScraper:
         meta_keys = soup.find('meta', attrs={'name': 'keywords'})
         if meta_keys and meta_keys.get('content'):
             metadata['meta_keywords'] = meta_keys['content'].strip()
+        
+        # 3. Schema.org JSON-LD (NEW)
+        try:
+            schema_scripts = soup.find_all('script', type='application/ld+json')
+            for script in schema_scripts:
+                try:
+                    import json
+                    schema_data = json.loads(script.string)
+                    # Extract relevant fields
+                    if isinstance(schema_data, dict):
+                        schema_type = schema_data.get('@type', '')
+                        if 'LocalBusiness' in schema_type or 'Organization' in schema_type or 'Restaurant' in schema_type:
+                            metadata['schema_org'] = {
+                                'type': schema_type,
+                                'name': schema_data.get('name', ''),
+                                'description': schema_data.get('description', ''),
+                                'priceRange': schema_data.get('priceRange', ''),
+                                'address': schema_data.get('address', {}),
+                                'telephone': schema_data.get('telephone', ''),
+                                'openingHours': schema_data.get('openingHours', [])
+                            }
+                            break  # Use first relevant schema
+                except:
+                    continue
+        except:
+            pass
+        
+        # 4. Headlines H1/H2 (NEW)
+        headlines = []
+        for h1 in soup.find_all('h1'):
+            text = h1.get_text(strip=True)
+            if text and len(text) < 200:
+                headlines.append(text)
+        for h2 in soup.find_all('h2')[:3]:  # Limit to first 3 H2s
+            text = h2.get_text(strip=True)
+            if text and len(text) < 200:
+                headlines.append(text)
+        metadata['headlines'] = headlines[:5]  # Max 5 headlines
+        
+        # 5. Additional OpenGraph Tags (NEW)
+        og_tags = {
+            'og:title': soup.find('meta', attrs={'property': 'og:title'}),
+            'og:type': soup.find('meta', attrs={'property': 'og:type'}),
+            'og:image': soup.find('meta', attrs={'property': 'og:image'}),
+            'og:site_name': soup.find('meta', attrs={'property': 'og:site_name'})
+        }
+        for key, tag in og_tags.items():
+            if tag and tag.get('content'):
+                metadata['og_data'][key.replace('og:', '')] = tag['content'].strip()
             
-        # 3. Services (Heuristic: Look for "Leistungen", "Services", "Angebot" in nav or headings)
+        # 6. Services (Heuristic: Look for "Leistungen", "Services", "Angebot" in nav or headings)
         services = set()
         # Check navigation links
         nav_links = soup.find_all('a', href=True)
@@ -272,7 +324,7 @@ class ImpressumScraper:
                             
         metadata['services'] = list(services)[:5] # Limit to top 5 detected services
         
-        # 4. About Text (Heuristic: "Über uns", "About us" sections or first substantial paragraph)
+        # 7. About Text (Heuristic: "Über uns", "About us" sections or first substantial paragraph)
         about_text = ""
         # Try to find "Über uns" section
         about_section = soup.find(string=re.compile(r'Über uns|About us', re.I))

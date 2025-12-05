@@ -565,16 +565,32 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
                             </dl>
                           </div>
                           <div>
-                            <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Metadata</h4>
-                            <dl className="space-y-4 text-sm">
+                            <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Metadaten</h4>
+                            <dl className="space-y-3 text-sm">
                               <div>
-                                <dt className="text-gray-500 text-xs mb-1">meta_description</dt>
-                                <dd className="text-gray-400 italic bg-white/5 p-2 rounded border border-white/5 text-xs h-20 overflow-y-auto custom-scrollbar">
-                                  {lead.meta_description || 'Keine Meta-Description gefunden'}
+                                <dt className="text-gray-500 text-xs mb-1">Meta-Beschreibung</dt>
+                                <dd className="text-gray-400 italic bg-white/5 p-2 rounded border border-white/5 text-xs h-16 overflow-y-auto custom-scrollbar">
+                                  {lead.meta_description || 'Keine Meta-Beschreibung gefunden'}
                                 </dd>
                               </div>
+                              {lead.headlines && lead.headlines.length > 0 && (
+                                <div>
+                                  <dt className="text-gray-500 text-xs mb-1">Headlines (H1/H2)</dt>
+                                  <dd className="text-gray-400 text-xs bg-white/5 p-2 rounded border border-white/5">
+                                    {lead.headlines.slice(0, 2).join(' • ')}
+                                  </dd>
+                                </div>
+                              )}
+                              {lead.schema_org && lead.schema_org.description && (
+                                <div>
+                                  <dt className="text-gray-500 text-xs mb-1">Schema.org Beschreibung</dt>
+                                  <dd className="text-gray-400 text-xs italic">
+                                    {lead.schema_org.description.slice(0, 100)}{lead.schema_org.description.length > 100 ? '...' : ''}
+                                  </dd>
+                                </div>
+                              )}
                               <div>
-                                <dt className="text-gray-500 text-xs mb-1">meta_keywords</dt>
+                                <dt className="text-gray-500 text-xs mb-1">Meta-Schlüsselwörter</dt>
                                 <dd className="text-gray-400 text-xs">
                                   {lead.meta_keywords || '-'}
                                 </dd>

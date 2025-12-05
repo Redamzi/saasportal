@@ -220,7 +220,11 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                         'meta_description': result.get('meta_description'),
                         'meta_keywords': result.get('meta_keywords'),
                         'services': result.get('services'),
-                        'about_text': result.get('about_text')
+                        'about_text': result.get('about_text'),
+                        # NEW: Additional metadata
+                        'schema_org': result.get('schema_org', {}),
+                        'headlines': result.get('headlines', []),
+                        'og_data': result.get('og_data', {})
                     }).eq('campaign_id', campaign_id).eq('website', result['url']).execute()
                     
                     found_count += 1
