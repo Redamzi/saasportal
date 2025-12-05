@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Eye, Search, Trash2, FolderKanban, Plus, X } from 'lucide-react'
+import { Eye, Search, Trash2, FolderKanban, Plus, X, RefreshCw } from 'lucide-react'
 import { getCurrentUser } from '../lib/supabase'
 import Layout from '../components/Layout'
 import MagicButton from '../components/MagicButton'
@@ -259,7 +259,14 @@ function Campaigns({ onNavigate }) {
               <div className="p-6 bg-black/20 grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 uppercase font-bold mb-1">Leads</p>
-                  <p className="text-2xl font-bold text-white">{campaign.leads_count || 0}</p>
+                  {campaign.status === 'crawling' ? (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw size={20} className="text-voyanero-400 animate-spin" />
+                      <p className="text-sm text-voyanero-400 font-medium">Suche läuft...</p>
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-bold text-white">{campaign.leads_count || 0}</p>
+                  )}
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 uppercase font-bold mb-1">Typ</p>
