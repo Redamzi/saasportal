@@ -601,9 +601,12 @@ class ImpressumScraper:
                 selenium_html = self.scrape_with_selenium(scraped_url)
                 if selenium_html:
                     emails = self.extract_emails_from_html(selenium_html)
-                    # Update metadata from Selenium HTML if it was empty before
+                    # Update metadata from Selenium HTML ONLY if homepage metadata was empty
+                    # AND use the homepage URL, not the impressum URL
                     if not metadata['meta_description']:
-                        metadata = self.extract_metadata(selenium_html)
+                        selenium_homepage_html = self.scrape_with_selenium(url)  # Use original homepage URL
+                        if selenium_homepage_html:
+                            metadata = self.extract_metadata(selenium_homepage_html)
                     if emails:
                         print(f"✅ Selenium found {len(emails)} email(s)!")
             
