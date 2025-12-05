@@ -560,8 +560,8 @@ class ImpressumScraper:
                 else:
                     raise
             
-            # Try to find Impressum page
-            impressum_url = self.find_impressum_url(url, homepage_html)
+            # Extract metadata from HOMEPAGE (primary source for description/keywords)
+            metadata = self.extract_metadata(homepage_html)
             
             # Scrape Impressum page if found, otherwise use homepage
             # Skip if we're already using Selenium (it loaded the full page with JS)
@@ -577,11 +577,20 @@ class ImpressumScraper:
                 html_to_scrape = homepage_html
                 scraped_url = url
             
-            # Extract emails from HTML
+            # Extract emails from HTML (Impressum or Homepage)
             emails = self.extract_emails_from_html(html_to_scrape)
             
-            # Extract metadata (NEW)
-            metadata = self.extract_metadata(html_to_scrape)
+            # If metadata from homepage was empty, try extracting from current page (Impressum)
+            if not metadata['meta_description']:
+                secondary_metadata = self.extract_metadata(html_to_scrape)
+                metadata['meta_description'] = secondary_metadata['meta_description']
+                if not metadata['meta_keywords']:
+                    metadata['meta_keywords'] = secondary_metadata['meta_keywords']
+                # Merge services
+                metadata['services'] = list(set(metadata['services'] + secondary_metadata['services']))[:5]
+                # Merge about text
+                if not metadata['about_text']:
+                    metadata['about_text'] = secondary_metadata['about_text']
             
             # HYBRID APPROACH: If no emails found and not already using Selenium, try it
             if not emails and not use_selenium and SELENIUM_AVAILABLE:
