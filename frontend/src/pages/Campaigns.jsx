@@ -378,31 +378,29 @@ function Campaigns({ onNavigate }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Radius (km)</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
                   <input
-                    type="number"
-                    name="radius"
-                    value={searchFormData.radius / 1000}
-                    onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })}
-                    min="1"
-                    max="50"
+                    type="text"
+                    name="keywords"
+                    value={searchFormData.keywords}
+                    onChange={handleSearchChange}
                     required
                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                    placeholder="5"
+                    placeholder="Restaurant, Cafe"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Radius: {searchFormData.radius / 1000} km</label>
                 <input
-                  type="text"
-                  name="keywords"
-                  value={searchFormData.keywords}
-                  onChange={handleSearchChange}
-                  required
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                  placeholder="Restaurant, Cafe"
+                  type="range"
+                  name="radius"
+                  value={searchFormData.radius / 1000}
+                  onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })}
+                  min="1"
+                  max="50"
+                  className="w-full accent-voyanero-500"
                 />
               </div>
 

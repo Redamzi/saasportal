@@ -42,13 +42,22 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
         # Get Outscraper service
         outscraper = get_outscraper_service()
         
-        # Build search query
+        # Build search query with radius hint
+        # Outscraper doesn't have direct radius param, but we can request more results
+        # and rely on Google's natural geographic sorting
+        radius_km = request.radius / 1000  # Convert meters to km
         query = f"{request.keywords} in {request.location}"
+        
+        # Request 3x the target to account for filtering (quality, duplicates, etc.)
+        # This ensures we get enough results even after filtering
+        search_limit = min(request.target_lead_count * 3, 500)
+        
+        print(f"🌍 Radius: {radius_km}km (requesting {search_limit} results for filtering)")
         
         # Search places with Outscraper
         places = outscraper.search_places(
             query=query,
-            limit=request.target_lead_count
+            limit=search_limit
         )
         
         print(f"✅ Outscraper returned {len(places)} places")
