@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_impressum_cache_created_at ON impressum_cache(cre
 CREATE INDEX IF NOT EXISTS idx_credit_transactions_user_id ON credit_transactions(user_id);
 
 -- Index for transaction type filtering
-CREATE INDEX IF NOT EXISTS idx_credit_transactions_type ON credit_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_credit_transactions_type ON credit_transactions(type);
 
 -- Index for created_at (for sorting transaction history)
 CREATE INDEX IF NOT EXISTS idx_credit_transactions_created_at ON credit_transactions(created_at DESC);
