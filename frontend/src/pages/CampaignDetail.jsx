@@ -386,7 +386,7 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
           </div>
           <div>
             <span className="text-gray-500 uppercase font-bold text-xs">Cost</span>
-            <p className="font-bold text-voyanero-400 mt-1">{campaign.credits_used || campaign.leads_count || 0} Credits</p>
+            <p className="font-bold text-voyanero-400 mt-1">{campaign.credits_used || leads.length || 0} Credits</p>
           </div>
         </div>
 
