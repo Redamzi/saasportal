@@ -428,16 +428,19 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
       </div>
 
       {/* Lead Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Total Leads', value: stats.total, color: 'text-white', bg: 'bg-white/5' },
-          { label: 'New', value: stats.new, color: 'text-voyanero-400', bg: 'bg-voyanero-500/10' },
-          { label: 'Contacted', value: stats.contacted, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
-          { label: 'Converted', value: stats.converted, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+          { label: 'Total Leads', value: stats.total, Icon: Database, color: 'text-white', bg: 'bg-white/5' },
+          { label: 'New', value: stats.new, Icon: Users, color: 'text-voyanero-400', bg: 'bg-voyanero-500/10' },
+          { label: 'Contacted', value: stats.contacted, Icon: Mail, color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+          { label: 'Converted', value: stats.converted, Icon: Check, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
         ].map((stat, i) => (
-          <div key={i} className={`${stat.bg} border border-white/5 rounded-2xl p-6`}>
-            <h3 className="text-xs font-bold text-gray-500 uppercase mb-2">{stat.label}</h3>
-            <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
+          <div key={i} className={`${stat.bg} border border-white/5 rounded-2xl p-6 relative overflow-hidden group`}>
+            <div className={`absolute top-4 right-4 p-2 rounded-xl bg-white/5 ${stat.color} opacity-50 group-hover:opacity-100 transition-opacity`}>
+              <stat.Icon size={20} />
+            </div>
+            <h3 className="text-xs font-bold text-gray-500 uppercase mb-2 relative z-10">{stat.label}</h3>
+            <p className={`text-3xl font-bold ${stat.color} relative z-10`}>{stat.value}</p>
           </div>
         ))}
       </div>
@@ -506,7 +509,9 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
                           </p>
                         </div>
                         <div className="text-gray-400 text-sm flex items-center gap-2">
-                          {lead.phone ? <><Phone size={14} /> {lead.phone}</> : <span className="text-gray-600">No Phone</span>}
+                          <span className={`${lead.city === 'Dortmund' ? 'text-white' : 'text-gray-400'} font-medium`}>
+                            {lead.city || 'No City'}
+                          </span>
                         </div>
                         <div className="text-gray-400 text-sm flex items-center gap-2">
                           {lead.email ? (
