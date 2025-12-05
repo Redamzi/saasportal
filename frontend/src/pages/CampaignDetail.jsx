@@ -402,13 +402,7 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
             {isCrawling ? <RefreshCw size={18} className="animate-spin" /> : <Search size={18} />}
             Enrich Emails
           </button>
-          <button
-            onClick={handleExportCSV}
-            disabled={leads.length === 0}
-            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-emerald-600/20"
-          >
-            <Download size={18} /> Export CSV
-          </button>
+
           <button
             onClick={handleGenerateAIEmails}
             disabled={leads.length === 0 || isGeneratingEmails}
@@ -447,10 +441,17 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
 
       {/* Leads List */}
       <div className="bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-white/5 bg-white/5">
+        <div className="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
             <Database className="text-voyanero-500" /> Leads
           </h3>
+          <button
+            onClick={handleExportCSV}
+            disabled={leads.length === 0}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-emerald-600/20 text-sm"
+          >
+            <Download size={16} /> Export CSV
+          </button>
         </div>
 
         {leads.length === 0 ? (
