@@ -123,6 +123,11 @@ function Campaigns({ onNavigate }) {
     handleCloseSearchModal()
     setIsCrawling(true)
 
+    // Immediately update the campaign status to 'crawling' in local state
+    setCampaigns(prev => prev.map(c =>
+      c.id === selectedCampaign.id ? { ...c, status: 'crawling' } : c
+    ))
+
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
       const response = await fetch(`${API_URL}/api/campaigns/crawl/start`, {
@@ -154,6 +159,11 @@ function Campaigns({ onNavigate }) {
                 clearInterval(pollInterval)
                 setIsCrawling(false)
                 loadData()
+              } else {
+                // Update campaign in list during polling
+                setCampaigns(prev => prev.map(c =>
+                  c.id === selectedCampaign.id ? { ...c, status: campaign.status, leads_count: statusData.leads?.length || 0 } : c
+                ))
               }
             }
           } catch (err) { console.error(err) }
@@ -171,6 +181,10 @@ function Campaigns({ onNavigate }) {
     } catch (error) {
       console.error('Error starting search:', error)
       setIsCrawling(false)
+      // Reset status on error
+      setCampaigns(prev => prev.map(c =>
+        c.id === selectedCampaign.id ? { ...c, status: 'draft' } : c
+      ))
     }
   }
 
