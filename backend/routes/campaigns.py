@@ -243,14 +243,15 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
         }).eq('id', campaign_id).execute()
         
         # Deduct credits for found leads
-        if leads_added > 0:
-            print(f"💳 Deducting {leads_added} credits")
-            supabase.rpc('deduct_credits', {
-                'p_user_id': user_id,
-                'p_amount': leads_added,
-                'p_description': f'Lead crawl for campaign {campaign_id}',
-                'p_metadata': {'campaign_id': campaign_id, 'leads_count': leads_added, 'source': 'outscraper'}
-            }).execute()
+        # Deduct credits for found leads (1 credit per lead)
+        credits_to_deduct = leads_added
+        print(f"💳 Deducting {credits_to_deduct} credits for {leads_added} leads")
+        supabase.rpc('deduct_credits', {
+            'p_user_id': user_id,
+            'p_amount': credits_to_deduct,
+            'p_description': f'Crawled {leads_added} leads for campaign {campaign_id}',
+            'p_metadata': {'campaign_id': campaign_id, 'leads_count': leads_added, 'source': 'outscraper'}
+        }).execute()
 
     except Exception as e:
         print(f"💥 Crawling failed: {str(e)}")
@@ -371,10 +372,12 @@ async def start_crawl(request: CrawlRequest, background_tasks: BackgroundTasks):
         current_credits = user_res.data.get('credits_balance', 0)
         
         # Check if user has enough credits (1 credit per lead)
-        if current_credits < request.target_lead_count:
+        required_credits = request.target_lead_count
+        if current_credits < required_credits:
+            # If not enough credits, return 402 Payment Required
             raise HTTPException(
                 status_code=402, 
-                detail=f"Insufficient credits. You have {current_credits} credits but need {request.target_lead_count} credits. Please purchase more credits."
+                detail=f"Insufficient credits. You have {current_credits} credits but need {required_credits} credits. Please purchase more credits."
             )
     except HTTPException:
         raise

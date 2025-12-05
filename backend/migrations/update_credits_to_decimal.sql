@@ -15,6 +15,12 @@ ALTER COLUMN credits_balance SET DEFAULT 10.00;
 
 -- 4. Update Functions
 
+-- Drop existing functions first (required to change return types or parameter types clean)
+DROP FUNCTION IF EXISTS public.get_user_credits(UUID);
+DROP FUNCTION IF EXISTS public.add_credits(UUID, INTEGER, TEXT, JSONB);
+DROP FUNCTION IF EXISTS public.deduct_credits(UUID, INTEGER, TEXT, JSONB);
+DROP FUNCTION IF EXISTS public.refund_credits(UUID, INTEGER, TEXT, UUID);
+
 -- ADD_CREDITS
 CREATE OR REPLACE FUNCTION public.add_credits(
     p_user_id UUID,

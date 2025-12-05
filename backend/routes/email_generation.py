@@ -171,20 +171,17 @@ async def generate_emails_for_campaign(campaign_id: str):
                     "status": "draft"
                 }).execute()
                 
+                # 7. Deduct credits (0.5 credits per generated email)
+                credits_to_deduct = 0.5
+                await supabase.rpc('deduct_credits', {
+                    'p_user_id': user_id, 
+                    'p_amount': credits_to_deduct, 
+                    'p_description': f"Email generation for lead {lead.get('id')} in campaign {campaign_id}"
+                }).execute()
+                
                 generated_count += 1
                 
             except Exception as e:
-                failed_count += 1
-                error_msg = f"Lead {lead.get('company_name', 'Unknown')}: {str(e)}"
-                errors.append(error_msg)
-                print(f"❌ Email generation error: {error_msg}")
-                traceback.print_exc()
-        
-        # 7. Deduct credits (0.5 credits per generated email)
-        if generated_count > 0:
-            credits_to_deduct = generated_count * 0.5
-            # TODO: Implement credit deduction
-            # await deduct_credits(user_id, credits_to_deduct, f"Email generation for campaign {campaign_id}")
         
         return EmailGenerationResponse(
             generated_count=generated_count,

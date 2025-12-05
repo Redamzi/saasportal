@@ -597,8 +597,8 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
                         key={i}
                         onClick={() => setCurrentPage(i)}
                         className={`px-3 py-2 rounded-lg font-medium transition ${i === currentPage
-                            ? 'bg-voyanero-500 text-white'
-                            : 'bg-white/5 hover:bg-white/10 text-white'
+                          ? 'bg-voyanero-500 text-white'
+                          : 'bg-white/5 hover:bg-white/10 text-white'
                           }`}
                       >
                         {i}
@@ -627,35 +627,71 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-[#0B1121] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">Add More Leads</h2>
+              <h2 className="text-xl font-bold text-white">Leads suchen</h2>
               <button onClick={handleCloseSearchModal} className="text-gray-400 hover:text-white"><X size={24} /></button>
             </div>
             <form onSubmit={handleStartSearch} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Location</label>
-                  <input type="text" name="location" value={searchFormData.location} onChange={(e) => setSearchFormData({ ...searchFormData, location: e.target.value })} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" />
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Ort</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={searchFormData.location}
+                    onChange={(e) => setSearchFormData({ ...searchFormData, location: e.target.value })}
+                    required
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                    placeholder="M√ºnchen"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Radius (km)</label>
-                  <input type="number" name="radius" value={searchFormData.radius / 1000} onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })} min="1" max="50" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" placeholder="5" />
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
+                  <input
+                    type="text"
+                    name="keywords"
+                    value={searchFormData.keywords}
+                    onChange={(e) => setSearchFormData({ ...searchFormData, keywords: e.target.value })}
+                    required
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                    placeholder="Restaurant, Cafe"
+                  />
                 </div>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
-                <input type="text" name="keywords" value={searchFormData.keywords} onChange={(e) => setSearchFormData({ ...searchFormData, keywords: e.target.value })} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Radius: {searchFormData.radius / 1000} km</label>
+                <input
+                  type="range"
+                  name="radius"
+                  value={searchFormData.radius / 1000}
+                  onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })}
+                  min="1"
+                  max="50"
+                  className="w-full accent-voyanero-500"
+                />
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Leads: {searchFormData.targetLeadCount}</label>
-                <input type="range" name="targetLeadCount" value={searchFormData.targetLeadCount} onChange={(e) => setSearchFormData({ ...searchFormData, targetLeadCount: e.target.value })} min="10" max="500" className="w-full accent-voyanero-500" />
+                <label className="block text-sm font-medium text-gray-300 mb-1">Anzahl Leads: {searchFormData.targetLeadCount}</label>
+                <input
+                  type="range"
+                  name="targetLeadCount"
+                  value={searchFormData.targetLeadCount}
+                  onChange={(e) => setSearchFormData({ ...searchFormData, targetLeadCount: e.target.value })}
+                  min="10"
+                  max="500"
+                  className="w-full accent-voyanero-500"
+                />
               </div>
+
               <div className="bg-voyanero-500/10 border border-voyanero-500/20 p-4 rounded-xl">
-                <p className="text-voyanero-400 font-bold">Cost: {parseInt(searchFormData.targetLeadCount) || 10} Credits</p>
+                <p className="text-voyanero-400 font-bold">Kosten: {parseInt(searchFormData.targetLeadCount) || 10} Credits</p>
               </div>
+
               <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={handleCloseSearchModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Cancel</button>
+                <button type="button" onClick={handleCloseSearchModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Abbrechen</button>
                 <MagicButton type="submit" icon={Search} className="py-2 px-6">
-                  Start Search
+                  Suche starten
                 </MagicButton>
               </div>
             </form>
