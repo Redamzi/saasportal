@@ -312,6 +312,18 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} WÃ¶rter. Trenne alle AbsÃ
     }
   }
 
+  const handleCloseSearchModal = () => {
+    setShowSearchModal(false)
+    setSearchFormData({
+      location: '',
+      radius: 5000,
+      keywords: '',
+      targetLeadCount: 10,
+      minRating: 0,
+      minReviews: 0,
+    })
+  }
+
   const handleEnrichEmails = async () => {
     const leadsToEnrich = leads.filter(l => l.website && !l.email)
     if (leadsToEnrich.length === 0) { alert('No leads found to enrich'); return }
