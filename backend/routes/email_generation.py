@@ -182,6 +182,11 @@ async def generate_emails_for_campaign(campaign_id: str):
                 generated_count += 1
                 
             except Exception as e:
+                failed_count += 1
+                error_msg = f"Lead {lead.get('company_name', 'Unknown')}: {str(e)}"
+                errors.append(error_msg)
+                print(f"❌ Email generation error: {error_msg}")
+                traceback.print_exc()
         
         return EmailGenerationResponse(
             generated_count=generated_count,
