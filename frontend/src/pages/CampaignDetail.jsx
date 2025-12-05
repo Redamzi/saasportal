@@ -556,19 +556,52 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
                                   {lead.website ? <a href={lead.website} target="_blank" className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Globe size={12} /> {lead.website}</a> : '-'}
                                 </dd>
                               </div>
+                              <div className="flex justify-between border-b border-white/5 pb-2">
+                                <dt className="text-gray-500">Telefon</dt>
+                                <dd className="text-gray-300 text-right">
+                                  {lead.phone ? <a href={`tel:${lead.phone}`} className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Phone size={12} /> {lead.phone}</a> : '-'}
+                                </dd>
+                              </div>
                             </dl>
                           </div>
                           <div>
-                            <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Actions</h4>
-                            <div className="flex flex-wrap gap-3">
-                              <button onClick={() => updateLeadStatus(lead.id, 'contacted')} className="px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-lg hover:bg-yellow-500/20 text-sm font-bold">Mark Contacted</button>
-                              <button onClick={() => updateLeadStatus(lead.id, 'invalid')} className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-sm font-bold">Mark Invalid</button>
-                              <button onClick={() => handleDeleteLead(lead.id, lead.company_name)} className="px-4 py-2 bg-white/5 text-gray-400 border border-white/10 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-sm font-bold ml-auto flex items-center gap-2"><Trash2 size={14} /> Delete</button>
-                            </div>
+                            <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Metadata</h4>
+                            <dl className="space-y-4 text-sm">
+                              <div>
+                                <dt className="text-gray-500 text-xs mb-1">meta_description</dt>
+                                <dd className="text-gray-400 italic bg-white/5 p-2 rounded border border-white/5 text-xs h-20 overflow-y-auto custom-scrollbar">
+                                  {lead.meta_description || 'Keine Meta-Description gefunden'}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt className="text-gray-500 text-xs mb-1">meta_keywords</dt>
+                                <dd className="text-gray-400 text-xs">
+                                  {lead.meta_keywords || '-'}
+                                </dd>
+                              </div>
+                              <div>
+                                <dt className="text-gray-500 text-xs mb-1">Service</dt>
+                                <dd className="text-gray-400 text-xs">
+                                  {lead.services ? lead.services.slice(0, 100) + (lead.services.length > 100 ? '...' : '') : '-'}
+                                </dd>
+                              </div>
+                            </dl>
                           </div>
                         </div>
+
+                        {/* Action Footer */}
+                        <div className="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
+                          <div className="flex gap-2">
+                            <button onClick={() => updateLeadStatus(lead.id, 'contacted')} className="px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-lg hover:bg-yellow-500/20 text-sm font-bold">Mark Contacted</button>
+                            <button onClick={() => updateLeadStatus(lead.id, 'invalid')} className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-sm font-bold">Mark Invalid</button>
+                          </div>
+                          <button onClick={() => handleDeleteLead(lead.id, lead.company_name)} className="px-4 py-2 bg-white/5 text-gray-400 border border-white/10 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-sm font-bold flex items-center gap-2">
+                            <Trash2 size={14} /> Delete
+                          </button>
+                        </div>
                       </div>
-                    )}
+                    )
+                    }
                   </div>
                 )
               })
@@ -629,309 +662,317 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
       </div>
 
       {/* Modals */}
-      {showSearchModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-[#0B1121] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-white">Leads suchen</h2>
-              <button onClick={handleCloseSearchModal} className="text-gray-400 hover:text-white"><X size={24} /></button>
+      {
+        showSearchModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-[#0B1121] border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                <h2 className="text-xl font-bold text-white">Leads suchen</h2>
+                <button onClick={handleCloseSearchModal} className="text-gray-400 hover:text-white"><X size={24} /></button>
+              </div>
+              <form onSubmit={handleStartSearch} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Ort</label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={searchFormData.location}
+                      onChange={(e) => setSearchFormData({ ...searchFormData, location: e.target.value })}
+                      required
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      placeholder="München"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
+                    <input
+                      type="text"
+                      name="keywords"
+                      value={searchFormData.keywords}
+                      onChange={(e) => setSearchFormData({ ...searchFormData, keywords: e.target.value })}
+                      required
+                      className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                      placeholder="Restaurant, Cafe"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Radius: {searchFormData.radius / 1000} km</label>
+                  <input
+                    type="range"
+                    name="radius"
+                    value={searchFormData.radius / 1000}
+                    onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })}
+                    min="1"
+                    max="50"
+                    className="w-full accent-voyanero-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Anzahl Leads: {searchFormData.targetLeadCount}</label>
+                  <input
+                    type="range"
+                    name="targetLeadCount"
+                    value={searchFormData.targetLeadCount}
+                    onChange={(e) => setSearchFormData({ ...searchFormData, targetLeadCount: e.target.value })}
+                    min="10"
+                    max="500"
+                    className="w-full accent-voyanero-500"
+                  />
+                </div>
+
+                <div className="bg-voyanero-500/10 border border-voyanero-500/20 p-4 rounded-xl">
+                  <p className="text-voyanero-400 font-bold">Kosten: {parseInt(searchFormData.targetLeadCount) || 10} Credits</p>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <button type="button" onClick={handleCloseSearchModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Abbrechen</button>
+                  <MagicButton type="submit" icon={Search} className="py-2 px-6">
+                    Suche starten
+                  </MagicButton>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleStartSearch} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Ort</label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={searchFormData.location}
-                    onChange={(e) => setSearchFormData({ ...searchFormData, location: e.target.value })}
-                    required
-                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                    placeholder="München"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
-                  <input
-                    type="text"
-                    name="keywords"
-                    value={searchFormData.keywords}
-                    onChange={(e) => setSearchFormData({ ...searchFormData, keywords: e.target.value })}
-                    required
-                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                    placeholder="Restaurant, Cafe"
-                  />
-                </div>
-              </div>
+          </div>
+        )
+      }
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Radius: {searchFormData.radius / 1000} km</label>
-                <input
-                  type="range"
-                  name="radius"
-                  value={searchFormData.radius / 1000}
-                  onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })}
-                  min="1"
-                  max="50"
-                  className="w-full accent-voyanero-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Anzahl Leads: {searchFormData.targetLeadCount}</label>
-                <input
-                  type="range"
-                  name="targetLeadCount"
-                  value={searchFormData.targetLeadCount}
-                  onChange={(e) => setSearchFormData({ ...searchFormData, targetLeadCount: e.target.value })}
-                  min="10"
-                  max="500"
-                  className="w-full accent-voyanero-500"
-                />
-              </div>
-
-              <div className="bg-voyanero-500/10 border border-voyanero-500/20 p-4 rounded-xl">
-                <p className="text-voyanero-400 font-bold">Kosten: {parseInt(searchFormData.targetLeadCount) || 10} Credits</p>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button type="button" onClick={handleCloseSearchModal} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Abbrechen</button>
-                <MagicButton type="submit" icon={Search} className="py-2 px-6">
-                  Suche starten
+      {
+        showEmailModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#0B1121] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+              <h3 className="text-xl font-bold text-white mb-4">Add Manual Email</h3>
+              <input type="email" value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} placeholder="name@company.com" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none mb-4" autoFocus />
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setShowEmailModal(false)} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Cancel</button>
+                <MagicButton onClick={handleSaveManualEmail} disabled={!manualEmail} className="py-2 px-6">
+                  Save
                 </MagicButton>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showEmailModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0B1121] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-4">Add Manual Email</h3>
-            <input type="email" value={manualEmail} onChange={(e) => setManualEmail(e.target.value)} placeholder="name@company.com" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none mb-4" autoFocus />
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setShowEmailModal(false)} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold">Cancel</button>
-              <MagicButton onClick={handleSaveManualEmail} disabled={!manualEmail} className="py-2 px-6">
-                Save
-              </MagicButton>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Email Configuration Modal */}
-      {showEmailConfigModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0B1121] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0B1121] z-10">
-              <h2 className="text-xl font-bold text-white">AI Email-Konfiguration</h2>
-              <button onClick={() => setShowEmailConfigModal(false)} className="text-gray-400 hover:text-white">
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-8">
-              {/* Custom Prompt Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Email-Prompt (Custom AI-Anweisungen)
-                </label>
-                <textarea
-                  value={emailConfigData.customPrompt || ''}
-                  onChange={(e) => setEmailConfigData({ ...emailConfigData, customPrompt: e.target.value })}
-                  rows={20}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none font-mono text-sm"
-                  placeholder="Beschreibe deinen Email-Stil und wichtige Details..."
-                  style={{ width: '100%', maxWidth: '100%' }}
-                />
-                <p className="text-xs text-gray-400 mt-2">
-                  💡 Tipp: Definiere hier deinen eigenen Prompt für die AI-Generierung. Lass leer für Standard-Prompt.
-                </p>
-              </div>
-
-              {/* Section 2: Akquise-Ziel */}
-              <div className="border-t border-white/10 pt-8">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-voyanero-500" />
-                  Akquise-Ziel
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Hauptziel der Email
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={emailConfigData.acquisitionGoal}
-                        onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionGoal: e.target.value })}
-                        className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
-                      >
-                        <option value="first_contact">Erstkontakt herstellen</option>
-                        <option value="appointment">Termin vereinbaren</option>
-                        <option value="demo">Demo/Call vorschlagen</option>
-                        <option value="offer">Angebot anbieten</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
-                        <ChevronDown size={16} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 3: Tonfall & Stil */}
-              <div className="border-t border-white/10 pt-8">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-voyanero-500" />
-                  Tonfall & Stil
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Tonfall
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={emailConfigData.emailTone}
-                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailTone: e.target.value })}
-                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
-                        >
-                          <option value="professional">Professionell</option>
-                          <option value="friendly">Freundlich</option>
-                          <option value="casual">Locker</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
-                          <ChevronDown size={16} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Anrede
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={emailConfigData.emailFormality}
-                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailFormality: e.target.value })}
-                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
-                        >
-                          <option value="sie">Sie (förmlich)</option>
-                          <option value="du">Du (informell)</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
-                          <ChevronDown size={16} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Sprache
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={emailConfigData.emailLanguage}
-                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailLanguage: e.target.value })}
-                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
-                        >
-                          <option value="de">Deutsch</option>
-                          <option value="en">English</option>
-                          <option value="fr">Français</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
-                          <ChevronDown size={16} />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Max. Wortanzahl: {emailConfigData.emailMaxLength}
-                      </label>
-                      <input
-                        type="range"
-                        min="100"
-                        max="200"
-                        step="50"
-                        value={emailConfigData.emailMaxLength}
-                        onChange={(e) => setEmailConfigData({ ...emailConfigData, emailMaxLength: parseInt(e.target.value) })}
-                        className="w-full accent-voyanero-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Save Button */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  onClick={() => setShowEmailConfigModal(false)}
-                  className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold"
-                >
-                  Abbrechen
+      {
+        showEmailConfigModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#0B1121] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#0B1121] z-10">
+                <h2 className="text-xl font-bold text-white">AI Email-Konfiguration</h2>
+                <button onClick={() => setShowEmailConfigModal(false)} className="text-gray-400 hover:text-white">
+                  <X size={24} />
                 </button>
-                <MagicButton
-                  onClick={async () => {
-                    try {
-                      const { supabase } = await import('../lib/supabase')
+              </div>
 
-                      // Save email config as JSON field
-                      const emailConfig = {
-                        target_company_size: emailConfigData.targetCompanySize,
-                        email_goal: emailConfigData.acquisitionGoal,
-                        tone: emailConfigData.emailTone,
-                        salutation: emailConfigData.emailFormality,
-                        language: emailConfigData.emailLanguage,
-                        max_words: emailConfigData.emailMaxLength,
-                        custom_prompt: emailConfigData.customPrompt || null,
+              <div className="p-6 space-y-8">
+                {/* Custom Prompt Field */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Email-Prompt (Custom AI-Anweisungen)
+                  </label>
+                  <textarea
+                    value={emailConfigData.customPrompt || ''}
+                    onChange={(e) => setEmailConfigData({ ...emailConfigData, customPrompt: e.target.value })}
+                    rows={20}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-voyanero-500 outline-none resize-none font-mono text-sm"
+                    placeholder="Beschreibe deinen Email-Stil und wichtige Details..."
+                    style={{ width: '100%', maxWidth: '100%' }}
+                  />
+                  <p className="text-xs text-gray-400 mt-2">
+                    💡 Tipp: Definiere hier deinen eigenen Prompt für die AI-Generierung. Lass leer für Standard-Prompt.
+                  </p>
+                </div>
+
+                {/* Section 2: Akquise-Ziel */}
+                <div className="border-t border-white/10 pt-8">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-voyanero-500" />
+                    Akquise-Ziel
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Hauptziel der Email
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={emailConfigData.acquisitionGoal}
+                          onChange={(e) => setEmailConfigData({ ...emailConfigData, acquisitionGoal: e.target.value })}
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                        >
+                          <option value="first_contact">Erstkontakt herstellen</option>
+                          <option value="appointment">Termin vereinbaren</option>
+                          <option value="demo">Demo/Call vorschlagen</option>
+                          <option value="offer">Angebot anbieten</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                          <ChevronDown size={16} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 3: Tonfall & Stil */}
+                <div className="border-t border-white/10 pt-8">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-voyanero-500" />
+                    Tonfall & Stil
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Tonfall
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={emailConfigData.emailTone}
+                            onChange={(e) => setEmailConfigData({ ...emailConfigData, emailTone: e.target.value })}
+                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                          >
+                            <option value="professional">Professionell</option>
+                            <option value="friendly">Freundlich</option>
+                            <option value="casual">Locker</option>
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                            <ChevronDown size={16} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Anrede
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={emailConfigData.emailFormality}
+                            onChange={(e) => setEmailConfigData({ ...emailConfigData, emailFormality: e.target.value })}
+                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                          >
+                            <option value="sie">Sie (förmlich)</option>
+                            <option value="du">Du (informell)</option>
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                            <ChevronDown size={16} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Sprache
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={emailConfigData.emailLanguage}
+                            onChange={(e) => setEmailConfigData({ ...emailConfigData, emailLanguage: e.target.value })}
+                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-voyanero-500 outline-none appearance-none"
+                          >
+                            <option value="de">Deutsch</option>
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
+                            <ChevronDown size={16} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                          Max. Wortanzahl: {emailConfigData.emailMaxLength}
+                        </label>
+                        <input
+                          type="range"
+                          min="100"
+                          max="200"
+                          step="50"
+                          value={emailConfigData.emailMaxLength}
+                          onChange={(e) => setEmailConfigData({ ...emailConfigData, emailMaxLength: parseInt(e.target.value) })}
+                          className="w-full accent-voyanero-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+                  <button
+                    onClick={() => setShowEmailConfigModal(false)}
+                    className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-bold"
+                  >
+                    Abbrechen
+                  </button>
+                  <MagicButton
+                    onClick={async () => {
+                      try {
+                        const { supabase } = await import('../lib/supabase')
+
+                        // Save email config as JSON field
+                        const emailConfig = {
+                          target_company_size: emailConfigData.targetCompanySize,
+                          email_goal: emailConfigData.acquisitionGoal,
+                          tone: emailConfigData.emailTone,
+                          salutation: emailConfigData.emailFormality,
+                          language: emailConfigData.emailLanguage,
+                          max_words: emailConfigData.emailMaxLength,
+                          custom_prompt: emailConfigData.customPrompt || null,
+                        }
+
+                        const { error } = await supabase
+                          .from('campaigns')
+                          .update({ email_config: emailConfig, email_config_completed: true })
+                          .eq('id', campaignId)
+
+                        if (error) throw error
+
+                        setShowEmailConfigModal(false)
+
+                        // Now trigger email generation
+                        await handleConfirmGenerateAIEmails()
+
+                      } catch (error) {
+                        console.error('Error saving email config:', error)
+                        alert('❌ Fehler beim Speichern')
                       }
-
-                      const { error } = await supabase
-                        .from('campaigns')
-                        .update({ email_config: emailConfig, email_config_completed: true })
-                        .eq('id', campaignId)
-
-                      if (error) throw error
-
-                      setShowEmailConfigModal(false)
-
-                      // Now trigger email generation
-                      await handleConfirmGenerateAIEmails()
-
-                    } catch (error) {
-                      console.error('Error saving email config:', error)
-                      alert('❌ Fehler beim Speichern')
-                    }
-                  }}
-                  className="py-2 px-6"
-                >
-                  Emails generieren
-                </MagicButton>
+                    }}
+                    className="py-2 px-6"
+                  >
+                    Emails generieren
+                  </MagicButton>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Email Preview Modal */}
-      {showEmailPreviewModal && selectedEmail && (
-        <EmailPreviewModal
-          email={selectedEmail}
-          lead={selectedEmailLead}
-          onClose={() => {
-            setShowEmailPreviewModal(false)
-            setSelectedEmail(null)
-            setSelectedEmailLead(null)
-          }}
-          onSave={(updates) => handleSaveEmail(selectedEmail.id, updates)}
-        />
-      )}
-    </Layout>
+      {
+        showEmailPreviewModal && selectedEmail && (
+          <EmailPreviewModal
+            email={selectedEmail}
+            lead={selectedEmailLead}
+            onClose={() => {
+              setShowEmailPreviewModal(false)
+              setSelectedEmail(null)
+              setSelectedEmailLead(null)
+            }}
+            onSave={(updates) => handleSaveEmail(selectedEmail.id, updates)}
+          />
+        )
+      }
+    </Layout >
   )
 }
 
