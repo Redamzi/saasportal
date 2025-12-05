@@ -560,6 +560,9 @@ class ImpressumScraper:
                 else:
                     raise
             
+            # Try to find Impressum page
+            impressum_url = self.find_impressum_url(url, homepage_html)
+
             # Extract metadata from HOMEPAGE (primary source for description/keywords)
             metadata = self.extract_metadata(homepage_html)
             

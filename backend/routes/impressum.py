@@ -104,7 +104,7 @@ async def crawl_batch_background(websites: List[str], campaign_id: Optional[str]
     
     print(f"🔍 Starting batch crawl for {len(websites)} websites")
     
-    results = scraper.scrape_batch(websites, delay=0.5)
+    results = scraper.scrape_batch(websites)
     
     # Save results to cache and update leads
     for result in results:
