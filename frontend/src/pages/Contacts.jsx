@@ -38,17 +38,13 @@ export default function Contacts({ onNavigate }) {
     }
 
     const handleDeleteLead = async (leadId, leadName) => {
-        if (!confirm(`Kontakt "${leadName}" wirklich löschen?`)) return
-
         try {
             const { error } = await supabase.from('leads').delete().eq('id', leadId)
             if (error) throw error
             setLeads(leads.filter(l => l.id !== leadId))
             if (expandedLead === leadId) setExpandedLead(null)
-            alert('✅ Kontakt erfolgreich gelöscht!')
         } catch (error) {
             console.error('Delete error:', error)
-            alert(`❌ Fehler beim Löschen: ${error.message}`)
         }
     }
 
@@ -62,11 +58,9 @@ export default function Contacts({ onNavigate }) {
             })
             if (response.ok) {
                 await loadData()
-                alert(`✅ Kontakt als ${status === 'invalid' ? 'ungültig' : 'kontaktiert'} markiert`)
             } else throw new Error('Failed to update status')
         } catch (error) {
             console.error('Error updating status:', error)
-            alert('❌ Fehler beim Markieren')
         }
     }
 
@@ -90,14 +84,12 @@ export default function Contacts({ onNavigate }) {
                 setSelectedLeadForEmail(null)
                 setManualEmail('')
                 await loadData()
-                alert('✅ Email erfolgreich hinzugefügt')
             } else {
                 const error = await response.json()
                 throw new Error(error.detail || 'Failed to add email')
             }
         } catch (error) {
             console.error('Error adding manual email:', error)
-            alert(`❌ Fehler: ${error.message}`)
         }
     }
 
@@ -206,9 +198,9 @@ export default function Contacts({ onNavigate }) {
                                             </div>
                                             <div className="flex items-center justify-end gap-3">
                                                 <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider border ${lead.status === 'contacted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                                                        lead.status === 'converted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                                            lead.status === 'invalid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                                                                'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                                                    lead.status === 'converted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                                                        lead.status === 'invalid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                                            'bg-gray-500/10 text-gray-400 border-gray-500/20'
                                                     }`}>
                                                     {lead.status || 'new'}
                                                 </span>

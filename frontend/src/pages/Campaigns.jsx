@@ -90,12 +90,10 @@ function Campaigns({ onNavigate }) {
 
       if (data.success) {
         setCampaigns((prev) => [data.campaign, ...prev])
-        alert('✅ Campaign created successfully!')
         handleCloseCreateModal()
       }
     } catch (error) {
       console.error('Error creating campaign:', error)
-      alert('❌ Failed to create campaign.')
     }
   }
 
@@ -156,8 +154,6 @@ function Campaigns({ onNavigate }) {
                 clearInterval(pollInterval)
                 setIsCrawling(false)
                 loadData()
-                if (campaign.status === 'completed') alert(`✅ Lead search completed! Found: ${statusData.leads?.length || 0}`)
-                else alert(`❌ Lead search failed: ${campaign.metadata?.error || 'Unknown error'}`)
               }
             }
           } catch (err) { console.error(err) }
@@ -167,7 +163,6 @@ function Campaigns({ onNavigate }) {
           clearInterval(pollInterval)
           setIsCrawling(false)
           loadData()
-          alert('⏱️ Crawl is taking longer than expected.')
         }, 60000)
       } else {
         setIsCrawling(false)
@@ -176,13 +171,10 @@ function Campaigns({ onNavigate }) {
     } catch (error) {
       console.error('Error starting search:', error)
       setIsCrawling(false)
-      alert('❌ Failed to start lead search.')
     }
   }
 
   const handleDeleteCampaign = async (campaignId, campaignName) => {
-    if (!window.confirm(`Campaign "${campaignName}" wirklich löschen?`)) return
-
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
       const response = await fetch(`${API_URL}/api/campaigns/${campaignId}`, {
@@ -192,10 +184,8 @@ function Campaigns({ onNavigate }) {
 
       if (!response.ok) throw new Error('Failed to delete')
       setCampaigns(campaigns.filter(c => c.id !== campaignId))
-      alert('✅ Campaign gelöscht!')
     } catch (error) {
       console.error('Delete error:', error)
-      alert('❌ Fehler beim Löschen.')
     }
   }
 
@@ -367,17 +357,32 @@ function Campaigns({ onNavigate }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Radius (km)</label>
                   <input
-                    type="text"
-                    name="keywords"
-                    value={searchFormData.keywords}
-                    onChange={handleSearchChange}
+                    type="number"
+                    name="radius"
+                    value={searchFormData.radius / 1000}
+                    onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })}
+                    min="1"
+                    max="50"
                     required
                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
-                    placeholder="Restaurant, Cafe"
+                    placeholder="5"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
+                <input
+                  type="text"
+                  name="keywords"
+                  value={searchFormData.keywords}
+                  onChange={handleSearchChange}
+                  required
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none"
+                  placeholder="Restaurant, Cafe"
+                />
               </div>
 
               <div>
@@ -388,7 +393,7 @@ function Campaigns({ onNavigate }) {
                   value={searchFormData.targetLeadCount}
                   onChange={handleSearchChange}
                   min="10"
-                  max="100"
+                  max="500"
                   className="w-full accent-voyanero-500"
                 />
               </div>

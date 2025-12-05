@@ -216,7 +216,6 @@ function Settings({ onNavigate }) {
                       type="button"
                       onClick={async () => {
                         if (!formData.websiteUrl) {
-                          alert('Bitte gib eine Website-URL ein')
                           return
                         }
 

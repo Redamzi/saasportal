@@ -185,7 +185,6 @@ export default function Dashboard({ onNavigate }) {
       if (error) throw error
 
       if (!leads || leads.length === 0) {
-        alert('Keine Leads zum Exportieren gefunden.')
         return
       }
 
@@ -208,7 +207,6 @@ export default function Dashboard({ onNavigate }) {
       window.URL.revokeObjectURL(url)
     } catch (error) {
       console.error('Export error:', error)
-      alert('Fehler beim Exportieren der Daten.')
     }
   }
 

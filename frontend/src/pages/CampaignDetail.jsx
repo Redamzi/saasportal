@@ -132,20 +132,12 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
   }
 
   const handleConfirmGenerateAIEmails = async () => {
-    // Only count leads that have an email address
     const leadsWithEmail = leads.filter(lead => lead.email)
     const emailCount = leadsWithEmail.length
-    const leadsWithoutEmail = leads.length - emailCount
-    const creditCost = emailCount * 0.5
 
     if (emailCount === 0) {
-      alert(`❌ Keine Leads mit Email-Adresse gefunden!\n\n${leadsWithoutEmail} Leads haben keine Email.`)
       return
     }
-
-    const confirmMessage = `AI-Emails für ${emailCount} Leads generieren?\n\nKosten: ${creditCost} Credits${leadsWithoutEmail > 0 ? `\n\n⚠️ ${leadsWithoutEmail} Leads ohne Email werden übersprungen` : ''}`
-
-    if (!confirm(confirmMessage)) return
 
     setIsGeneratingEmails(true)
     try {
@@ -156,16 +148,10 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
       })
 
       if (response.ok) {
-        const result = await response.json()
-        alert(`✅ ${result.generated_count} Emails generiert!\n${result.failed_count > 0 ? `⚠️ ${result.failed_count} Fehler` : ''}`)
         await loadGeneratedEmails()
-      } else {
-        const error = await response.json()
-        throw new Error(error.detail || 'Fehler bei der Email-Generierung')
       }
     } catch (error) {
       console.error('Error generating emails:', error)
-      alert(`❌ Fehler: ${error.message}`)
     } finally {
       setIsGeneratingEmails(false)
     }
@@ -181,11 +167,8 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
       })
 
       if (response.ok) {
-        alert('✅ Email gespeichert!')
         await loadGeneratedEmails()
         setShowEmailPreviewModal(false)
-      } else {
-        throw new Error('Fehler beim Speichern')
       }
     } catch (error) {
       console.error('Error saving email:', error)
@@ -194,16 +177,13 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
   }
 
   const handleDeleteLead = async (leadId, leadName) => {
-    if (!confirm(`Kontakt "${leadName}" wirklich löschen?`)) return
     try {
       const { error } = await supabase.from('leads').delete().eq('id', leadId)
       if (error) throw error
       setLeads(leads.filter(l => l.id !== leadId))
       if (expandedLead === leadId) setExpandedLead(null)
-      alert('✅ Kontakt erfolgreich gelöscht!')
     } catch (error) {
       console.error('Delete error:', error)
-      alert(`❌ Fehler beim Löschen: ${error.message}`)
     }
   }
 
@@ -217,11 +197,9 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
       })
       if (response.ok) {
         await loadData()
-        alert(`✅ Lead als ${status === 'invalid' ? 'ungültig' : 'kontaktiert'} markiert`)
       } else throw new Error('Failed to update status')
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('❌ Fehler beim Markieren')
     }
   }
 
@@ -245,19 +223,17 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
         setSelectedLeadForEmail(null)
         setManualEmail('')
         await loadData()
-        alert('✅ Email erfolgreich hinzugefügt')
       } else {
         const error = await response.json()
         throw new Error(error.detail || 'Failed to add email')
       }
     } catch (error) {
       console.error('Error adding manual email:', error)
-      alert(`❌ Fehler: ${error.message}`)
     }
   }
 
   const handleExportCSV = () => {
-    if (leads.length === 0) { alert('No leads to export'); return }
+    if (leads.length === 0) return
     const headers = ['Name', 'Address', 'Phone', 'Email', 'Website', 'City', 'Industry', 'Rating', 'Reviews', 'Lead Score', 'Status']
     const csvContent = [
       headers.join(','),
@@ -299,7 +275,6 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
         setTimeout(() => {
           setIsCrawling(false)
           loadData()
-          alert(`✅ Lead search completed!\n\n${data.message}\n\nLeads found: ${data.leads_found}`)
         }, 2000)
       } else {
         setIsCrawling(false)
@@ -308,7 +283,6 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
     } catch (error) {
       console.error('Error starting search:', error)
       setIsCrawling(false)
-      alert('❌ Failed to start lead search.')
     }
   }
 
@@ -326,8 +300,8 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
 
   const handleEnrichEmails = async () => {
     const leadsToEnrich = leads.filter(l => l.website && !l.email)
-    if (leadsToEnrich.length === 0) { alert('No leads found to enrich'); return }
-    if (!confirm(`Found ${leadsToEnrich.length} leads to enrich. Start Impressum Crawler?`)) return
+    if (leadsToEnrich.length === 0) return
+
     setIsCrawling(true)
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -339,7 +313,6 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
       if (!response.ok) throw new Error('Failed to start batch crawl')
       const data = await response.json()
       if (data.success) {
-        alert(`✅ Started enriching ${data.count} leads!`)
         let checks = 0
         const interval = setInterval(() => {
           loadData(); checks++
@@ -352,7 +325,6 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
     } catch (error) {
       console.error('Error enriching emails:', error)
       setIsCrawling(false)
-      alert(`❌ Failed to start enrichment: ${error.message}`)
     }
   }
 
@@ -602,13 +574,17 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
                   <input type="text" name="location" value={searchFormData.location} onChange={(e) => setSearchFormData({ ...searchFormData, location: e.target.value })} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
-                  <input type="text" name="keywords" value={searchFormData.keywords} onChange={(e) => setSearchFormData({ ...searchFormData, keywords: e.target.value })} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" />
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Radius (km)</label>
+                  <input type="number" name="radius" value={searchFormData.radius / 1000} onChange={(e) => setSearchFormData({ ...searchFormData, radius: parseInt(e.target.value) * 1000 })} min="1" max="50" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" placeholder="5" />
                 </div>
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Keywords</label>
+                <input type="text" name="keywords" value={searchFormData.keywords} onChange={(e) => setSearchFormData({ ...searchFormData, keywords: e.target.value })} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-2 text-white focus:ring-2 focus:ring-voyanero-500 outline-none" />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Leads: {searchFormData.targetLeadCount}</label>
-                <input type="range" name="targetLeadCount" value={searchFormData.targetLeadCount} onChange={(e) => setSearchFormData({ ...searchFormData, targetLeadCount: e.target.value })} min="10" max="100" className="w-full accent-voyanero-500" />
+                <input type="range" name="targetLeadCount" value={searchFormData.targetLeadCount} onChange={(e) => setSearchFormData({ ...searchFormData, targetLeadCount: e.target.value })} min="10" max="500" className="w-full accent-voyanero-500" />
               </div>
               <div className="bg-voyanero-500/10 border border-voyanero-500/20 p-4 rounded-xl">
                 <p className="text-voyanero-400 font-bold">Cost: {parseInt(searchFormData.targetLeadCount) || 10} Credits</p>
