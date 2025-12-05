@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyanero Brand Identity - Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+                    },
+                    colors: {
+                        voyanero: {
+                            950: '#000000',
+                            900: '#020408', // Super Deep Background
+                            800: '#0B1121', // Very Dark Card
+                            700: '#151E32',
+                            600: '#2563EB',
+                            500: '#3B82F6', // Primary Blue
+                            400: '#60A5FA',
+                            accent: '#7C3AED', // Deep Purple
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar & Utilities */
+        body {
+            background-color: #020408;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(11, 17, 33, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(11, 17, 33, 0.8);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Grid Pattern Background */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+
+        /* Animation for the signal waves */
+        @keyframes pulse-flow {
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        .animate-flow-1 {
+            animation: pulse-flow 2s infinite ease-in-out;
+            animation-delay: 0s;
+        }
+
+        .animate-flow-2 {
+            animation: pulse-flow 2s infinite ease-in-out;
+            animation-delay: 0.3s;
+        }
+
+        .animate-flow-3 {
+            animation: pulse-flow 2s infinite ease-in-out;
+            animation-delay: 0.6s;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-[#020408] bg-grid selection:bg-voyanero-500 selection:text-white p-4 md:p-12">
+
+    <!-- Header -->
+    <header class="max-w-6xl mx-auto mb-12 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
+            Voyanero<span class="text-voyanero-500">.</span> Brand Identity
+        </h1>
+        <p class="text-slate-400 text-lg">Concept: "The Signal Pilot"</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto space-y-16">
+
+        <!-- MAIN LOGO SHOWCASE -->
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-8 w-8 rounded-full bg-voyanero-500 flex items-center justify-center font-bold text-white">
+                    1</div>
+                <h2 class="text-xl font-bold text-white uppercase tracking-wider">Primary Logo</h2>
+            </div>
+
+            <div class="glass-card rounded-3xl p-10 md:p-20 relative overflow-hidden group flex flex-col items-center">
+
+                <!-- Ambient Backlight -->
+                <div
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-voyanero-600/10 rounded-full blur-[80px] pointer-events-none">
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center gap-6 md:gap-10 relative z-10">
+                    <!-- The Icon (Cleaned up version of your SVG) -->
+                    <div class="w-32 h-32 shrink-0 relative">
+                        <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none"
+                            xmlns="http://www.w3.org/2000/svg" class="drop-shadow-2xl">
+                            <defs>
+                                <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#3B82F6" />
+                                    <stop offset="100%" stop-color="#7C3AED" />
+                                </linearGradient>
+                                <filter id="glowEffect">
+                                    <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#3B82F6"
+                                        flood-opacity="0.5" />
+                                </filter>
+                            </defs>
+
+                            <!-- Signal Waves (Sending Leads) -->
+                            <g transform="translate(5, 0)">
+                                <path class="animate-flow-3" d="M 45 15 Q 65 35, 45 55" fill="none" stroke="#3B82F6"
+                                    stroke-width="4" stroke-linecap="round" opacity="0.3" />
+                                <path class="animate-flow-2" d="M 52 20 Q 68 35, 52 50" fill="none" stroke="#3B82F6"
+                                    stroke-width="4" stroke-linecap="round" opacity="0.5" />
+                                <path class="animate-flow-1" d="M 59 25 Q 70 35, 59 45" fill="none" stroke="#60A5FA"
+                                    stroke-width="4" stroke-linecap="round" opacity="0.8" />
+                            </g>
+
+                            <!-- The Pilot Arrow (The Engine) -->
+                            <!-- Adjusted points slightly for perfect centering -->
+                            <path d="M 10 20 L 40 35 L 10 50 L 20 35 Z" fill="url(#mainGrad)" filter="url(#glowEffect)"
+                                transform="translate(0, 0)" />
+
+                            <!-- The Target Node (The Conversion) -->
+                            <circle cx="75" cy="35" r="6" fill="#7C3AED" class="animate-pulse">
+                                <animate attributeName="r" values="6;7;6" dur="2s" repeatCount="indefinite" />
+                            </circle>
+                        </svg>
+                    </div>
+
+                    <!-- Text Lockup -->
+                    <div class="flex flex-col md:items-start items-center text-center md:text-left">
+                        <div class="text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-2 leading-none">
+                            Voyanero
+                        </div>
+                        <div class="flex items-center gap-3 w-full justify-center md:justify-start">
+                            <div class="h-px bg-gradient-to-r from-voyanero-500 to-transparent w-16"></div>
+                            <span class="text-sm font-bold text-slate-300 tracking-[0.25em] uppercase">B2B Leads auf
+                                Autopilot</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- APPLICATION EXAMPLES -->
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div
+                    class="h-8 w-8 rounded-full bg-voyanero-800 border border-voyanero-600 flex items-center justify-center font-bold text-white">
+                    2</div>
+                <h2 class="text-xl font-bold text-white uppercase tracking-wider">App Icons & Favicons</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- iOS / App Icon Style -->
+                <div class="glass-card p-8 rounded-3xl flex flex-col items-center gap-4">
+                    <span class="text-xs text-slate-400 uppercase tracking-widest">App Icon</span>
+                    <div
+                        class="w-24 h-24 bg-[#0B1121] rounded-[22px] flex items-center justify-center relative overflow-hidden shadow-2xl border border-white/10 group">
+                        <!-- Background Glow -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-voyanero-900 via-[#0B1121] to-[#020408]">
+                        </div>
+
+                        <!-- Icon Centered -->
+                        <svg width="60" height="60" viewBox="0 0 100 70" fill="none"
+                            class="relative z-10 transform translate-y-1">
+                            <defs>
+                                <linearGradient id="appGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#3B82F6" />
+                                    <stop offset="100%" stop-color="#7C3AED" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 45 15 Q 65 35, 45 55" fill="none" stroke="#3B82F6" stroke-width="5"
+                                stroke-linecap="round" opacity="0.4" />
+                            <path d="M 55 20 Q 70 35, 55 50" fill="none" stroke="#60A5FA" stroke-width="5"
+                                stroke-linecap="round" opacity="0.8" />
+                            <path d="M 10 20 L 40 35 L 10 50 L 22 35 Z" fill="url(#appGrad)" />
+                            <circle cx="75" cy="35" r="7" fill="#7C3AED" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Favicon (Small Scale) -->
+                <div class="glass-card p-8 rounded-3xl flex flex-col items-center gap-4">
+                    <span class="text-xs text-slate-400 uppercase tracking-widest">Favicon (16/32px)</span>
+                    <div class="flex items-center gap-4">
+                        <!-- 32px Simulation -->
+                        <div
+                            class="w-8 h-8 bg-voyanero-900 rounded border border-slate-700 flex items-center justify-center">
+                            <svg width="20" height="20" viewBox="0 0 100 70" fill="none">
+                                <path d="M 10 20 L 40 35 L 10 50 L 22 35 Z" fill="#3B82F6" />
+                                <circle cx="75" cy="35" r="10" fill="#7C3AED" />
+                            </svg>
+                        </div>
+                        <!-- Browser Tab Simulation -->
+                        <div
+                            class="bg-slate-800 px-3 py-2 rounded-t-lg flex items-center gap-2 border-b border-voyanero-500 w-40">
+                            <div class="w-4 h-4 rounded-sm bg-voyanero-600 flex items-center justify-center">
+                                <svg width="10" height="10" viewBox="0 0 100 70" fill="none">
+                                    <path d="M 5 20 L 35 35 L 5 50 Z" fill="white" />
+                                    <circle cx="75" cy="35" r="12" fill="white" />
+                                </svg>
+                            </div>
+                            <div class="h-2 w-20 bg-slate-600 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Light Mode Version -->
+                <div class="glass-card p-8 rounded-3xl flex flex-col items-center gap-4 bg-white/90">
+                    <span class="text-xs text-slate-500 uppercase tracking-widest">Light Mode</span>
+                    <div class="flex items-center gap-3">
+                        <svg width="40" height="40" viewBox="0 0 100 70" fill="none">
+                            <path d="M 45 15 Q 65 35, 45 55" fill="none" stroke="#2563EB" stroke-width="5"
+                                stroke-linecap="round" opacity="0.3" /> <!-- Darker Blue Stroke -->
+                            <path d="M 55 20 Q 70 35, 55 50" fill="none" stroke="#3B82F6" stroke-width="5"
+                                stroke-linecap="round" opacity="0.8" />
+                            <path d="M 10 20 L 40 35 L 10 50 L 22 35 Z" fill="#2563EB" /> <!-- Darker Brand Blue -->
+                            <circle cx="75" cy="35" r="7" fill="#7C3AED" />
+                        </svg>
+                        <span class="text-2xl font-extrabold text-slate-900">Voyanero</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- COLOR PALETTE (Reference) -->
+        <section>
+            <div class="flex items-center gap-4 mb-6">
+                <div
+                    class="h-8 w-8 rounded-full bg-voyanero-800 border border-voyanero-600 flex items-center justify-center font-bold text-white">
+                    3</div>
+                <h2 class="text-xl font-bold text-white uppercase tracking-wider">Palette Reference</h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="p-4 rounded-xl bg-voyanero-500 text-white text-xs font-mono">
+                    <strong>Primary</strong><br>#3B82F6
+                </div>
+                <div class="p-4 rounded-xl bg-voyanero-600 text-white text-xs font-mono">
+                    <strong>Hover</strong><br>#2563EB
+                </div>
+                <div class="p-4 rounded-xl bg-voyanero-accent text-white text-xs font-mono">
+                    <strong>Accent</strong><br>#7C3AED
+                </div>
+                <div class="p-4 rounded-xl bg-voyanero-900 text-white text-xs font-mono border border-slate-800">
+                    <strong>Bg Main</strong><br>#020408
+                </div>
+                <div class="p-4 rounded-xl bg-voyanero-800 text-white text-xs font-mono border border-slate-700">
+                    <strong>Card</strong><br>#0B1121
+                </div>
+            </div>
+        </section>
+
+    </main>
+</body>
+
+</html>

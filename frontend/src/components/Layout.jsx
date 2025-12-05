@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { BookOpen, LogOut, LayoutDashboard, FolderKanban, CreditCard, Settings as SettingsIcon, Users, Menu, X, ChevronLeft, ChevronRight, Search, Bell, Coins } from 'lucide-react'
 import DarkModeToggle from './DarkModeToggle'
 import Footer from './Footer'
+import VoyaneroLogo from './VoyaneroLogo'
 import { signOut } from '../lib/supabase'
 
 export default function Layout({ children, onNavigate, currentPage, user, title, subtitle, actions }) {
@@ -35,8 +36,8 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                 {/* Public Header */}
                 <header className="fixed top-0 left-0 right-0 z-50 bg-voyanero-900/80 backdrop-blur-md border-b border-white/5 px-4 md:px-8 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('login')}>
-                        <div className="w-10 h-10 bg-gradient-to-br from-voyanero-500 to-blue-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-voyanero-500/20">
-                            V
+                        <div className="w-12 h-12 flex items-center justify-center">
+                            <VoyaneroLogo size={48} animated={true} />
                         </div>
                         <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                             Voyanero
@@ -82,7 +83,9 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
             {/* Mobile Header */}
             <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-voyanero-900/80 backdrop-blur-md border-b border-white/5 px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-                    <div className="w-8 h-8 bg-voyanero-500 rounded-lg flex items-center justify-center font-bold text-white">V</div>
+                    <div className="w-10 h-10 flex items-center justify-center">
+                        <VoyaneroLogo size={40} animated={true} />
+                    </div>
                     <span className="font-bold text-lg text-white">Voyanero</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -141,8 +144,8 @@ export default function Layout({ children, onNavigate, currentPage, user, title,
                     {/* Logo Area */}
                     <div className="h-20 flex items-center justify-center border-b border-white/5 relative">
                         <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-                            <div className="w-10 h-10 bg-gradient-to-br from-voyanero-500 to-blue-600 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-lg shadow-voyanero-500/20">
-                                V
+                            <div className="w-12 h-12 flex items-center justify-center">
+                                <VoyaneroLogo size={48} animated={true} />
                             </div>
                             {isSidebarOpen && (
                                 <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">

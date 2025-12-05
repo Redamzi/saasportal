@@ -18,12 +18,45 @@
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
   @apply bg-voyanero-900;
 }
+
 ::-webkit-scrollbar-thumb {
   @apply bg-voyanero-800 rounded-full border border-white/10;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-voyanero-500/50;
+}
+
+/* Voyanero Logo Animations */
+@keyframes pulse-flow {
+  0% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse-flow-1 {
+  animation: pulse-flow 2s infinite ease-in-out;
+  animation-delay: 0s;
+}
+
+.animate-pulse-flow-2 {
+  animation: pulse-flow 2s infinite ease-in-out;
+  animation-delay: 0.3s;
+}
+
+.animate-pulse-flow-3 {
+  animation: pulse-flow 2s infinite ease-in-out;
+  animation-delay: 0.6s;
 }
