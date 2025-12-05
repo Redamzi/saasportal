@@ -25,6 +25,10 @@ function CampaignDetail({ campaignId, onNavigate }) {
   const [manualEmail, setManualEmail] = useState('')
   const [showEmailConfigModal, setShowEmailConfigModal] = useState(false)
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 25
+
   const DEFAULT_EMAIL_PROMPT = `Schreibe eine personalisierte B2B-Akquise-Email für {company_name}. Der Absender ist {user_name} von {user_company}.
 
 Verfügbare Informationen:
@@ -456,105 +460,164 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
           </div>
         ) : (
           <div className="divide-y divide-white/5">
-            {leads.map((lead) => {
-              const isExpanded = expandedLead === lead.id
-              const isManualEmail = lead.email_source === 'manual_user'
+            {(() => {
+              // Pagination calculations
+              const totalPages = Math.ceil(leads.length / itemsPerPage)
+              const startIndex = (currentPage - 1) * itemsPerPage
+              const endIndex = startIndex + itemsPerPage
+              const paginatedLeads = leads.slice(startIndex, endIndex)
 
-              return (
-                <div key={lead.id} className={`transition-all hover:bg-white/5 ${isExpanded ? 'bg-white/5' : ''}`}>
-                  <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                      <div>
-                        <p className="font-bold text-white flex items-center gap-2">
-                          {lead.company_name || lead.name || 'No Name'}
-                          {lead.email_source === 'outscraper' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">OUT</span>}
-                          {lead.email_source === 'impressum_crawler' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">IMP</span>}
-                          {lead.email_source === 'manual_user' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">MAN</span>}
-                          {(() => {
-                            const email = generatedEmails.find(e => e.lead_id === lead.id)
-                            if (!email) return null
+              return paginatedLeads.map((lead) => {
+                const isExpanded = expandedLead === lead.id
+                const isManualEmail = lead.email_source === 'manual_user'
 
-                            return (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setSelectedEmail(email)
-                                  setSelectedEmailLead(lead)
-                                  setShowEmailPreviewModal(true)
-                                }}
-                                className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 ${email.edited_by_user
-                                  ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
-                                  : 'bg-voyanero-500/20 text-voyanero-400 hover:bg-voyanero-500/30'
-                                  } transition`}
-                              >
-                                <Mail size={12} />
-                                {email.edited_by_user ? 'Edited' : 'AI'}
-                              </button>
-                            )
-                          })()}
-                        </p>
-                      </div>
-                      <div className="text-gray-400 text-sm flex items-center gap-2">
-                        {lead.phone ? <><Phone size={14} /> {lead.phone}</> : <span className="text-gray-600">No Phone</span>}
-                      </div>
-                      <div className="text-gray-400 text-sm flex items-center gap-2">
-                        {lead.email ? (
-                          <>
-                            <Mail size={14} />
-                            <span className="truncate max-w-[150px]">{lead.email}</span>
-                            {lead.email_verified ? <Check size={14} className="text-emerald-500" /> : <AlertTriangle size={14} className="text-amber-500" />}
-                          </>
-                        ) : (
-                          <button onClick={(e) => { e.stopPropagation(); handleOpenEmailModal(lead) }} className="text-voyanero-500 hover:text-voyanero-400 font-bold flex items-center gap-1">
-                            <Plus size={14} /> Add Email
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex justify-end gap-3 items-center">
-                        <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider border ${lead.status === 'contacted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
-                          lead.status === 'converted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                            lead.status === 'invalid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-                              'bg-gray-500/10 text-gray-400 border-gray-500/20'
-                          }`}>
-                          {lead.status || 'new'}
-                        </span>
-                        {isExpanded ? <ChevronDown size={20} className="text-gray-500" /> : <ChevronRight size={20} className="text-gray-500" />}
+                return (
+                  <div key={lead.id} className={`transition-all hover:bg-white/5 ${isExpanded ? 'bg-white/5' : ''}`}>
+                    <div className="p-4 flex items-center justify-between cursor-pointer" onClick={() => setExpandedLead(isExpanded ? null : lead.id)}>
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        <div>
+                          <p className="font-bold text-white flex items-center gap-2">
+                            {lead.company_name || lead.name || 'No Name'}
+                            {lead.email_source === 'outscraper' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">OUT</span>}
+                            {lead.email_source === 'impressum_crawler' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">IMP</span>}
+                            {lead.email_source === 'manual_user' && <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">MAN</span>}
+                            {(() => {
+                              const email = generatedEmails.find(e => e.lead_id === lead.id)
+                              if (!email) return null
+
+                              return (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSelectedEmail(email)
+                                    setSelectedEmailLead(lead)
+                                    setShowEmailPreviewModal(true)
+                                  }}
+                                  className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 ${email.edited_by_user
+                                    ? 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
+                                    : 'bg-voyanero-500/20 text-voyanero-400 hover:bg-voyanero-500/30'
+                                    } transition`}
+                                >
+                                  <Mail size={12} />
+                                  {email.edited_by_user ? 'Edited' : 'AI'}
+                                </button>
+                              )
+                            })()}
+                          </p>
+                        </div>
+                        <div className="text-gray-400 text-sm flex items-center gap-2">
+                          {lead.phone ? <><Phone size={14} /> {lead.phone}</> : <span className="text-gray-600">No Phone</span>}
+                        </div>
+                        <div className="text-gray-400 text-sm flex items-center gap-2">
+                          {lead.email ? (
+                            <>
+                              <Mail size={14} />
+                              <span className="truncate max-w-[150px]">{lead.email}</span>
+                              {lead.email_verified ? <Check size={14} className="text-emerald-500" /> : <AlertTriangle size={14} className="text-amber-500" />}
+                            </>
+                          ) : (
+                            <button onClick={(e) => { e.stopPropagation(); handleOpenEmailModal(lead) }} className="text-voyanero-500 hover:text-voyanero-400 font-bold flex items-center gap-1">
+                              <Plus size={14} /> Add Email
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex justify-end gap-3 items-center">
+                          <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider border ${lead.status === 'contacted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' :
+                            lead.status === 'converted' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                              lead.status === 'invalid' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                                'bg-gray-500/10 text-gray-400 border-gray-500/20'
+                            }`}>
+                            {lead.status || 'new'}
+                          </span>
+                          {isExpanded ? <ChevronDown size={20} className="text-gray-500" /> : <ChevronRight size={20} className="text-gray-500" />}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {isExpanded && (
-                    <div className="px-6 pb-6 pt-2 border-t border-white/5 bg-black/20">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                          <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Details</h4>
-                          <dl className="space-y-3 text-sm">
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                              <dt className="text-gray-500">Address</dt>
-                              <dd className="text-gray-300 text-right">{lead.address || '-'}</dd>
+                    {isExpanded && (
+                      <div className="px-6 pb-6 pt-2 border-t border-white/5 bg-black/20">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div>
+                            <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Details</h4>
+                            <dl className="space-y-3 text-sm">
+                              <div className="flex justify-between border-b border-white/5 pb-2">
+                                <dt className="text-gray-500">Address</dt>
+                                <dd className="text-gray-300 text-right">{lead.address || '-'}</dd>
+                              </div>
+                              <div className="flex justify-between border-b border-white/5 pb-2">
+                                <dt className="text-gray-500">Website</dt>
+                                <dd className="text-gray-300 text-right">
+                                  {lead.website ? <a href={lead.website} target="_blank" className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Globe size={12} /> {lead.website}</a> : '-'}
+                                </dd>
+                              </div>
+                            </dl>
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Actions</h4>
+                            <div className="flex flex-wrap gap-3">
+                              <button onClick={() => updateLeadStatus(lead.id, 'contacted')} className="px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-lg hover:bg-yellow-500/20 text-sm font-bold">Mark Contacted</button>
+                              <button onClick={() => updateLeadStatus(lead.id, 'invalid')} className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-sm font-bold">Mark Invalid</button>
+                              <button onClick={() => handleDeleteLead(lead.id, lead.company_name)} className="px-4 py-2 bg-white/5 text-gray-400 border border-white/10 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-sm font-bold ml-auto flex items-center gap-2"><Trash2 size={14} /> Delete</button>
                             </div>
-                            <div className="flex justify-between border-b border-white/5 pb-2">
-                              <dt className="text-gray-500">Website</dt>
-                              <dd className="text-gray-300 text-right">
-                                {lead.website ? <a href={lead.website} target="_blank" className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Globe size={12} /> {lead.website}</a> : '-'}
-                              </dd>
-                            </div>
-                          </dl>
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Actions</h4>
-                          <div className="flex flex-wrap gap-3">
-                            <button onClick={() => updateLeadStatus(lead.id, 'contacted')} className="px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 rounded-lg hover:bg-yellow-500/20 text-sm font-bold">Mark Contacted</button>
-                            <button onClick={() => updateLeadStatus(lead.id, 'invalid')} className="px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20 text-sm font-bold">Mark Invalid</button>
-                            <button onClick={() => handleDeleteLead(lead.id, lead.company_name)} className="px-4 py-2 bg-white/5 text-gray-400 border border-white/10 rounded-lg hover:bg-red-500/10 hover:text-red-400 text-sm font-bold ml-auto flex items-center gap-2"><Trash2 size={14} /> Delete</button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+                    )}
+                  </div>
+                )
+              })
+            })()}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {leads.length > itemsPerPage && (
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-[#0B1121]/60 backdrop-blur-md border border-white/5 rounded-2xl">
+            <div className="text-sm text-gray-400">
+              Zeige {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, leads.length)} von {leads.length} Leads
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition"
+              >
+                ← Zurück
+              </button>
+
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const totalPages = Math.ceil(leads.length / itemsPerPage)
+                  const pages = []
+
+                  for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        onClick={() => setCurrentPage(i)}
+                        className={`px-3 py-2 rounded-lg font-medium transition ${i === currentPage
+                            ? 'bg-voyanero-500 text-white'
+                            : 'bg-white/5 hover:bg-white/10 text-white'
+                          }`}
+                      >
+                        {i}
+                      </button>
+                    )
+                  }
+
+                  return pages
+                })()}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(Math.ceil(leads.length / itemsPerPage), prev + 1))}
+                disabled={currentPage === Math.ceil(leads.length / itemsPerPage)}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-medium transition"
+              >
+                Weiter →
+              </button>
+            </div>
           </div>
         )}
       </div>
