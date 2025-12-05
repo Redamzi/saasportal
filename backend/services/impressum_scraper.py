@@ -8,6 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import re
+import json
 from typing import Optional, List, Dict
 from services.email_verifier import get_email_verifier
 import time
@@ -255,7 +256,6 @@ class ImpressumScraper:
             schema_scripts = soup.find_all('script', type='application/ld+json')
             for script in schema_scripts:
                 try:
-                    import json
                     schema_data = json.loads(script.string)
                     # Extract relevant fields
                     if isinstance(schema_data, dict):
