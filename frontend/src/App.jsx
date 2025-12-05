@@ -44,6 +44,15 @@ function App() {
 
         // Handle deep links
         if (path === '/campaigns') setCurrentPage('campaigns')
+        else if (path.startsWith('/campaigns/')) {
+          const campaignId = path.split('/campaigns/')[1]
+          if (campaignId) {
+            setCurrentPage('campaignDetail')
+            setPageData({ campaignId })
+          } else {
+            setCurrentPage('campaigns')
+          }
+        }
         else if (path === '/contacts') setCurrentPage('contacts')
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
@@ -93,6 +102,7 @@ function App() {
     let path = '/login'
     if (currentPage === 'dashboard') path = '/dashboard'
     else if (currentPage === 'campaigns') path = '/campaigns'
+    else if (currentPage === 'campaignDetail' && pageData?.campaignId) path = `/campaigns/${pageData.campaignId}`
     else if (currentPage === 'contacts') path = '/contacts'
     else if (currentPage === 'credits') path = '/credits'
     else if (currentPage === 'settings') path = '/settings'
@@ -117,6 +127,15 @@ function App() {
       if (isAuthenticated) {
         if (path === '/dashboard') setCurrentPage('dashboard')
         else if (path === '/campaigns') setCurrentPage('campaigns')
+        else if (path.startsWith('/campaigns/')) {
+          const campaignId = path.split('/campaigns/')[1]
+          if (campaignId) {
+            setCurrentPage('campaignDetail')
+            setPageData({ campaignId })
+          } else {
+            setCurrentPage('campaigns')
+          }
+        }
         else if (path === '/contacts') setCurrentPage('contacts')
         else if (path === '/credits') setCurrentPage('credits')
         else if (path === '/settings') setCurrentPage('settings')
