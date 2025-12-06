@@ -547,18 +547,18 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} W√∂rter. Trenne alle Abs√
                             <h4 className="font-bold text-gray-300 mb-4 text-xs uppercase tracking-wider">Details</h4>
                             <dl className="space-y-3 text-sm">
                               <div className="flex justify-between border-b border-white/5 pb-2">
-                                <dt className="text-gray-500">Address</dt>
-                                <dd className="text-gray-300 text-right">{lead.address || '-'}</dd>
+                                <dt className="text-gray-500 text-xs">Address</dt>
+                                <dd className="text-gray-300 text-right text-xs">{lead.address || '-'}</dd>
                               </div>
                               <div className="flex justify-between border-b border-white/5 pb-2">
-                                <dt className="text-gray-500">Website</dt>
-                                <dd className="text-gray-300 text-right">
+                                <dt className="text-gray-500 text-xs">Website</dt>
+                                <dd className="text-gray-300 text-right text-xs">
                                   {lead.website ? <a href={lead.website} target="_blank" className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Globe size={12} /> {lead.website}</a> : '-'}
                                 </dd>
                               </div>
                               <div className="flex justify-between border-b border-white/5 pb-2">
-                                <dt className="text-gray-500">Telefon</dt>
-                                <dd className="text-gray-300 text-right">
+                                <dt className="text-gray-500 text-xs">Telefon</dt>
+                                <dd className="text-gray-300 text-right text-xs">
                                   {lead.phone ? <a href={`tel:${lead.phone}`} className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Phone size={12} /> {lead.phone}</a> : '-'}
                                 </dd>
                               </div>
