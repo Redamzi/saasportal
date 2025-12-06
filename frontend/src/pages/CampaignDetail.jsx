@@ -562,6 +562,14 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
                                   {lead.phone ? <a href={`tel:${lead.phone}`} className="text-voyanero-400 hover:text-voyanero-300 flex items-center gap-1 justify-end"><Phone size={12} /> {lead.phone}</a> : '-'}
                                 </dd>
                               </div>
+                              {lead.about_text && (
+                                <div className="mt-4">
+                                  <dt className="text-gray-500 text-xs mb-2">Über das Unternehmen</dt>
+                                  <dd className="text-gray-400 text-xs bg-white/5 p-3 rounded border border-white/5 max-h-32 overflow-y-auto custom-scrollbar">
+                                    {lead.about_text}
+                                  </dd>
+                                </div>
+                              )}
                             </dl>
                           </div>
                           <div>
@@ -601,14 +609,6 @@ Jeder Absatz maximal drei Zeilen. Maximal {word_count} Wörter. Trenne alle Abs�
                                   {lead.services ? lead.services.slice(0, 100) + (lead.services.length > 100 ? '...' : '') : '-'}
                                 </dd>
                               </div>
-                              {lead.about_text && (
-                                <div>
-                                  <dt className="text-gray-500 text-xs mb-1">Über das Unternehmen</dt>
-                                  <dd className="text-gray-400 text-xs bg-white/5 p-2 rounded border border-white/5 h-20 overflow-y-auto custom-scrollbar">
-                                    {lead.about_text}
-                                  </dd>
-                                </div>
-                              )}
                             </dl>
                           </div>
                         </div>
