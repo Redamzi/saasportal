@@ -16,6 +16,7 @@ class CampaignCreate(BaseModel):
     name: str
     description: Optional[str] = None
     type: str
+    email_config: Optional[dict] = {}
 
 class CrawlRequest(BaseModel):
     campaign_id: str
@@ -344,6 +345,7 @@ async def create_campaign(campaign: CampaignCreate):
         "name": campaign.name,
         "description": campaign.description,
         "type": campaign.type,
+        "email_config": campaign.email_config,
         "status": "draft"
     }
     
