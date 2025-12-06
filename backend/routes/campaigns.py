@@ -232,6 +232,17 @@ async def crawl_with_outscraper(campaign_id: str, user_id: str, request: CrawlRe
                     print(f"📧 Deep Scraper found email for {result['url']}: {result['email']} {verified_status}")
             
             print(f"✅ Deep Scraper finished. Found {found_count} additional emails.")
+            
+            # Deduct credits for enrichment (0.5 credit per found email)
+            if found_count > 0:
+                enrichment_cost = found_count * 0.5
+                print(f"💳 Deducting {enrichment_cost} credits for {found_count} enriched emails")
+                supabase.rpc('deduct_credits', {
+                    'p_user_id': user_id,
+                    'p_amount': enrichment_cost,
+                    'p_description': f'Email enrichment for {found_count} leads in campaign {campaign_id}',
+                    'p_metadata': {'campaign_id': campaign_id, 'enrichment_count': found_count, 'source': 'impressum_crawler'}
+                }).execute()
         else:
             print("✨ All leads already have emails (or no websites). Skipping Deep Scraper.")
             
